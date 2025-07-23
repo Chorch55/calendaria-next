@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button"
+import Link from 'next/link'
 
 export default function Home() {
   return (
@@ -25,6 +26,9 @@ export default function Home() {
             Save and see your changes instantly.
           </li>
         </ol>
+        <Link href="/events" className="px-4 py-2 hover:underline">
+          Mis eventos
+        </Link>
         <div>
           <Button>Click me</Button>
         </div>
