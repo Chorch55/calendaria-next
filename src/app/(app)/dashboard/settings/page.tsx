@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { Mail, MessageSquare, UserCircle, Building, Briefcase, Save, Wifi, WifiOff, Link as LinkIcon, Palette, Sun, Moon, Monitor, Phone, Paintbrush, ArrowUp, ArrowDown, GripVertical, Bell, Baseline, Globe, ArrowUpCircle, ArrowDownCircle, Users, UserCog, PlusCircle, Trash2, Edit, FolderInput, ChevronsUpDown, Unlink, Camera, User } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -40,7 +40,6 @@ const initialUserData = {
 };
 
 export default function SettingsPage() {
-  const { toast } = useToast();
   const [userData, setUserData] = useState(initialUserData);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -64,7 +63,7 @@ export default function SettingsPage() {
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => { setUserData({ ...userData, [e.target.name]: e.target.value }); };
   const handleAppSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => { updateAppSettings({ [e.target.name]: e.target.value }); };
-  const saveProfile = () => { toast({ title: t('profile_updated'), description: t('profile_updated_desc') }); setIsEditingProfile(false); };
+  const saveProfile = () => { toast.success(t('profile_updated'), { description: t('profile_updated_desc') }); setIsEditingProfile(false); };
   
   const handleToggleConnection = (service: keyof typeof connections) => {
     const currentServiceState = connections[service];
@@ -79,7 +78,11 @@ export default function SettingsPage() {
         }
     }
     updateConnection(service, { connected: newStatus, account: newAccount });
-    toast({ title: `${service.charAt(0).toUpperCase() + service.slice(1)} Connection ${newStatus ? 'Established' : 'Removed'}` });
+    const title = 
+      `${service.charAt(0).toUpperCase() + service.slice(1)} Connection ` +
+      (newStatus ? "Established" : "Removed");
+
+    toast.success(title);
   };
 
   const fontSizes = [80, 85, 90, 95, 100, 105, 110, 115, 120];
@@ -172,8 +175,7 @@ export default function SettingsPage() {
                       size="icon" 
                       variant="outline" 
                       className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-background hover:bg-muted"
-                      onClick={() => toast({ title: 'Feature in development', description: 'Avatar upload will be available soon.'})}
-                    >
+                      onClick={() => toast.info("Feature in development", { description: "Avatar upload will be available soon." })}>
                       <Camera className="h-4 w-4" />
                       <span className="sr-only">Change avatar</span>
                     </Button>
@@ -281,10 +283,23 @@ export default function SettingsPage() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
                 {languages.map((lang) => (
-                    <DropdownMenuItem key={lang.code} onSelect={() => { updateAppSettings({ language: lang.code }); toast({ title: translations[lang.code]?.languageUpdated || translations.en.languageUpdated, description: translations[lang.code]?.languageSetTo || translations.en.languageSetTo, duration: 5000 });}}>
-                        <span className="text-xl mr-3">{lang.flag}</span>
-                        <span>{lang.name}</span>
-                    </DropdownMenuItem>
+                  <DropdownMenuItem
+                    key={lang.code}
+                    onSelect={() => {
+                      updateAppSettings({ language: lang.code });
+                      toast.success(
+                        translations[lang.code]?.languageUpdated || translations.en.languageUpdated,
+                        {
+                          description:
+                            translations[lang.code]?.languageSetTo || translations.en.languageSetTo,
+                          duration: 5000,
+                        }
+                      );
+                    }}
+                  >
+                    <span className="text-xl mr-3">{lang.flag}</span>
+                    <span>{lang.name}</span>
+                  </DropdownMenuItem>
                 ))}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -364,15 +379,15 @@ export default function SettingsPage() {
 // --- COMPONENTS FOR SETTINGS PAGE ---
 
 const NavCustomizationList = ({ title, listKey, items, allNavItems, t, appSettings, updateAppSettings, onOpenGroupDialog }: any) => {
-    const { toast } = useToast();
-
     const handleReorder = (newList: (string | CustomNavGroup)[]) => {
         if (listKey === 'topNavOrder') {
             updateAppSettings({ topNavOrder: newList });
         } else {
             updateAppSettings({ bottomNavOrder: newList });
         }
-        toast({ title: t('sidebar_order_updated'), duration: 5000 });
+        toast.success(t('sidebar_order_updated'), {
+          duration: 5000
+        });
     };
 
     const handleMoveItem = (itemId: string, direction: 'up' | 'down') => {
@@ -404,7 +419,9 @@ const NavCustomizationList = ({ title, listKey, items, allNavItems, t, appSettin
         }
 
         updateAppSettings({topNavOrder: newTop, bottomNavOrder: newBottom});
-        toast({ title: t('sidebar_order_updated'), duration: 5000 });
+        toast.success(t('sidebar_order_updated'), {
+          duration: 5000
+        });
     };
     
     const handleDeleteGroup = (groupToDelete: CustomNavGroup) => {
@@ -425,7 +442,9 @@ const NavCustomizationList = ({ title, listKey, items, allNavItems, t, appSettin
         const newBottomOrder = updateList(appSettings.bottomNavOrder);
         
         updateAppSettings({ topNavOrder: newTopOrder, bottomNavOrder: newBottomOrder });
-        toast({ title: t('group_deleted'), variant: 'destructive', duration: 5000 });
+        toast.error(t('group_deleted'), {
+          duration: 5000
+        });
     };
 
     const onDropToGroup = (group: CustomNavGroup, droppedItemId: string) => {
@@ -453,7 +472,10 @@ const NavCustomizationList = ({ title, listKey, items, allNavItems, t, appSettin
         newBottomOrder = updateGroupInList(newBottomOrder);
 
         updateAppSettings({ topNavOrder: newTopOrder, bottomNavOrder: newBottomOrder });
-        toast({ title: `${t('move_to_group')} "${group.name}"`, duration: 5000 });
+        toast.success(
+          `${t('move_to_group')} "${group.name}"`,
+          { duration: 5000 }
+        );
     };
 
     return (
@@ -537,7 +559,6 @@ const SimpleNavItem = ({ itemId, item, updateAppSettings, t, appSettings, listKe
 const GroupNavItem = ({ group, allNavItems, appSettings, updateAppSettings, t, onOpenGroupDialog, onDeleteGroup, onDropToGroup }: any) => {
     const controls = useDragControls();
     const [isDropTarget, setIsDropTarget] = useState(false);
-    const { toast } = useToast();
 
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
@@ -562,7 +583,9 @@ const GroupNavItem = ({ group, allNavItems, appSettings, updateAppSettings, t, o
       const newTop = appSettings.topNavOrder.map((i: any) => (typeof i !== 'string' && i.id === group.id) ? { ...i, children: newList } : i);
       const newBottom = appSettings.bottomNavOrder.map((i: any) => (typeof i !== 'string' && i.id === group.id) ? { ...i, children: newList } : i);
       updateAppSettings({ topNavOrder: newTop, bottomNavOrder: newBottom });
-      toast({ title: t('sidebar_order_updated'), duration: 5000 });
+      toast.success(t('sidebar_order_updated'), {
+        duration: 5000
+      });
     }
 
     const handleUnGroup = (childId: string) => {
@@ -583,7 +606,9 @@ const GroupNavItem = ({ group, allNavItems, appSettings, updateAppSettings, t, o
         }
         
         updateAppSettings({ topNavOrder: newTopOrder, bottomNavOrder: newBottomOrder });
-        toast({ title: t('sidebar_order_updated'), duration: 5000 });
+        toast.success(t('sidebar_order_updated'), {
+          duration: 5000
+        });
     };
     
     const openEditDialog = () => { onOpenGroupDialog(group); }
@@ -660,11 +685,12 @@ const GroupNavItem = ({ group, allNavItems, appSettings, updateAppSettings, t, o
 const GroupEditorDialog = ({ isOpen, setIsOpen, group, updateAppSettings, appSettings, t, targetList }: any) => {
     const [name, setName] = useState(group?.name || '');
     const [icon, setIcon] = useState<GroupIconName>(group?.icon || 'Briefcase');
-    const { toast } = useToast();
 
     const handleSave = () => {
         if (!name.trim()) {
-            toast({ title: t('group_name_required'), variant: "destructive", duration: 5000 });
+            toast.error(t('group_name_required'), {
+              duration: 5000
+            });
             return;
         }
 
@@ -672,7 +698,9 @@ const GroupEditorDialog = ({ isOpen, setIsOpen, group, updateAppSettings, appSet
             const newTop = appSettings.topNavOrder.map((i: any) => (typeof i !== 'string' && i.id === group.id) ? { ...i, name, icon } : i);
             const newBottom = appSettings.bottomNavOrder.map((i: any) => (typeof i !== 'string' && i.id === group.id) ? { ...i, name, icon } : i);
             updateAppSettings({ topNavOrder: newTop, bottomNavOrder: newBottom });
-            toast({ title: t('group_updated'), duration: 5000 });
+            toast.success(t('group_updated'), {
+              duration: 5000
+            });
         } else { // Creating new group
             const newGroup: CustomNavGroup = {
                 id: `custom-${Date.now()}`,
@@ -686,7 +714,9 @@ const GroupEditorDialog = ({ isOpen, setIsOpen, group, updateAppSettings, appSet
             } else {
                  updateAppSettings({ bottomNavOrder: [...appSettings.bottomNavOrder, newGroup] });
             }
-            toast({ title: t('group_created'), duration: 5000 });
+            toast.success(t('group_updated'), {
+              duration: 5000
+            });
         }
         setIsOpen(false);
     };

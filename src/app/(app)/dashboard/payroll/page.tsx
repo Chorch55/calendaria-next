@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FileDigit, Users, MoreHorizontal, DollarSign, History, Save, TrendingUp, TrendingDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { getMockRoles } from '../roles/page';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -45,7 +45,6 @@ const initialPayrollData: PayrollData[] = [
 const availableRoles = getMockRoles();
 
 export default function PayrollPage() {
-  const { toast } = useToast();
   const [payroll, setPayroll] = useState<PayrollData[]>(initialPayrollData);
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -73,13 +72,17 @@ export default function PayrollPage() {
 
   const handleSaveSalary = () => {
     if (!selectedMember || !newSalary || !changeReason.trim()) {
-        toast({ title: "Error", description: "New salary and a reason for the change are required.", variant: "destructive" });
+        toast.error("Error", {
+          description: "New salary and a reason for the change are required."
+        });
         return;
     }
     const salaryAmount = typeof newSalary === 'string' ? parseFloat(newSalary) : newSalary;
     if (isNaN(salaryAmount) || salaryAmount <= 0) {
-        toast({ title: "Error", description: "Please enter a valid salary amount.", variant: "destructive" });
-        return;
+      toast.error("Error", {
+        description: "Please enter a valid salary amount."
+      });
+      return;
     }
     
     setPayroll(prev => prev.map(member => {
@@ -100,7 +103,9 @@ export default function PayrollPage() {
         return member;
     }));
     
-    toast({ title: "Salary Updated", description: `Salary for ${selectedMember.name} has been updated.` });
+    toast.success("Salary Updated", {
+      description: `Salary for ${selectedMember.name} has been updated.`
+    });
     setIsEditDialogOpen(false);
   };
   

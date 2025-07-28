@@ -6,11 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 
 export default function ContactPage() {
-  const { toast } = useToast();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
@@ -20,8 +19,7 @@ export default function ContactPage() {
     e.preventDefault();
     // TODO: Implement actual contact form submission logic
     console.log({ name, email, company, message });
-    toast({
-      title: "Message Sent!",
+    toast.success("Message Sent!", {
       description: "Thank you for contacting us. We'll get back to you shortly.",
     });
     setName('');

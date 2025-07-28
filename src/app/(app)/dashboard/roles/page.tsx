@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PlusCircle, Edit, Trash2, UserCog, ShieldCheck, Save, ListChecks } from "lucide-react"; 
 import { Badge } from "@/components/ui/badge";
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 type PermissionKey = 
@@ -61,7 +61,6 @@ const emptyRoleForm: Omit<Role, 'id' | 'isSystemRole'> = {
 };
 
 export default function RoleManagementPage() {
-  const { toast } = useToast();
   const [roles, setRoles] = useState<Role[]>(initialRolesData);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create');
@@ -101,7 +100,9 @@ export default function RoleManagementPage() {
   
   const handleSaveRole = () => {
     if (!currentRole.name) {
-      toast({ title: "Error", description: "Role name is required.", variant: "destructive" });
+      toast.error("Error", {
+        description: "Role name is required."
+      });
       return;
     }
 
@@ -112,10 +113,14 @@ export default function RoleManagementPage() {
         permissions: currentRole.permissions || [],
       };
       setRoles(prev => [newRole, ...prev]);
-      toast({ title: "Role Created", description: `Role "${newRole.name}" has been created.` });
+      toast.success("Role Created", {
+        description: `Role "${newRole.name}" has been created.`
+      });
     } else if (dialogMode === 'edit' && currentRole.id) {
       setRoles(prev => prev.map(r => r.id === currentRole.id ? { ...r, name: currentRole.name, permissions: currentRole.permissions || [] } : r));
-      toast({ title: "Role Updated", description: `Role "${currentRole.name}" has been updated.` });
+      toast.success("Role Updated", {
+        description: `Role "${currentRole.name}" has been updated.`
+      });
     }
     handleCloseDialog();
   };
@@ -123,13 +128,17 @@ export default function RoleManagementPage() {
   const handleDeleteRole = () => {
     if (roleToDelete) {
       if (roleToDelete.isSystemRole) {
-        toast({ title: "Action Not Allowed", description: "System roles cannot be deleted.", variant: "destructive" });
+        toast.error("Action Not Allowed", {
+          description: "System roles cannot be deleted."
+        });
         setRoleToDelete(null);
         return;
       }
       // TODO: Check if role is in use by any team member before deleting
       setRoles(prev => prev.filter(r => r.id !== roleToDelete.id));
-      toast({ title: "Role Deleted", description: `Role "${roleToDelete.name}" has been deleted.` });
+      toast.error("Action Not Allowed", {
+        description: "System roles cannot be deleted."
+      });
       setRoleToDelete(null);
     }
   };

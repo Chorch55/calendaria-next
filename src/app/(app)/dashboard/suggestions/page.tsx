@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lightbulb, ThumbsUp, Star } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -22,7 +22,6 @@ const mockSuggestionsData = [
 export default function SuggestionsPage() {
   const [suggestions, setSuggestions] = useState(mockSuggestionsData);
   const [newImprovementText, setNewImprovementText] = useState('');
-  const { toast } = useToast();
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const { t } = useTranslation();
@@ -45,17 +44,14 @@ export default function SuggestionsPage() {
   
   const handleSubmitImprovement = () => {
     if (!newImprovementText.trim()) {
-      toast({
-        title: "Error",
-        description: "Please describe your improvement suggestion.",
-        variant: "destructive",
+      toast.error("Error", {
+        description: "Please describe your improvement suggestion."
       });
       return;
     }
     // In a real app, you would send this to a backend.
-    toast({
-      title: "Improvement Sent",
-      description: "Thank you for your suggestion! We have received it and will review it soon.",
+    toast.success("Improvement Sent", {
+      description: "Thank you for your suggestion! We have received it and will review it soon."
     });
     setNewImprovementText('');
   };
@@ -151,9 +147,8 @@ export default function SuggestionsPage() {
                   onMouseLeave={() => setHoverRating(0)}
                   onClick={() => {
                     setRating(starValue);
-                    toast({
-                      title: t('rateAppThanks'),
-                      description: `${t('youGave')} ${starValue} ${starValue === 1 ? t('star') : t('stars')}.`,
+                    toast.success(t('rateAppThanks'), {
+                      description: `${t('youGave')} ${starValue} ${starValue === 1 ? t('star') : t('stars')}.`
                     });
                   }}
                 />

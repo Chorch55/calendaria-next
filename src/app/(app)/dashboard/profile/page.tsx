@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { UserCircle, Mail, Phone, Camera, Save, ShieldCheck } from 'lucide-react';
 
 // Mock user data
@@ -20,7 +20,6 @@ const initialUserProfile = {
 };
 
 export default function UserProfilePage() {
-  const { toast } = useToast();
   const [profile, setProfile] = useState(initialUserProfile);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -31,13 +30,17 @@ export default function UserProfilePage() {
   const handleSave = () => {
     // TODO: Implement actual profile update logic
     console.log('Saving profile:', profile);
-    toast({ title: 'Profile Updated', description: 'Your profile details have been successfully updated.' });
+    toast.success("Profile Updated", {
+      description: "Your profile details have been successfully updated."
+    });
     setIsEditing(false);
   };
 
   // TODO: Handle avatar upload
   const handleAvatarChange = () => {
-    toast({ title: 'Feature Coming Soon', description: 'Avatar upload functionality will be available in a future update.' });
+    toast.info("Feature Coming Soon", {
+      description: "Avatar upload functionality will be available in a future update."
+    });
   };
 
   return (

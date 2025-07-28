@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { PlusCircle, Edit, Trash2, Save, Users, Briefcase, UserPlus, Link as LinkIcon, Folder, ChevronDown, ChevronRight, CalendarCheck2, Coffee } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -134,7 +134,6 @@ export default function ServicesPage() {
     const [services, setServices] = useState<MockService[]>(initialServices);
     const [teams, setTeams] = useState<MockTeam[]>(initialTeams);
     const [assignments, setAssignments] = useState<ServiceAssignment[]>(initialAssignments);
-    const { toast } = useToast();
     
     // Moved Availability State
     const [availability, setAvailability] = useState(initialAvailabilitySettingsData);
@@ -183,11 +182,11 @@ export default function ServicesPage() {
     const handleSaveCategory = (formData: { name: string }) => {
         if (editingCategory) {
             setCategories(prev => prev.map(c => c.id === editingCategory.id ? { ...c, ...formData } : c));
-            toast({ title: "Category Updated" });
+            toast("Category Updated");
         } else {
             const newCategory = { id: `cat-${Date.now()}`, ...formData };
             setCategories(prev => [...prev, newCategory]);
-            toast({ title: "Category Created" });
+            toast("Category Created");
         }
         setIsCategoryDialogOpen(false);
     };
@@ -196,7 +195,7 @@ export default function ServicesPage() {
         setCategories(prev => prev.filter(c => c.id !== categoryId));
         setServices(prev => prev.filter(s => s.categoryId !== categoryId));
         setAssignments(prev => prev.filter(a => a.assignment.type !== 'category' || a.assignment.id !== categoryId));
-        toast({ title: "Category Deleted", variant: "destructive" });
+        toast.error("Category Deleted");
     };
 
     // --- Service Management ---
@@ -209,11 +208,11 @@ export default function ServicesPage() {
     const handleSaveService = (formData: { name: string; duration: number; categoryId: string }) => {
         if (editingService) {
             setServices(prev => prev.map(s => s.id === editingService.id ? { ...s, ...formData } : s));
-            toast({ title: "Service Updated" });
+            toast("Service Updated");
         } else {
             const newService = { id: `service-${Date.now()}`, ...formData };
             setServices(prev => [...prev, newService]);
-            toast({ title: "Service Created" });
+            toast("Service Created");
         }
         setIsServiceDialogOpen(false);
     };
@@ -221,7 +220,7 @@ export default function ServicesPage() {
     const handleDeleteService = (serviceId: string) => {
         setServices(prev => prev.filter(s => s.id !== serviceId));
         setAssignments(prev => prev.filter(a => a.assignment.type !== 'service' || a.assignment.id !== serviceId));
-        toast({ title: "Service Deleted", variant: "destructive" });
+        toast.error("Service Deleted");
     };
 
     // --- Team Management ---
@@ -233,11 +232,11 @@ export default function ServicesPage() {
     const handleSaveTeam = (formData: { name: string; memberIds: string[] }) => {
         if (editingTeam) {
             setTeams(prev => prev.map(t => t.id === editingTeam.id ? { ...t, ...formData } : t));
-            toast({ title: "Team Updated" });
+            toast("Team Updated");
         } else {
             const newTeam = { id: `team-${Date.now()}`, ...formData };
             setTeams(prev => [...prev, newTeam]);
-            toast({ title: "Team Created" });
+            toast("Team Created");
         }
         setIsTeamDialogOpen(false);
     };
@@ -245,7 +244,7 @@ export default function ServicesPage() {
     const handleDeleteTeam = (teamId: string) => {
         setTeams(prev => prev.filter(t => t.id !== teamId));
         setAssignments(prev => prev.filter(a => a.assignee.type !== 'team' || a.assignee.id !== teamId));
-        toast({ title: "Team Deleted", variant: "destructive" });
+        toast.error("Team Deleted");
     };
     
     // --- Assignment Management ---
@@ -265,7 +264,7 @@ export default function ServicesPage() {
         }));
 
         setAssignments([...otherAssignments, ...newAssignments]);
-        toast({ title: "Assignments Updated" });
+        toast("Assignments Updated");
         setIsAssignmentDialogOpen(false);
     };
     
@@ -488,11 +487,12 @@ const AssigneeCard = ({ type, id, name, members, assignedItems, serviceMap, cate
 
 const CategoryDialog = ({ isOpen, onClose, onSave, category }: { isOpen: boolean; onClose: () => void; onSave: (data: { name: string }) => void; category: MockServiceCategory | null }) => {
     const [name, setName] = useState(category?.name || '');
-    const { toast } = useToast();
 
     const handleSubmit = () => {
         if (!name.trim()) {
-            toast({ title: "Validation Error", description: "Please enter a category name.", variant: "destructive"});
+            toast.error("Validation Error", {
+            description: "Please enter a category name."
+            });
             return;
         }
         onSave({ name });
@@ -514,11 +514,12 @@ const CategoryDialog = ({ isOpen, onClose, onSave, category }: { isOpen: boolean
 const ServiceDialog = ({ isOpen, onClose, onSave, service, categoryId }: { isOpen: boolean; onClose: () => void; onSave: (data: { name: string; duration: number, categoryId: string }) => void; service: MockService | null; categoryId: string }) => {
     const [name, setName] = useState(service?.name || '');
     const [duration, setDuration] = useState(service?.duration || 30);
-    const { toast } = useToast();
 
     const handleSubmit = () => {
         if (!name.trim() || duration <= 0) {
-            toast({ title: "Validation Error", description: "Please enter a valid name and a duration greater than 0.", variant: "destructive"});
+            toast.error("Validation Error", {
+                description: "Please enter a valid name and a duration greater than 0."
+            });
             return;
         }
         onSave({ name, duration, categoryId });
@@ -541,7 +542,6 @@ const ServiceDialog = ({ isOpen, onClose, onSave, service, categoryId }: { isOpe
 const TeamDialog = ({ isOpen, onClose, onSave, team, allUsers }: { isOpen: boolean; onClose: () => void; onSave: (data: { name: string; memberIds: string[] }) => void; team: MockTeam | null, allUsers: MockUser[] }) => {
     const [name, setName] = useState(team?.name || '');
     const [selectedMemberIds, setSelectedMemberIds] = useState<Set<string>>(new Set(team?.memberIds || []));
-    const { toast } = useToast();
 
     const handleMemberToggle = (memberId: string) => {
         const newSet = new Set(selectedMemberIds);
@@ -555,7 +555,9 @@ const TeamDialog = ({ isOpen, onClose, onSave, team, allUsers }: { isOpen: boole
 
     const handleSubmit = () => {
         if (!name.trim()) {
-            toast({ title: "Validation Error", description: "Please enter a team name.", variant: "destructive"});
+            toast.error("Validation Error", {
+                description: "Please enter a team name."
+            });
             return;
         }
         onSave({ name, memberIds: Array.from(selectedMemberIds) });

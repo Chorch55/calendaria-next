@@ -15,7 +15,7 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { PlusCircle, GripVertical, Filter, Calendar as CalendarIcon, AlertOctagon, ChevronsUpDown, Save } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { format } from 'date-fns';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -134,7 +134,6 @@ const TasksPage: NextPage = () => {
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false); 
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [currentTaskData, setCurrentTaskData] = useState<Partial<Task>>(defaultTaskFormData);
-  const { toast } = useToast();
 
   const tasksByStatus = useMemo(() => {
     return statusColumns.reduce((acc, column) => {
@@ -182,7 +181,9 @@ const TasksPage: NextPage = () => {
 
   const handleSaveTask = () => {
     if (!currentTaskData.title?.trim()) {
-      toast({ title: "Error", description: "Task title is required.", variant: "destructive" });
+      toast.error("Error", {
+        description: "Task title is required."
+      });
       return;
     }
 
@@ -190,7 +191,9 @@ const TasksPage: NextPage = () => {
       setTasks(prevTasks => prevTasks.map(task => 
         task.id === editingTask.id ? { ...task, ...currentTaskData } as Task : task
       ));
-      toast({ title: "Task Updated", description: `"${currentTaskData.title}" has been updated.` });
+      toast.success("Task Updated", {
+        description: `"${currentTaskData.title}" has been updated.`
+      });
     } else { 
       const newTaskAssigneeName = currentTaskData.assignee?.name?.trim();
       const newTask: Task = {
@@ -206,7 +209,9 @@ const TasksPage: NextPage = () => {
         },
       };
       setTasks(prevTasks => [newTask, ...prevTasks]);
-      toast({ title: "Task Created", description: `"${newTask.title}" has been added.` });
+      toast.success("Task Created", {
+        description: `"${newTask.title}" has been added.`
+      });
     }
     setIsTaskDialogOpen(false);
     setEditingTask(null);

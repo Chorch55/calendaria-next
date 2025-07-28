@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PlusCircle, Users, Edit, Trash2, ShieldCheck, ShieldAlert, Save, Mail, Smartphone, Wifi, WifiOff } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { getMockRoles } from '../roles/page'; // Import roles
 
 interface TeamMemberConnection {
@@ -57,11 +57,10 @@ const emptyMemberForm: Omit<TeamMember, 'id' | 'lastLogin' | 'avatarUrl' | 'conn
 
 
 export default function TeamManagementPage() {
-  const { toast } = useToast();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(initialTeamMembers);
   const [isMemberDialogOpen, setIsMemberDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<'invite' | 'edit'>('invite');
-  const [currentMember, setCurrentMember] = useState<Omit<TeamMember, 'id' | 'lastLogin' | 'avatarUrl' | 'connections' | 'phone' | 'roleIds'> & { id?: string, roleId?: string }>(emptyMemberForm);
+  const [currentMember, setCurrentMember] = useState<Omit<TeamMember, 'id' | 'lastLogin' | 'avatarUrl' | 'connections' | 'roleIds'> & { id?: string, roleId?: string }>(emptyMemberForm);
   const [memberToRemove, setMemberToRemove] = useState<TeamMember | null>(null);
 
   const getRoleNameById = (roleId: string): string => {
@@ -108,7 +107,9 @@ export default function TeamManagementPage() {
   
   const handleSaveMember = () => {
     if (!currentMember.name || !currentMember.email || !currentMember.roleId) {
-      toast({ title: "Error", description: "Name, email, and role are required.", variant: "destructive" });
+      toast.error("Error", {
+        description: "Name, email, and role are required."
+      });
       return;
     }
   
@@ -125,10 +126,14 @@ export default function TeamManagementPage() {
         connections: {}, // Default empty connections
       };
       setTeamMembers(prev => [newMember, ...prev]);
-      toast({ title: "Member Invited", description: `${newMember.name} has been added to the team.` });
+      toast.success("Member Invited", {
+        description: `${newMember.name} has been added to the team.`
+      });
     } else if (dialogMode === 'edit' && currentMember.id) {
       setTeamMembers(prev => prev.map(m => m.id === currentMember.id ? { ...m, name: currentMember.name, email: currentMember.email, roleIds: [currentMember.roleId!], status: currentMember.status, phone: currentMember.phone } : m));
-      toast({ title: "Member Updated", description: `${currentMember.name}'s information has been updated.` });
+      toast.success("Member Updated", {
+        description: `${currentMember.name}'s information has been updated.`
+      });
     }
     handleCloseDialog();
   };
@@ -136,12 +141,16 @@ export default function TeamManagementPage() {
   const handleRemoveMember = () => {
     if (memberToRemove) {
       if (memberToRemove.email === MAIN_ADMIN_EMAIL) {
-         toast({ title: "Action Not Allowed", description: "You cannot remove the main administrator.", variant: "destructive" });
-         setMemberToRemove(null);
-         return;
+        toast.error("Action Not Allowed", {
+          description: "You cannot remove the main administrator."
+        });
+        setMemberToRemove(null);
+        return;
       }
       setTeamMembers(prev => prev.filter(m => m.id !== memberToRemove.id));
-      toast({ title: "Member Removed", description: `${memberToRemove.name} has been removed from the team.` });
+      toast.success("Member Removed", {
+        description: `${memberToRemove.name} has been removed from the team.`
+      });
       setMemberToRemove(null);
     }
   };

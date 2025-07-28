@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { useTranslation } from '@/hooks/use-translation';
 import { Clock, Briefcase, Hourglass, PlayCircle, StopCircle, ChevronLeft, ChevronRight, Edit, Save, CalendarRange, CalendarDays, Calendar as CalendarIcon, BarChart3, TrendingUp, Users, Plane, Send, Paperclip, CheckCircle2, XCircle } from "lucide-react";
 import { format, isToday, isThisMonth, differenceInSeconds, parseISO, addMonths, subMonths, startOfDay, endOfDay, isWithinInterval } from 'date-fns';
@@ -97,7 +97,6 @@ const formatDuration = (totalSeconds: number) => {
 
 export default function TimeTrackingPage() {
   const { t } = useTranslation();
-  const { toast } = useToast();
   
   const [activeTab, setActiveTab] = useState("time-log");
 
@@ -136,17 +135,17 @@ export default function TimeTrackingPage() {
 
   const handleClockIn = () => {
     if (!currentTask.trim()) {
-      toast({
-        title: "Task Required",
+      toast.error("Task Required", {
         description: "Please enter a description for the task you are starting.",
-        variant: "destructive",
       });
       return;
     }
     setIsClockedIn(true);
     setStartTime(new Date());
     setSessionSeconds(0);
-    toast({ title: "Clocked In", description: `Started tracking time for: ${currentTask}` });
+    toast.success("Clocked In", {
+      description: `Started tracking time for: ${currentTask}`,
+    });
   };
 
   const handleClockOut = () => {
@@ -168,12 +167,16 @@ export default function TimeTrackingPage() {
     setCurrentTask('');
     setStartTime(null);
     setSessionSeconds(0);
-    toast({ title: "Clocked Out", description: `Session saved. Duration: ${formatDuration(durationInSeconds)}` });
+    toast.success("Clocked Out", {
+      description: `Session saved. Duration: ${formatDuration(durationInSeconds)}`,
+    });
   };
   
   const handleNewRequestSubmit = () => {
     if (!newRequestForm.range?.from || !newRequestForm.range?.to) {
-        toast({ title: 'Date range required', description: 'Please select a start and end date.', variant: 'destructive' });
+        toast.error("Date range required", {
+          description: "Please select a start and end date.",
+        });
         return;
     }
 
@@ -188,7 +191,9 @@ export default function TimeTrackingPage() {
     
     setLeaveRequests(prev => [newRequest, ...prev]);
     setNewRequestForm(emptyRequestForm);
-    toast({ title: 'Request Submitted', description: 'Your time off request has been submitted for approval.' });
+    toast.success("Request Submitted", {
+      description: "Your time off request has been submitted for approval."
+    });
   }
 
   const handleModeChange = (mode: 'single' | 'multiple' | 'range') => {
@@ -216,7 +221,9 @@ export default function TimeTrackingPage() {
 
   const handleSaveEdit = useCallback(() => {
     if (!editingEntry) {
-      toast({ title: "Error", description: "Cannot save entry without required data.", variant: "destructive" });
+      toast.error("Error", {
+        description: "Cannot save entry without required data."
+      });
       return;
     }
 
@@ -232,7 +239,9 @@ export default function TimeTrackingPage() {
     newEndDate.setHours(endHours, endMinutes, 0, 0);
 
     if (newEndDate < newStartDate) {
-      toast({ title: "Invalid Time", description: "End time cannot be before start time.", variant: "destructive" });
+      toast.error("Invalid Time", {
+        description: "End time cannot be before start time."
+      });
       return;
     }
 
@@ -249,7 +258,9 @@ export default function TimeTrackingPage() {
     setTimeEntries(prev => prev.map(e => e.id === updatedEntry.id ? updatedEntry : e));
     setIsEditModalOpen(false);
     setEditingEntry(null);
-    toast({ title: "Entry Updated", description: "Your time entry has been successfully updated." });
+    toast.success("Entry Updated", {
+      description: "Your time entry has been successfully updated."
+    });
   }, [editingEntry, editForm, toast]);
 
 
@@ -322,7 +333,7 @@ export default function TimeTrackingPage() {
         case 'multiple':
             if (!selectedDates || selectedDates.length === 0) return null;
             return {
-                title: `${t('summary_for_days', { count: selectedDates.length })}`,
+                title: `${t('summary_for_days')}`,
                 totalDuration,
             };
         case 'range':
@@ -702,7 +713,7 @@ export default function TimeTrackingPage() {
                                         <TableCell>{req.type}</TableCell>
                                         <TableCell className="text-center">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Button variant="outline" size="icon" onClick={() => toast({ title: "Feature in development", description: "File attachment logic will be implemented." })}>
+                                                <Button variant="outline" size="icon" onClick={() => toast.info("Feature in development",{ description: "File attachment logic will be implemented." })}>
                                                     <Paperclip className="h-4 w-4" />
                                                 </Button>
                                                 {req.hasAttachment ? (

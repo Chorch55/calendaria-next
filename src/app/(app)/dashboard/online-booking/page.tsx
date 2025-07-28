@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar as CalendarIcon, Clock, Palette, Save, ExternalLink, Timer, Clock12, Edit, Trash2, PlusCircle, WifiOff, CheckCircle, AlertTriangle, XCircle, Settings, FileText, CalendarCheck2, History, Coffee, ArrowLeft } from "lucide-react";
@@ -90,7 +90,6 @@ const generateTimeSlots = (
 
 
 export default function OnlineBookingPage() {
-  const { toast } = useToast();
   const { t } = useTranslation();
 
   // Settings state, now simpler, focused on appearance
@@ -155,9 +154,8 @@ export default function OnlineBookingPage() {
 
   const handleSaveSettings = () => {
     console.log("Saving settings:", pageSettings);
-    toast({
-      title: "Settings Saved",
-      description: "Your online booking page has been updated.",
+    toast.success("Settings Saved", {
+      description: "Your online booking page has been updated."
     });
   };
 
@@ -328,7 +326,6 @@ export default function OnlineBookingPage() {
                                                         variant={selectedTime?.getTime() === slot.getTime() ? 'default' : 'outline'}
                                                         className="font-semibold"
                                                         style={{
-                                                            '--primary-color': pageSettings.primaryColor,
                                                             color: selectedTime?.getTime() === slot.getTime() ? pageSettings.cardColor : pageSettings.textColor,
                                                             borderColor: pageSettings.primaryColor,
                                                             backgroundColor: selectedTime?.getTime() === slot.getTime() ? pageSettings.primaryColor : 'transparent',

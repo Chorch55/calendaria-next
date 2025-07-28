@@ -16,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, CalendarDays, Filter, Check, X, Calendar as CalendarIcon, Info, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { format, eachDayOfInterval, startOfDay } from 'date-fns';
 import type { DateRange } from "react-day-picker";
 import { cn } from '@/lib/utils';
@@ -68,7 +68,6 @@ const emptyLeaveTypeForm: Omit<LeaveType, 'id'|'isSystemType'> = { name: '', col
 
 
 export default function LeaveManagementPage() {
-  const { toast } = useToast();
   const { t } = useTranslation();
   const [requests, setRequests] = useState<LeaveRequest[]>(initialLeaveRequests);
   const [statusFilter, setStatusFilter] = useState<'all' | LeaveRequest['status']>('all');
@@ -90,29 +89,43 @@ export default function LeaveManagementPage() {
   }, [leaveTypes]);
 
   const approvedLeaveDaysByCount = useMemo(() => {
-    const counts: Record<string, number> = {};
+    const dayCounts: Record<string, number> = {};
     requests.forEach(req => {
       if (req.status === 'Approved') {
         eachDayOfInterval({ start: startOfDay(req.startDate), end: startOfDay(req.endDate) }).forEach(day => {
           const dateStr = format(day, 'yyyy-MM-dd');
-          counts[dateStr] = (counts[dateStr] || 0) + 1;
+          dayCounts[dateStr] = (dayCounts[dateStr] || 0) + 1;
         });
       }
     });
-    return counts;
+
+    // Build modifiers object: keys are "1", "2", "3", values are arrays of Date
+    const modifiers: Record<string, Date[]> = { "1": [], "2": [], "3": [] };
+    Object.entries(dayCounts).forEach(([dateStr, count]) => {
+      const date = new Date(dateStr);
+      if (count >= 3) {
+        modifiers["3"].push(date);
+      } else if (count === 2) {
+        modifiers["2"].push(date);
+      } else if (count === 1) {
+        modifiers["1"].push(date);
+      }
+    });
+    return modifiers;
   }, [requests]);
 
   const handleRequestStatusChange = (requestId: string, newStatus: LeaveRequest['status']) => {
     setRequests(prev => prev.map(req => req.id === requestId ? { ...req, status: newStatus } : req));
-    toast({
-      title: 'Request Updated',
-      description: `The leave request has been ${newStatus.toLowerCase()}.`,
+    toast.success("Request Updated", {
+      description: `The leave request has been ${newStatus.toLowerCase()}.`
     });
   };
   
   const handleNewRequestSubmit = () => {
     if (!newRequestForm.range?.from || !newRequestForm.range?.to) {
-        toast({ title: 'Date range required', description: 'Please select a start and end date.', variant: 'destructive' });
+        toast.error("Date range required", {
+          description: "Please select a start and end date."
+        });
         return;
     }
 
@@ -129,7 +142,9 @@ export default function LeaveManagementPage() {
     setRequests(prev => [newRequest, ...prev]);
     setIsRequestDialogOpen(false);
     setNewRequestForm(emptyRequestForm);
-    toast({ title: 'Request Submitted', description: 'Your time off request has been submitted for approval.' });
+    toast.success("Request Submitted", {
+      description: "Your time off request has been submitted for approval."
+    });
   }
   
   const handleOpenLeaveTypeDialog = (type: LeaveType | null) => {
@@ -140,12 +155,12 @@ export default function LeaveManagementPage() {
   
   const handleSaveLeaveType = () => {
     if (!leaveTypeForm.name?.trim() || !leaveTypeForm.color?.trim()) {
-        toast({ title: "Name and color are required", variant: "destructive" });
+        toast.error("Name and color are required");
         return;
     }
     if (editingLeaveType) {
         setLeaveTypes(prev => prev.map(lt => lt.id === editingLeaveType.id ? { ...lt, name: leaveTypeForm.name, color: leaveTypeForm.color } as LeaveType : lt));
-        toast({ title: "Leave Type Updated" });
+        toast.success("Leave Type Updated");
     } else {
         const newLeaveType: LeaveType = {
             id: `custom-${Date.now()}`,
@@ -154,7 +169,7 @@ export default function LeaveManagementPage() {
             isSystemType: false,
         };
         setLeaveTypes(prev => [...prev, newLeaveType]);
-        toast({ title: "Leave Type Created" });
+        toast.success("Leave Type Created");
     }
     setIsLeaveTypeDialogOpen(false);
   };
@@ -163,7 +178,7 @@ export default function LeaveManagementPage() {
     // TODO: Add check if type is in use by any request
     setLeaveTypes(prev => prev.filter(lt => lt.id !== typeId));
     setIsLeaveTypeDialogOpen(false);
-    toast({ title: "Leave Type Deleted", variant: "destructive" });
+    toast.error("Leave Type Deleted");
   }
 
   return (

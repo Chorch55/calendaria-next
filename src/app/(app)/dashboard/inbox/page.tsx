@@ -11,7 +11,7 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Badge } from "@/components/ui/badge";
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { useSettings } from '@/context/settings-context'; 
 
 interface ConversationMessage {
@@ -219,7 +219,6 @@ interface MessageDetailProps {
 }
 
 const MessageDetail = ({ message, onSendReply, onClose }: MessageDetailProps) => {
-  const { toast } = useToast();
   const [reply, setReply] = useState('');
   const [suggestedReply, setSuggestedReply] = useState<string | null>(null);
 
@@ -364,7 +363,6 @@ export default function InboxPage() {
   const [activeAiFilter, setActiveAiFilter] = useState<AiInteractionFilter>('all');
   const [emailServiceFilter, setEmailServiceFilter] = useState<EmailServiceFilter>('all');
   
-  const { toast } = useToast();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { connections: appConnections, isSettingsLoaded } = useSettings();
@@ -529,7 +527,9 @@ export default function InboxPage() {
       return updatedMessages;
     });
 
-    toast({ title: "Reply Sent", description: "Your message has been sent successfully." });
+    toast.success("Reply Sent", {
+      description: "Your message has been sent successfully."
+    });
   };
   
   const handleSelectMessage = useCallback((message: Message) => {
@@ -577,12 +577,11 @@ export default function InboxPage() {
           <h1 className="text-2xl font-semibold">Inbox</h1>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={() => {
-                 console.log('Simulating message refresh for emails and WhatsApp...');
-                 toast({
-                   title: "Manual Refresh",
-                   description: `Checked for new ${currentTab} messages.`,
-                   duration: 3000,
-                 });
+                console.log('Simulating message refresh for emails and WhatsApp...');
+                toast("Manual Refresh", {
+                  description: `Checked for new ${currentTab} messages.`,
+                  duration: 3000,
+                });
             }}><RefreshCw className="h-4 w-4" /></Button>
             <Button className="bg-accent text-accent-foreground hover:bg-accent/90"><Edit3 className="h-4 w-4 mr-2" />Compose</Button>
           </div>
