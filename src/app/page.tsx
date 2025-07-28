@@ -10,7 +10,7 @@ import { motion } from 'framer-motion';
 import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
 import { useState, useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,7 +34,6 @@ const cardVariants = {
 };
 
 export default function LandingPage() {
-  const { show } = useToast();
   const { t } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -182,12 +181,9 @@ export default function LandingPage() {
     e.preventDefault();
     // TODO: Implement actual contact form submission logic
     console.log({ name, email, company, message });
-    show(
-      <>
-        <strong>Message Sent!</strong>
-        <div>Thank you for contacting us. We'll get back to you shortly.</div>
-      </>
-    );
+    toast.success("Message Sent!", {
+      description: "Thank you for contacting us. We'll get back to you shortly."
+    });
     setName('');
     setEmail('');
     setCompany('');

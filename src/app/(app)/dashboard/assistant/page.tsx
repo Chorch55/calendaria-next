@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Bot, Send, User, Loader2 } from 'lucide-react';
 import { askAssistant } from '@/ai/flows/assistant-flow';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
 
@@ -26,7 +26,6 @@ export default function AssistantPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { show } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,12 +66,9 @@ export default function AssistantPage() {
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Error calling assistant flow:", error);
-      show(
-        <>
-          <strong>{t('assistant_error_toast_title')}</strong>
-          <div>{t('assistant_error_toast_description')}</div>
-        </>
-      );
+      toast.error(t('assistant_error_toast_title'), {
+        description: t('assistant_error_toast_description'),
+      });
        const errorMessage: Message = { role: 'assistant', content: t('assistant_error_message') };
        setMessages(prev => [...prev, errorMessage]);
     } finally {

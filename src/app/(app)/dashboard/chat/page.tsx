@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, Search, User, Users, MessageSquare, Paperclip, PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { motion } from 'framer-motion';
 import {
   Dialog,
@@ -101,7 +101,6 @@ export default function ChatPage() {
   const [selectedConversation, setSelectedConversation] = useState<SelectedConversation>(mockGroups.find(g => g.id === 'group1') ? { ...mockGroups.find(g => g.id === 'group1')!, type: 'group' } : null);
   const [searchTerm, setSearchTerm] = useState('');
   const [newMessage, setNewMessage] = useState('');
-  const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -147,7 +146,7 @@ export default function ChatPage() {
   const handleSendMessage = () => {
     if (!newMessage.trim() || !selectedConversation) {
         if (newMessage.trim()) {
-            toast({ title: "Message cannot be empty", variant: "destructive" });
+            toast.error("Message cannot be empty");
         }
         return;
     }
@@ -181,8 +180,7 @@ export default function ChatPage() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      toast({
-        title: "File Selected",
+      toast("File Selected", {
         description: `Selected "${file.name}". Upload functionality is a future feature.`,
       });
     }
@@ -190,8 +188,10 @@ export default function ChatPage() {
 
   const handleCreateGroup = () => {
     if (!newGroupName.trim() || newGroupMembers.length === 0) {
-        toast({ title: "Error", description: "Group name and at least one member are required.", variant: "destructive" });
-        return;
+      toast.error("Error", {
+        description: "Group name and at least one member are required.",
+      });
+      return;
     }
     const newGroup: Group = {
         id: `group-${Date.now()}`,
@@ -204,7 +204,9 @@ export default function ChatPage() {
     setIsNewChatDialogOpen(false);
     setNewGroupName('');
     setNewGroupMembers([]);
-    toast({ title: "Group Created", description: `"${newGroup.name}" has been created.` });
+    toast.success("Group Created", {
+      description: `"${newGroup.name}" has been created.`,
+    });
   }
 
   const handleMemberSelection = (memberId: string, isChecked: boolean) => {

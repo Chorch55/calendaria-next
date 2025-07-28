@@ -24,7 +24,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { initialTasks, Task as TaskManagementTask } from '../tasks/page';
 
@@ -104,7 +104,6 @@ export default function CalendarPage() {
 
   const [formattedSelectedDate, setFormattedSelectedDate] = useState<string>('');
   const [formattedEventDate, setFormattedEventDate] = useState<string | null>(null);
-  const toast = useToast();
   const [activeTab, setActiveTab] = useState<'appointments' | 'tasks'>('appointments');
 
 
@@ -241,38 +240,25 @@ export default function CalendarPage() {
     setCurrentEventData(prev => ({ ...prev, category: value }));
   };
 
-  const handleCurrentEventPriorityChange = (value: CalendarEvent['priority']) => {
-    setCurrentEventData(prev => ({ ...prev, priority: value }));
+  const handleCurrentEventPriorityChange = (value: string) => {
+    setCurrentEventData(prev => ({ ...prev, priority: value as CalendarEvent['priority'] }));
   };
 
   const handleSaveEvent = () => {
     if (!currentEventData.title || !currentEventData.date) {
-      toast.show(
-        <div>
-          <div className="font-semibold text-destructive">Error</div>
-          <div>Event title and date are required.</div>
-        </div>
-      );
+      toast.error("Error", {
+        description: "Event title and date are required."
+      });
       return;
     }
 
     if (currentEventData.category === 'appointment' && !currentEventData.isAllDay) {
         if (!currentEventData.startTime || !currentEventData.endTime) {
-            toast.show(
-              <div>
-                <div className="font-semibold text-destructive">Error</div>
-                <div>Start and end times are required for non-all-day appointments.</div>
-              </div>
-            );
+            toast.error("Start and end times are required for non-all-day appointments.");
             return;
         }
         if (currentEventData.startTime >= currentEventData.endTime) {
-            toast.show(
-              <div>
-                <div className="font-semibold text-destructive">Error</div>
-                <div>Start time must be before end time.</div>
-              </div>
-            );
+            toast.error("Start time must be before end time.");
             return;
         }
     }
@@ -285,24 +271,18 @@ export default function CalendarPage() {
         attendees: typeof currentEventData.attendees === 'string' ? (currentEventData.attendees as string).split(',').map(a => a.trim()) : currentEventData.attendees || [],
       };
       setAllEvents(prev => [...prev, finalNewEvent]);
-      toast.show(
-        <>
-          <div className="font-semibold">Event Created</div>
-          <div>{`"${finalNewEvent.title}" has been added to your calendar. (Note: This is local to the calendar page for now.)`}</div>
-        </>
-      );
+      toast.success("Event Created", {
+        description: `"${finalNewEvent.title}" has been added to your calendar. (Note: This is local to the calendar page for now.)`
+      });
     } else if (eventFormMode === 'edit' && currentEventData.id) {
        const updatedEventData = {
         ...currentEventData,
         attendees: typeof currentEventData.attendees === 'string' ? (currentEventData.attendees as string).split(',').map(a => a.trim()) : currentEventData.attendees || [],
       };
       setAllEvents(prev => prev.map(event => event.id === currentEventData.id ? { ...event, ...updatedEventData } as CalendarEvent : event));
-      toast.show(
-        <>
-          <div className="font-semibold">Event Updated</div>
-          <div>{`"${currentEventData.title}" has been updated. (Note: This is local to the calendar page for now if it's a task.)`}</div>
-        </>
-      );
+      toast.success("Event Updated", {
+        description: `"${currentEventData.title}" has been updated. (Note: This is local…)`
+      });
     }
     
     setIsEventFormDialogOpen(false);

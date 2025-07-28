@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Users, Mail, Phone, Search, PlusCircle, Edit, Trash2, Star, Save, Building, User, ChevronsUpDown, Link as LinkIcon, Unlink } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -80,7 +80,6 @@ export default function ContactsPage() {
     const [activeTab, setActiveTab] = useState<'contacts' | 'companies'>('contacts');
     const [searchTerm, setSearchTerm] = useState('');
     const [filter, setFilter] = useState<'all' | 'favorites'>('all');
-    const { toast } = useToast();
 
     const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
     const [isCompanyDialogOpen, setIsCompanyDialogOpen] = useState(false);
@@ -173,13 +172,17 @@ export default function ContactsPage() {
     // --- Save Handlers ---
     const handleSaveContact = () => {
         if (!contactForm.name?.trim() || !contactForm.email?.trim()) {
-            toast({ title: "Error", description: "Contact name and email are required.", variant: "destructive" });
+            toast.error("Error", {
+                description: "Contact name and email are required."
+            });
             return;
         }
 
         if (editingContact) { // Editing existing contact
             setContacts(prev => prev.map(c => c.id === editingContact.id ? { ...c, ...contactForm } as Contact : c));
-            toast({ title: "Contact Updated", description: `${contactForm.name}'s details saved.` });
+            toast.success("Contact Updated", {
+                description: `${contactForm.name}'s details saved.`
+            });
         } else { // Creating new contact
             const newContact: Contact = {
                 id: `c${Date.now()}`,
@@ -189,21 +192,27 @@ export default function ContactsPage() {
                 lastContacted: 'Just now'
             } as Contact;
             setContacts(prev => [newContact, ...prev]);
-            toast({ title: "Contact Created", description: `${newContact.name} has been added.` });
+            toast.success("Contact Created", {
+                description: `${newContact.name} has been added.`
+            });
         }
         setIsContactDialogOpen(false);
     };
 
     const handleSaveCompany = () => {
          if (!companyForm.name?.trim()) {
-            toast({ title: "Error", description: "Company name is required.", variant: "destructive" });
+            toast.error("Error", {
+                description: "Company name is required."
+            });
             return;
         }
         if (editingCompany) {
             setCompanies(prev => prev.map(c => c.id === editingCompany.id ? { ...c, ...companyForm } as Company : c));
             // Also update denormalized name on contacts
             setContacts(prev => prev.map(contact => contact.companyId === editingCompany.id ? {...contact, company: companyForm.name} : contact));
-            toast({ title: "Company Updated", description: `${companyForm.name}'s details saved.` });
+            toast.success("Company Updated", {
+                description: `${companyForm.name}'s details saved.`
+            });
         } else {
             const newCompany: Company = {
                 id: `comp${Date.now()}`,
@@ -212,7 +221,9 @@ export default function ContactsPage() {
                 avatarUrl: 'https://placehold.co/100x100.png',
             } as Company;
             setCompanies(prev => [newCompany, ...prev]);
-            toast({ title: "Company Created", description: `${newCompany.name} has been added.` });
+            toast.success("Company Created", {
+                description: `${newCompany.name} has been added.`
+            });
         }
         setIsCompanyDialogOpen(false);
     };
@@ -221,14 +232,18 @@ export default function ContactsPage() {
     const handleDeleteContact = (contactId: string) => {
         const contactName = contacts.find(c => c.id === contactId)?.name;
         setContacts(prev => prev.filter(c => c.id !== contactId));
-        toast({ title: 'Contact Deleted', description: `Contact "${contactName}" has been removed.` });
+        toast.success("Contact Deleted", {
+            description: `Contact "${contactName}" has been removed.`
+        });
     };
     
     const handleDeleteCompany = (companyId: string) => {
         const companyName = companies.find(c => c.id === companyId)?.name;
         setCompanies(prev => prev.filter(c => c.id !== companyId));
         setContacts(prev => prev.map(contact => contact.companyId === companyId ? {...contact, companyId: undefined, company: undefined} : contact));
-        toast({ title: 'Company Deleted', description: `Company "${companyName}" has been removed.` });
+        toast.success("Company Deleted", {
+            description: `Company "${companyName}" has been removed.`
+        });
     };
 
     const handleToggleFavorite = (id: string) => {
