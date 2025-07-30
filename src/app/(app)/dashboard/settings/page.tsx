@@ -1,6 +1,3 @@
-
-
-      
 "use client";
 
 import React from 'react';
@@ -14,7 +11,9 @@ import { toast } from "sonner"
 import { Mail, MessageSquare, UserCircle, Building, Briefcase, Save, Wifi, WifiOff, Link as LinkIcon, Palette, Sun, Moon, Monitor, Phone, Paintbrush, ArrowUp, ArrowDown, GripVertical, Bell, Baseline, Globe, ArrowUpCircle, ArrowDownCircle, Users, UserCog, PlusCircle, Trash2, Edit, FolderInput, ChevronsUpDown, Unlink, Camera, User } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useSettings, CustomNavGroup } from '@/context/settings-context';
+import { useSettings } from '@/context/settings-context';
+import { CustomNavGroup, AppSettings, Language } from '../../../../config/types';
+import { NavItem } from '@/config/sidebar';
 import { Badge } from '@/components/ui/badge';
 import { NAV_ITEMS, AVAILABLE_GROUP_ICONS, iconMap, GroupIconName } from '@/config/sidebar';
 import { Switch } from '@/components/ui/switch';
@@ -57,7 +56,9 @@ export default function SettingsPage() {
   }, []);
 
   const { topNavOrder, bottomNavOrder, sidebarVisibility } = appSettings;
-  const navItemMap = useMemo(() => new Map(NAV_ITEMS.map(item => [item.id, item])), []);
+  const navItemMap = useMemo<Map<string, NavItem>>(
+    () => new Map( NAV_ITEMS.map((item: NavItem) => [item.id, item]) ), []
+  );
   
   useEffect(() => { setMounted(true); }, []);
 
@@ -96,7 +97,7 @@ export default function SettingsPage() {
     setIsGroupDialogOpen(true);
   };
 
-  const languages = [
+  const languages: Language[] = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
     { code: 'es', name: 'Español', flag: '🇪🇸' },
     { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
@@ -319,7 +320,7 @@ export default function SettingsPage() {
                 t={t}
                 appSettings={appSettings}
                 updateAppSettings={updateAppSettings}
-                onOpenGroupDialog={(group) => handleOpenGroupDialog('top', group)}
+                onOpenGroupDialog={(group: CustomNavGroup | null) => handleOpenGroupDialog('top', group)}
             />
              <NavCustomizationList 
                 title={t('bottom_navigation')}
@@ -329,7 +330,7 @@ export default function SettingsPage() {
                 t={t}
                 appSettings={appSettings}
                 updateAppSettings={updateAppSettings}
-                onOpenGroupDialog={(group) => handleOpenGroupDialog('bottom', group)}
+                onOpenGroupDialog={(group: CustomNavGroup | null) => handleOpenGroupDialog('bottom', group)}
             />
         </CardContent>
       </Card>
@@ -450,13 +451,24 @@ const NavCustomizationList = ({ title, listKey, items, allNavItems, t, appSettin
     const onDropToGroup = (group: CustomNavGroup, droppedItemId: string) => {
         if (group.children.includes(droppedItemId)) return;
         
-        const removeFromList = (list: any[]) => list.filter(i => (typeof i === 'string' ? i : i.id) !== droppedItemId);
-        const removeFromAllGroups = (list: any[]) => list.map(item => {
+        const removeFromList = (list: (string | CustomNavGroup)[]): (string | CustomNavGroup)[] =>
+          list.filter(
+            (i: string | CustomNavGroup) =>
+              (typeof i === 'string' ? i : i.id) !== droppedItemId
+          );
+
+        const removeFromAllGroups = (list: (string | CustomNavGroup)[]): (string | CustomNavGroup)[] =>
+          list.map((item: string | CustomNavGroup) => {
             if (typeof item !== 'string' && item.children) {
-                return {...item, children: item.children.filter(id => id !== droppedItemId)};
+              return {
+                ...item,
+                children: item.children.filter(
+                  (id: string) => id !== droppedItemId  // aquí ya tipamos `id`
+                )
+              };
             }
             return item;
-        });
+          });
 
         let newTopOrder = removeFromAllGroups(removeFromList(appSettings.topNavOrder));
         let newBottomOrder = removeFromAllGroups(removeFromList(appSettings.bottomNavOrder));
@@ -539,7 +551,10 @@ const SimpleNavItem = ({ itemId, item, updateAppSettings, t, appSettings, listKe
               <div onPointerDown={(e) => controls.start(e)} className="cursor-grab touch-none">
                 <GripVertical className="h-5 w-5 text-muted-foreground" />
               </div>
-              {React.cloneElement(item.icon, { className: "h-5 w-5 text-primary" })}
+              {(() => {
+                const Icon = item.icon as React.ComponentType<React.SVGProps<SVGSVGElement>>;
+                return <Icon className="h-5 w-5 text-primary" />;
+              })()}
               <span className="font-medium text-sm">{t(item.id)}</span>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
@@ -626,7 +641,10 @@ const GroupNavItem = ({ group, allNavItems, appSettings, updateAppSettings, t, o
                         <div onPointerDown={(e) => controls.start(e)} className="cursor-grab touch-none">
                             <GripVertical className="h-5 w-5 text-muted-foreground" />
                         </div>
-                        {React.cloneElement(iconMap[group.icon as GroupIconName] || <FolderInput />, { className: "h-5 w-5 text-teal-600" })}
+                        {(() => {
+                          const Icon = iconMap[group.icon as GroupIconName] || FolderInput;
+                          return <Icon className="h-5 w-5 text-teal-600" />;
+                        })()}
                         <span className="font-semibold text-sm">{group.name}</span>
                     </div>
                      <div className="flex items-center gap-1 sm:gap-2 cursor-default" onPointerDown={(e) => e.stopPropagation()}>
@@ -738,27 +756,32 @@ const GroupEditorDialog = ({ isOpen, setIsOpen, group, updateAppSettings, appSet
                     </div>
                     <div className="space-y-2"><Label>{t('group_icon')}</Label>
                         <div className="grid grid-cols-5 gap-2 border p-2 rounded-md">
-                            {AVAILABLE_GROUP_ICONS.map(iconName => (
+                            {AVAILABLE_GROUP_ICONS.map((iconName) => {
+                              const IconComponent = iconMap[iconName]
+
+                              return (
                                 <Button 
-                                    key={iconName} 
-                                    variant="outline"
-                                    size="icon" 
-                                    onClick={() => setIcon(iconName)} 
-                                    className={cn(
-                                        "h-10 w-10 transition-colors group",
-                                        icon === iconName 
-                                            ? "bg-teal-600 border-teal-700 hover:bg-teal-700" 
-                                            : "hover:bg-teal-600/20 hover:border-teal-600"
-                                    )}
+                                  key={iconName} 
+                                  variant="outline"
+                                  size="icon" 
+                                  onClick={() => setIcon(iconName)} 
+                                  className={cn(
+                                    "h-10 w-10 transition-colors group",
+                                    icon === iconName 
+                                      ? "bg-teal-600 border-teal-700 hover:bg-teal-700" 
+                                      : "hover:bg-teal-600/20 hover:border-teal-600"
+                                  )}
                                 >
-                                    {React.cloneElement(iconMap[iconName], { className: cn(
-                                        "h-5 w-5 transition-colors",
-                                        icon === iconName 
-                                            ? "text-white" 
-                                            : "text-foreground group-hover:text-white"
-                                    )})}
+
+                                  <IconComponent
+                                    className={cn(
+                                      "h-5 w-5 transition-colors",
+                                      icon === iconName ? "text-white" : "text-foreground group-hover:text-white"
+                                    )}
+                                  />
                                 </Button>
-                            ))}
+                              );
+                            })}
                         </div>
                     </div>
                 </div>

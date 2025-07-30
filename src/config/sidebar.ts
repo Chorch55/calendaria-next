@@ -14,7 +14,6 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'inbox', href: '/dashboard/inbox', label: 'Inbox', icon: React.createElement(Mail) },
   { id: 'calendar', href: '/dashboard/calendar', label: 'Calendar', icon: React.createElement(CalendarDays) },
   { id: 'phone-calls', href: '/dashboard/phone-calls', label: 'Phone Calls', icon: React.createElement(Phone) },
-  // This is a special item, the href is a placeholder but it triggers the notification popover.
   { id: 'notifications', href: '#', label: 'Notifications', icon: React.createElement(Bell), isNotification: true },
   { id: 'contacts', href: '/dashboard/contacts', label: 'Contacts', icon: React.createElement(Users) },
   { id: 'tasks', href: '/dashboard/tasks', label: 'Tasks', icon: React.createElement(ListChecks) },
@@ -41,20 +40,38 @@ export const AVAILABLE_GROUP_ICONS = [
 
 export type GroupIconName = typeof AVAILABLE_GROUP_ICONS[number];
 
-export const iconMap: Record<GroupIconName, React.ReactNode> = {
-  Briefcase: React.createElement(Briefcase),
-  FileText: React.createElement(FileText),
-  DollarSign: React.createElement(DollarSign),
-  Target: React.createElement(Target),
-  Folder: React.createElement(Folder),
-  Book: React.createElement(Book),
-  Star: React.createElement(Star),
-  Users: React.createElement(Users),
-  Home: React.createElement(Home),
-  MessageSquare: React.createElement(MessageSquare),
-  Settings2: React.createElement(Settings2),
-  Lock: React.createElement(Lock),
-  Globe: React.createElement(Globe),
-  BarChart3: React.createElement(BarChart3),
-  Brain: React.createElement(Brain),
+import {
+  Briefcase as BriefcaseIcon,
+  FileText as FileTextIcon,
+  DollarSign as DollarSignIcon,
+  Target as TargetIcon,
+  Folder as FolderIcon,
+  Book as BookIcon,
+  Star as StarIcon,
+  Users as UsersIcon,
+  Home as HomeIcon,
+  MessageSquare as MessageSquareIcon,
+  Settings2 as Settings2Icon,
+  Lock as LockIcon,
+  Globe as GlobeIcon,
+  BarChart3 as BarChart3Icon,
+  Brain as BrainIcon
+} from 'lucide-react';
+
+export const iconMap: Record<GroupIconName, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  Briefcase: BriefcaseIcon,
+  FileText: FileTextIcon,
+  DollarSign: DollarSignIcon,
+  Target: TargetIcon,
+  Folder: FolderIcon,
+  Book: BookIcon,
+  Star: StarIcon,
+  Users: UsersIcon,
+  Home: HomeIcon,
+  MessageSquare: MessageSquareIcon,
+  Settings2: Settings2Icon,
+  Lock: LockIcon,
+  Globe: GlobeIcon,
+  BarChart3: BarChart3Icon,
+  Brain: BrainIcon
 };

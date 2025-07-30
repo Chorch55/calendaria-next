@@ -28,7 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useToast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { cn } from "@/lib/utils";
 import { useSettings, CustomNavGroup } from '@/context/settings-context';
 import { NAV_ITEMS, NavItem, iconMap, GroupIconName } from '@/config/sidebar';
@@ -165,7 +165,6 @@ const RenderStructureItem = ({ item, allNavItems, pathname, t }: { item: string 
 };
 
 export function SidebarLayoutContent() {
-  const { show } = useToast();
   const { isMobile } = useSidebar();
   const { appSettings, isSettingsLoaded } = useSettings();
   const { topNavOrder, bottomNavOrder, sidebarVisibility } = appSettings;
@@ -236,12 +235,11 @@ export function SidebarLayoutContent() {
               <DropdownMenuItem asChild><Link href="/dashboard/profile" className="flex items-center w-full"><User className="mr-2 h-4 w-4" /><span>{t("profile")}</span></Link></DropdownMenuItem>
               <DropdownMenuItem asChild><Link href="/dashboard/billing" className="flex items-center w-full"><CreditCardIcon className="mr-2 h-4 w-4" /><span>{t("billing")}</span></Link></DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => show(
-                <div>
-                  <div className="font-semibold">Log Out Clicked</div>
-                  <div className="text-sm text-muted-foreground">Log out functionality to be implemented.</div>
-                </div>
-              )}><LogOut className="mr-2 h-4 w-4" /><span>{t("logout")}</span></DropdownMenuItem>
+              <DropdownMenuItem onClick={() => 
+                toast("Log Out Clicked", {
+                description: "Log out functionality to be implemented."
+                })
+              }><LogOut className="mr-2 h-4 w-4" /><span>{t("logout")}</span></DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </SidebarFooter>

@@ -10,11 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
 import { Building, User, Briefcase, Users, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
 import { Badge } from '@/components/ui/badge';
+import { toast } from "sonner"
 
 const professionalProfiles = [
   { value: 'consultant', label: 'Consultant (Financial, Business, IT)' },
@@ -35,7 +35,6 @@ const subscriptionPlans = [
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [companyName, setCompanyName] = useState('');
   const [yourName, setYourName] = useState('');
   const [email, setEmail] = useState('');
@@ -49,9 +48,8 @@ export default function SignUpPage() {
     e.preventDefault();
     // TODO: Implement actual signup logic with Firebase
     console.log({ companyName, yourName, email, password, profileType, otherProfile, selectedPlan });
-    toast({
-      title: "Account Creation Initiated",
-      description: "Redirecting to dashboard...",
+    toast.success("Account Creation Initiated", {
+      description: "Redirecting to dashboard..."
     });
     // Simulate successful signup and redirect
     setTimeout(() => {

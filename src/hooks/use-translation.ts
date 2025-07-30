@@ -16,12 +16,11 @@ import { useCallback } from 'react';
  * string for a given key. It falls back to English if a translation is missing.
  * @returns {{t: (key: TranslationKey) => string, language: string}} An object containing the translation function and the current language code.
  */
-export const useTranslation = () => {
+export const useTranslation = (): { t: (key: TranslationKey) => string; language: string } => {
   const { appSettings } = useSettings();
   const { language } = appSettings;
 
   const t = useCallback((key: TranslationKey): string => {
-    // Fallback to English if the current language is not found or the key is missing in the current language.
     const langTranslations = translations[language] || translations.en;
     return langTranslations[key] || translations.en[key];
   }, [language]);
