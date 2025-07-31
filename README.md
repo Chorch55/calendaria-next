@@ -134,3 +134,6 @@ Recomendamos **Vercel** para el hosting frontend (Next.js) y **Supabase** para b
 
 ¡Y listo! Tu aplicación estará en línea con HTTPS y escalable.
 
+
+
+Esto es todo
