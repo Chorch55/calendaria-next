@@ -97,7 +97,7 @@ export default function LandingPage() {
       price: '€19',
       priceSuffix: '/mo',
       features: [
-        t('home_plan_feature_1_user'), 
+        t('home_plan_feature_individual_user'), 
         t('home_plan_feature_email_whatsapp'),
         t('home_plan_feature_calendar_management'),
         t('home_plan_feature_task_management'),
@@ -108,27 +108,27 @@ export default function LandingPage() {
       href: '/auth/signup?plan=user',
     },
     {
-      name: t('home_plan_small_team_name'),
+      name: t('home_plan_professional_name'),
       price: '€99',
       priceSuffix: '/mo',
       features: [
-        t('home_plan_feature_10_users'), 
+        t('home_plan_feature_professional_users'), 
         t('home_plan_feature_shared_inbox'),
         t('home_plan_feature_team_collaboration'),
         t('home_plan_feature_ai_advanced'),
         t('home_plan_feature_ai_logs'),
         t('home_plan_feature_priority_support')
       ],
-      cta: t('home_plan_small_team_cta'),
-      href: '/auth/signup?plan=medium_team',
+      cta: t('home_plan_professional_cta'),
+      href: '/auth/signup?plan=professional',
       popular: true,
     },
     {
-      name: t('home_plan_medium_team_name'),
+      name: t('home_plan_enterprise_name'),
       price: '€299',
       priceSuffix: '/mo',
       features: [
-        t('home_plan_feature_50_users'), 
+        t('home_plan_feature_enterprise_users'), 
         t('home_plan_feature_admin_controls'),
         t('home_plan_feature_full_customization'),
         t('home_plan_feature_billing_management'),
@@ -136,7 +136,7 @@ export default function LandingPage() {
         t('home_plan_feature_dedicated_support')
       ],
       cta: t('home_plan_coming_soon_cta'),
-      href: '/auth/signup?plan=big_team',
+      href: '/auth/signup?plan=enterprise',
       disabled: true,
     },
   ];
