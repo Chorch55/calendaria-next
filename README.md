@@ -133,3 +133,4 @@ Recomendamos **Vercel** para el hosting frontend (Next.js) y **Supabase** para b
 3. Para Stripe y N8N, configura sus webhooks apuntando a tu dominio de producción.
 
 ¡Y listo! Tu aplicación estará en línea con HTTPS y escalable.
+
