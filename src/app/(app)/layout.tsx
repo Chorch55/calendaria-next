@@ -2,13 +2,14 @@
 "use client";
 
 import React, { Suspense, useEffect, useState } from 'react';
-import {
-  SidebarProvider,
-} from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const LazySidebar = React.lazy(() => 
-  import('@/components/layout/sidebar-content').then(module => ({ default: module.SidebarLayoutContent }))
+  import('@/components/layout/modern-sidebar').then(module => ({ default: module.ModernSidebar }))
+);
+
+const LazyFloatingNotifications = React.lazy(() => 
+  import('@/components/notifications/floating-notification-bell').then(module => ({ default: module.FloatingNotificationBell }))
 );
 
 const PageSkeleton = () => (
@@ -39,7 +40,6 @@ const PageSkeleton = () => (
   </div>
 );
 
-
 const LayoutInternal = ({ pageContent }: { pageContent: React.ReactNode}) => {
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -48,16 +48,19 @@ const LayoutInternal = ({ pageContent }: { pageContent: React.ReactNode}) => {
   }, []);
 
   return (
-    <>
-      <Suspense fallback={<PageSkeleton />}>
+    <div className="flex h-screen bg-background">
+      <Suspense fallback={<div className="w-64 h-full bg-muted animate-pulse" />}>
         {hasMounted ? <LazySidebar /> : null}
       </Suspense>
       <main className="flex-1 p-6 overflow-auto relative">
         <Suspense fallback={<PageSkeleton />}>
-            {pageContent}
+          {pageContent}
         </Suspense>
       </main>
-    </>
+      <Suspense fallback={null}>
+        {hasMounted ? <LazyFloatingNotifications /> : null}
+      </Suspense>
+    </div>
   );
 }
 
@@ -67,8 +70,6 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider defaultOpen>
-      <LayoutInternal pageContent={children} />
-    </SidebarProvider>
+    <LayoutInternal pageContent={children} />
   );
 }

@@ -44,32 +44,32 @@ export function Logo({ className, href = '/' }: { className?: string, href?: str
     <Link 
       href={href} 
       onClick={handleClick}
-      className={`flex items-center space-x-2 text-2xl font-bold text-primary ${className}`}
+      className={`flex items-center justify-center space-x-2 text-2xl font-bold text-primary w-full ${className}`}
     >
       <svg
-        width="28"
-        height="28"
+        width="32"
+        height="32"
         viewBox="0 0 100 100"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-7 w-7"
+        className="h-8 w-8"
       >
         {/* Binder rings */}
-        <rect x="30" y="5" width="10" height="15" rx="5" fill="hsl(var(--primary))" />
-        <rect x="60" y="5" width="10" height="15" rx="5" fill="hsl(var(--primary))" />
+        <rect x="30" y="5" width="10" height="15" rx="5" fill="#0891b2" />
+        <rect x="60" y="5" width="10" height="15" rx="5" fill="#0891b2" />
         
         {/* Main calendar body */}
-        <rect x="10" y="15" width="80" height="80" rx="15" fill="hsl(var(--primary))" />
+        <rect x="10" y="15" width="80" height="80" rx="15" fill="#0891b2" />
         
         {/* AI Sparkle, centered */}
         <g transform="translate(38, 43) scale(0.8)">
             <path
             d="M20.5,0,25,12.5,37.5,16,25,19.5,20.5,32,16,19.5,3.5,16,16,12.5Z"
-            fill="hsl(var(--accent))"
+            fill="#f59e0b"
             />
         </g>
       </svg>
       <span className="group-data-[collapsible=icon]:hidden">{/* This will hide text when sidebar uses collapsible="icon" and is collapsed */}
-        Calendar<span className="text-accent">IA</span>
+        Calendar<span className="text-amber-500">IA</span>
       </span>
     </Link>
   );

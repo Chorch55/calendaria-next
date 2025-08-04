@@ -56,7 +56,7 @@ const defaultBottomNavOrder: (string | CustomNavGroup)[] = [
     icon: 'Settings2',
     children: ['team_management', 'role_management', 'services', 'online-booking'],
   },
-  'ai_logs', 'settings', 'suggestions', 'assistant'
+  'ai_logs', 'suggestions', 'assistant'
 ];
 
 const defaultAppSettings: AppSettings = {

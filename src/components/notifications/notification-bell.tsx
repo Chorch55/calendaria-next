@@ -11,7 +11,6 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSettings } from '@/context/settings-context';
 import { cn } from '@/lib/utils';
-import { SidebarMenuButton } from '../ui/sidebar';
 
 interface NotificationItem {
   id: string;
@@ -59,21 +58,21 @@ export function NotificationBell() {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <SidebarMenuButton
-          tooltip={{ children: "Notifications", side: "right", align: "center" }}
-          className="relative"
+        <Button
+          variant="ghost"
+          className="relative w-full justify-start gap-3 px-3 py-2.5 mx-3 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out group"
         >
-          <Bell className="h-5 w-5" />
-          <span>Notifications</span>
+          <Bell className="h-5 w-5 shrink-0" />
+          <span className="truncate">Notifications</span>
           {appSettings.showNotificationBadge && unreadCount > 0 && (
             <Badge
               variant="destructive"
-              className="absolute right-2 top-1.5 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full group-data-[collapsible=icon]:top-0.5 group-data-[collapsible=icon]:right-0.5"
+              className="absolute right-3 top-1.5 h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full"
             >
               {unreadCount}
             </Badge>
           )}
-        </SidebarMenuButton>
+        </Button>
       </PopoverTrigger>
       <PopoverContent 
         className="w-80 md:w-96 p-0 border-border shadow-xl rounded-lg" 

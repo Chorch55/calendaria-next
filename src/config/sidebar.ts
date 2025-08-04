@@ -29,7 +29,6 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'ai_logs', href: '/dashboard/logs', label: 'AI Logs', icon: Brain },
   { id: 'assistant', href: '/dashboard/assistant', label: 'Assistant', icon: Bot },
   { id: 'suggestions', href: '/dashboard/suggestions', label: 'Suggestions', icon: Lightbulb },
-  { id: 'settings', href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];
 
 export const AVAILABLE_GROUP_ICONS = [
