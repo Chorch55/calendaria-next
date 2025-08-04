@@ -156,7 +156,7 @@ export function PublicHeader() {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         
         {/* Left item: Logo */}
@@ -173,10 +173,10 @@ export function PublicHeader() {
         <div className="flex items-center gap-2">
           {/* Desktop actions - hide on medium screens and below */}
           <div className="hidden lg:flex items-center gap-3">
-            <Button variant="outline" asChild className="whitespace-nowrap">
+            <Button variant="outline" asChild className="whitespace-nowrap border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 transition-all duration-300">
               <Link href="/auth/login-mt">{t('login')}</Link>
             </Button>
-            <Button asChild className="whitespace-nowrap">
+            <Button asChild className="whitespace-nowrap bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 shadow-md hover:shadow-lg transition-all duration-300 border-0">
               <Link href="/auth/signup-mt">{t('signup')}</Link>
             </Button>
             <ThemeToggle />

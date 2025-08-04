@@ -215,19 +215,21 @@ export default function SignupMultiTenantPage() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-4xl"
       >
-        <Card className="shadow-xl border-0 bg-card/95 backdrop-blur-sm">
+        <Card className="shadow-xl border border-primary/20 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-sm">
           <CardHeader className="text-center space-y-4">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center"
+              className="mx-auto w-16 h-16 bg-gradient-to-br from-primary/20 via-primary/15 to-accent/20 rounded-full flex items-center justify-center shadow-md"
             >
               <Building2 className="h-8 w-8 text-primary" />
             </motion.div>
             <div>
-              <CardTitle className="text-3xl font-bold text-foreground">
-                {t('auth_signup_title')}
+              <CardTitle className="text-3xl font-bold">
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  {t('auth_signup_title')}
+                </span>
               </CardTitle>
               <CardDescription className="text-muted-foreground mt-2">
                 {t('auth_signup_subtitle')}
@@ -417,7 +419,7 @@ export default function SignupMultiTenantPage() {
                       type="button"
                       onClick={handleNextToAdmin}
                       disabled={!companyName || !companyEmail}
-                      className="flex items-center"
+                      className="flex items-center bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 border-0 shadow-md hover:shadow-lg transition-all duration-300"
                     >
                       {t('auth_next_button')}
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -546,7 +548,7 @@ export default function SignupMultiTenantPage() {
                       <Button
                         type="submit"
                         disabled={loading}
-                        className="flex items-center"
+                        className="flex items-center bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 border-0 shadow-md hover:shadow-lg transition-all duration-300"
                       >
                         {loading ? (
                           <motion.div

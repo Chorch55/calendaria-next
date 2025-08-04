@@ -192,7 +192,12 @@ export default function LandingPage() {
   };
   
   const pageBackgroundStyle = isMounted ? {
-    backgroundImage: `radial-gradient(ellipse farthest-corner at 20% 80%, hsla(var(--primary) / ${theme === 'dark' ? 0.15 : 0.1}), transparent 50%), radial-gradient(ellipse farthest-corner at 80% 30%, hsla(var(--accent) / ${theme === 'dark' ? 0.15 : 0.1}), transparent 50%)`,
+    backgroundImage: `
+      radial-gradient(ellipse farthest-corner at 20% 80%, hsla(var(--primary) / ${theme === 'dark' ? 0.25 : 0.18}), transparent 65%), 
+      radial-gradient(ellipse farthest-corner at 80% 30%, hsla(var(--accent) / ${theme === 'dark' ? 0.25 : 0.18}), transparent 65%),
+      radial-gradient(ellipse farthest-corner at 40% 40%, hsla(var(--primary) / ${theme === 'dark' ? 0.12 : 0.1}), transparent 75%),
+      radial-gradient(ellipse farthest-corner at 60% 10%, hsla(var(--accent) / ${theme === 'dark' ? 0.15 : 0.12}), transparent 80%)
+    `,
   } : {};
 
   return (
@@ -209,20 +214,22 @@ export default function LandingPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
-                  {t('home_hero_title')}
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+                  <span className="bg-gradient-to-r from-primary via-primary/80 to-accent bg-clip-text text-transparent">
+                    {t('home_hero_title')}
+                  </span>
                 </h1>
                 <p className="mt-6 text-lg text-muted-foreground">
                   {t('home_hero_description')}
                 </p>
                 <div className="mt-10 flex flex-col sm:flex-row justify-center md:justify-start gap-4">
-                  <Button size="lg" variant="outline" asChild>
-                    <Link href="/auth/login-mt">{t('login')}</Link>
-                  </Button>
-                  <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
+                  <Button size="lg" className="bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 shadow-lg hover:shadow-xl transition-all duration-300 border-0" asChild>
                     <Link href="/auth/signup-mt">{t('home_hero_cta_get_started')}</Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild>
+                  <Button size="lg" variant="outline" className="border-primary/30 text-primary hover:border-primary/50 hover:bg-primary/10 hover:text-primary transition-all duration-300" asChild>
+                    <Link href="/auth/login-mt">{t('login')}</Link>
+                  </Button>
+                  <Button size="lg" variant="outline" className="border-accent/30 text-accent hover:border-accent/50 hover:bg-accent/10 hover:text-accent transition-all duration-300" asChild>
                     <Link href="#features" onClick={handleScroll}>{t('learn_more')}</Link>
                   </Button>
                 </div>
@@ -349,16 +356,15 @@ export default function LandingPage() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: i * 0.1 }}
                   >
-                      <Card className="flex flex-col items-center text-center p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full">
-                        <div className="p-3 rounded-full bg-primary/10 mb-4">
+                      <Card className="group relative flex flex-col items-center text-center p-6 shadow-lg hover:shadow-xl transition-all duration-300 h-full border border-primary/10 hover:border-primary/20 bg-gradient-to-br from-card via-card to-card/95 hover:from-primary/8 hover:via-accent/6 hover:to-accent/8">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-accent/6 to-accent/8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
+                        <div className="relative z-10 p-4 rounded-full bg-gradient-to-br from-primary/20 via-primary/15 to-accent/20 mb-4 group-hover:scale-110 group-hover:from-primary/30 group-hover:to-accent/30 transition-all duration-300 shadow-md">
                           {feature.icon}
                         </div>
-                        <CardHeader className="p-0 pb-2">
-                          <CardTitle className="text-xl font-semibold text-center">{feature.title}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0 flex-1">
-                          <p className="text-muted-foreground text-center">{feature.description}</p>
-                        </CardContent>
+                        <div className="relative z-10 w-full text-center space-y-2">
+                          <h3 className="text-xl font-semibold group-hover:text-primary transition-colors duration-300">{feature.title}</h3>
+                          <p className="text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">{feature.description}</p>
+                        </div>
                       </Card>
                   </motion.div>
                 ))}
@@ -569,13 +575,19 @@ export default function LandingPage() {
            </motion.section>
 
           {/* CTA Section */}
-          <section className="w-full py-16 md:py-24">
-            <div className="container mx-auto px-4 text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">{t('home_final_cta_title')}</h2>
+          <section className="relative w-full py-16 md:py-24 overflow-hidden">
+            {/* Decorative background for CTA */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 opacity-50"></div>
+            <div className="relative container mx-auto px-4 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                  {t('home_final_cta_title')}
+                </span>
+              </h2>
               <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto text-muted-foreground">
                 {t('home_final_cta_desc')}
               </p>
-              <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
+              <Button size="lg" asChild className="bg-gradient-to-r from-accent via-accent to-primary hover:from-accent/90 hover:via-accent/80 hover:to-primary/90 text-accent-foreground shadow-lg hover:shadow-xl transition-all duration-300">
                 <Link href="/auth/signup-mt">{t('home_final_cta_button')}</Link>
               </Button>
             </div>
