@@ -81,9 +81,7 @@ const RenderStructureItem = ({ item, allNavItems, pathname, t }: { item: string 
     // It's a CustomNavGroup
     const group = item;
     const IconComponent = iconMap[group.icon as GroupIconName] || FolderInput;
-    const GroupIcon = typeof IconComponent === "function"
-      ? React.createElement(IconComponent, { className: "h-5 w-5" })
-      : null;
+    
     const hasActiveChild = group.children.some(childId => pathname === allNavItems.get(childId)?.href);
 
     const renderGroupChildren = (isPopover = false) => (
@@ -119,7 +117,7 @@ const RenderStructureItem = ({ item, allNavItems, pathname, t }: { item: string 
                 <Popover>
                     <PopoverTrigger asChild>
                         <SidebarMenuButton tooltip={{ children: group.name, side: "right", align: "center" }}>
-                            {GroupIcon}
+                            <IconComponent className="h-5 w-5" />
                         </SidebarMenuButton>
                     </PopoverTrigger>
                     <PopoverContent side="right" align="start" className="p-0 w-auto">
@@ -143,7 +141,7 @@ const RenderStructureItem = ({ item, allNavItems, pathname, t }: { item: string 
                             data-active={hasActiveChild}
                             >
                             <div className="transition-colors group-data-[state=open]:text-primary text-teal-600">
-                                {GroupIcon}
+                                <IconComponent className="h-5 w-5" />
                             </div>
                             <span className="flex-1 truncate">{group.name}</span>
                             <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />

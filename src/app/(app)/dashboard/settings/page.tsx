@@ -636,18 +636,18 @@ const GroupNavItem = ({ group, allNavItems, appSettings, updateAppSettings, t, o
             onDrop={handleDrop}
         >
             <Card className="bg-transparent border-0 shadow-none">
-                <CardHeader className="p-2 flex-row items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div onPointerDown={(e) => controls.start(e)} className="cursor-grab touch-none">
+                <CardHeader className="p-2 flex flex-row items-center justify-between w-full">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div onPointerDown={(e) => controls.start(e)} className="cursor-grab touch-none flex-shrink-0">
                             <GripVertical className="h-5 w-5 text-muted-foreground" />
                         </div>
                         {(() => {
                           const Icon = iconMap[group.icon as GroupIconName] || FolderInput;
-                          return <Icon className="h-5 w-5 text-teal-600" />;
+                          return <Icon className="h-5 w-5 text-teal-600 flex-shrink-0" />;
                         })()}
-                        <span className="font-semibold text-sm">{group.name}</span>
+                        <span className="font-semibold text-sm truncate">{group.name}</span>
                     </div>
-                     <div className="flex items-center gap-1 sm:gap-2 cursor-default" onPointerDown={(e) => e.stopPropagation()}>
+                     <div className="flex items-center gap-1 sm:gap-2 cursor-default flex-shrink-0 ml-4" onPointerDown={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-teal-600/20 group text-teal-600" onClick={(e) => { e.stopPropagation(); openEditDialog();}}>
                           <Edit className="h-4 w-4 text-teal-600 transition-colors group-hover:text-white" />
                         </Button>
@@ -682,7 +682,10 @@ const GroupNavItem = ({ group, allNavItems, appSettings, updateAppSettings, t, o
                                             <div onPointerDown={(e) => controls.start(e)} className="cursor-grab touch-none">
                                               <GripVertical className="h-4 w-4 text-muted-foreground" />
                                             </div>
-                                            {React.cloneElement(childItem.icon, { className: "h-4 w-4 text-teal-600" })}
+                                            {(() => {
+                                                const Icon = childItem.icon as React.ComponentType<React.SVGProps<SVGSVGElement>>;
+                                                return <Icon className="h-4 w-4 text-teal-600" />;
+                                            })()}
                                             <span className="text-sm">{t(childItem.id)}</span>
                                         </div>
                                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleUnGroup(childId); }}>
