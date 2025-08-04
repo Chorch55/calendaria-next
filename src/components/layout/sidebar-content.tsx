@@ -70,9 +70,7 @@ const RenderStructureItem = ({ item, allNavItems, pathname, t }: { item: string 
                     className="data-[active=true]:text-sidebar-primary-foreground data-[active=true]:bg-sidebar-primary"
                 >
                     <Link href={navItem.href}>
-                        {typeof navItem.icon === "function"
-                          ? React.createElement(navItem.icon, { className: "h-5 w-5" })
-                          : null}
+                        {navItem.icon && <navItem.icon className="h-5 w-5" />}
                         <span className="flex-1 truncate">{t(navItem.id as TranslationKey)}</span>
                     </Link>
                 </SidebarMenuButton>
@@ -105,11 +103,7 @@ const RenderStructureItem = ({ item, allNavItems, pathname, t }: { item: string 
                             className="data-[active=true]:text-sidebar-primary-foreground data-[active=true]:bg-sidebar-primary"
                         >
                             <Link href={childItem.href}>
-                                {typeof childItem.icon === "function"
-                                  ? React.createElement(childItem.icon, { className: "h-4 w-4" })
-                                  : React.isValidElement(childItem.icon)
-                                    ? childItem.icon
-                                    : null}
+                                {childItem.icon && <childItem.icon className="h-4 w-4" />}
                                 <span>{t(childItem.id as TranslationKey)}</span>
                             </Link>
                         </SidebarMenuButton>
