@@ -105,7 +105,7 @@ export default function LandingPage() {
         t('home_plan_feature_ai_basic')
       ],
       cta: t('home_plan_individual_cta'),
-      href: '/auth/signup?plan=user',
+      href: '/auth/signup-mt?plan=user',
     },
     {
       name: t('home_plan_professional_name'),
@@ -120,7 +120,7 @@ export default function LandingPage() {
         t('home_plan_feature_priority_support')
       ],
       cta: t('home_plan_professional_cta'),
-      href: '/auth/signup?plan=professional',
+      href: '/auth/signup-mt?plan=professional',
       popular: true,
     },
     {
@@ -136,7 +136,7 @@ export default function LandingPage() {
         t('home_plan_feature_dedicated_support')
       ],
       cta: t('home_plan_coming_soon_cta'),
-      href: '/auth/signup?plan=enterprise',
+      href: '/auth/signup-mt?plan=enterprise',
       disabled: true,
     },
   ];
@@ -217,10 +217,10 @@ export default function LandingPage() {
                 </p>
                 <div className="mt-10 flex flex-col sm:flex-row justify-center md:justify-start gap-4">
                   <Button size="lg" variant="outline" asChild>
-                    <Link href="/auth/login">{t('login')}</Link>
+                    <Link href="/auth/login-mt">{t('login')}</Link>
                   </Button>
                   <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                    <Link href="/auth/signup">{t('home_hero_cta_get_started')}</Link>
+                    <Link href="/auth/signup-mt">{t('home_hero_cta_get_started')}</Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild>
                     <Link href="#features" onClick={handleScroll}>{t('learn_more')}</Link>
@@ -353,11 +353,11 @@ export default function LandingPage() {
                         <div className="p-3 rounded-full bg-primary/10 mb-4">
                           {feature.icon}
                         </div>
-                        <CardHeader className="p-0">
-                          <CardTitle className="text-xl font-semibold">{feature.title}</CardTitle>
+                        <CardHeader className="p-0 pb-2">
+                          <CardTitle className="text-xl font-semibold text-center">{feature.title}</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-0 mt-2">
-                          <p className="text-muted-foreground">{feature.description}</p>
+                        <CardContent className="p-0 flex-1">
+                          <p className="text-muted-foreground text-center">{feature.description}</p>
                         </CardContent>
                       </Card>
                   </motion.div>
@@ -576,7 +576,7 @@ export default function LandingPage() {
                 {t('home_final_cta_desc')}
               </p>
               <Button size="lg" asChild className="bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Link href="/auth/signup">{t('home_final_cta_button')}</Link>
+                <Link href="/auth/signup-mt">{t('home_final_cta_button')}</Link>
               </Button>
             </div>
           </section>

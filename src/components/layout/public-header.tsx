@@ -29,6 +29,13 @@ export function PublicHeader() {
     e.preventDefault();
     const href = e.currentTarget.href;
     const targetId = href.replace(/.*\#/, '');
+    
+    // Si no estamos en la página principal, navegar primero a ella
+    if (pathname !== '/') {
+      window.location.href = `/#${targetId}`;
+      return;
+    }
+    
     const elem = document.getElementById(targetId);
     
     if (elem) {
@@ -57,7 +64,7 @@ export function PublicHeader() {
         
             requestAnimationFrame(animation);
         }
-        // h-16 = 4rem = 64px offset for the sticky header
+        // h-16 = 4rem = 64px offset for the sticky header  
         smoothScrollToElement(elem, 1000, 64);
     }
   };
@@ -157,27 +164,27 @@ export function PublicHeader() {
             <Logo />
         </div>
 
-        {/* Center item: Nav links - hidden on mobile, absolutely positioned on desktop */}
-        <nav className="hidden md:absolute md:left-1/2 md:top-1/2 md:flex md:-translate-x-1/2 md:-translate-y-1/2 md:gap-x-6">
+        {/* Center item: Nav links - hidden on mobile and small tablets */}
+        <nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 lg:gap-x-6">
             {navItems}
         </nav>
         
         {/* Right Grouping: Actions and Mobile Menu */}
         <div className="flex items-center gap-2">
-          {/* Desktop actions */}
-          <div className="hidden md:flex items-center gap-2">
-            <Button variant="outline" asChild>
-              <Link href="/auth/login">{t('login')}</Link>
+          {/* Desktop actions - hide on medium screens and below */}
+          <div className="hidden lg:flex items-center gap-3">
+            <Button variant="outline" asChild className="whitespace-nowrap">
+              <Link href="/auth/login-mt">{t('login')}</Link>
             </Button>
-            <Button asChild>
-              <Link href="/auth/signup">{t('signup')}</Link>
+            <Button asChild className="whitespace-nowrap">
+              <Link href="/auth/signup-mt">{t('signup')}</Link>
             </Button>
             <ThemeToggle />
             <LanguageSelector />
           </div>
 
-          {/* Mobile Menu */}
-          <div className="md:hidden">
+          {/* Mobile Menu - show on medium screens and below */}
+          <div className="lg:hidden">
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -190,10 +197,10 @@ export function PublicHeader() {
                   {mobileNavItems}
                   <div className="mt-6 flex flex-col gap-4">
                     <Button variant="outline" asChild>
-                        <Link href="/auth/login">{t('login')}</Link>
+                        <Link href="/auth/login-mt">{t('login')}</Link>
                     </Button>
                     <Button asChild>
-                        <Link href="/auth/signup">{t('signup')}</Link>
+                        <Link href="/auth/signup-mt">{t('signup')}</Link>
                     </Button>
                   </div>
                   <div className="mt-8 border-t pt-6 flex items-center justify-center gap-4">
