@@ -2,23 +2,16 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/database'
 import { useTranslation } from '@/hooks/use-translation'
 import { Building2, LogIn } from 'lucide-react'
 import { motion } from 'framer-motion'
-
-// Cliente Supabase
-const supabase = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
-)
 
 export default function LoginMultiTenantPage() {
   const [email, setEmail] = useState('')
@@ -34,52 +27,20 @@ export default function LoginMultiTenantPage() {
     setError('')
 
     try {
-      // Buscar usuario en nuestra tabla
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select(`
-          *,
-          company:companies(*)
-        `)
-        .eq('email', email)
-        .eq('is_active', true)
-        .is('deleted_at', null)
-        .single()
-
-      if (userError || !userData) {
-        setError(t('auth_error_user_not_found'))
-        return
-      }
-
-      // Por ahora, validación simple de password (en producción usarías bcrypt)
-      if (password !== 'demo123') {
-        setError(t('auth_error_wrong_password'))
-        return
-      }
-
-      // Actualizar último login
-      await supabase
-        .from('users')
-        .update({ last_login: new Date().toISOString() })
-        .eq('id', userData.id)
-
-      // Establecer contexto de empresa
-      await supabase.rpc('set_current_company', { 
-        company_id: userData.company_id 
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
       })
 
-      // Guardar sesión en localStorage
-      localStorage.setItem('calendaria_user', JSON.stringify({
-        id: userData.id,
-        email: userData.email,
-        full_name: userData.full_name,
-        role: userData.role,
-        company_id: userData.company_id,
-        company: userData.company
-      }))
+      if (result?.error) {
+        setError(result.error)
+        return
+      }
 
-      // Redirigir al dashboard
-      router.push('/dashboard')
+      if (result?.ok) {
+        router.push('/dashboard')
+      }
       
     } catch (error) {
       console.error('Error en login:', error)

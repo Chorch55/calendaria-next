@@ -1,17 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@supabase/supabase-js'
-import type { Database, Company, User } from '@/types/database'
+import { useSession } from 'next-auth/react'
+import type { Company, User } from '@/types/database'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-
-// Cliente Supabase para testing
-const supabase = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
-)
 
 interface CompanyWithStats extends Company {
   user_count: number
@@ -19,14 +13,17 @@ interface CompanyWithStats extends Company {
 }
 
 export default function DashboardPage() {
+  const { data: session } = useSession()
   const [companies, setCompanies] = useState<CompanyWithStats[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCompany, setSelectedCompany] = useState<string>('')
 
   useEffect(() => {
-    loadDashboardData()
-  }, [])
+    if (session) {
+      loadDashboardData()
+    }
+  }, [session])
 
   async function loadDashboardData() {
     try {

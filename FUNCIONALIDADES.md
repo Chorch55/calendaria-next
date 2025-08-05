@@ -5,12 +5,12 @@ Esta aplicación, denominada **CalendarIA**, combina comunicación, calendario y
 ## Tecnologías utilizadas
 
 - **Frontend:** Next.js + Tailwind CSS + shadcn/ui
-- **Autenticación:** Supabase Auth (JWT, OAuth y RLS)
-- **Base de datos:** Supabase PostgreSQL
+- **Autenticación:** NextAuth.js (JWT, Credentials Provider)
+- **Base de datos:** PostgreSQL + Prisma ORM
 - **Automatización:** N8N vía webhooks/API
 - **Pagos:** Stripe Checkout
-- **Hosting:** Frontend en Vercel y backend/bd en Supabase
-- **Seguridad:** RLS, HTTPS, JWT, roles y variables protegidas
+- **Hosting:** Frontend en Vercel y backend/bd en PostgreSQL
+- **Seguridad:** NextAuth.js, HTTPS, JWT, roles y variables protegidas
 
 ## Principales funcionalidades
 

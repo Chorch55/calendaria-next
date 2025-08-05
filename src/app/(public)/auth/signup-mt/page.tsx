@@ -8,23 +8,15 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/types/database'
 import { useTranslation } from '@/hooks/use-translation'
 import { Building2, Users, Crown, CheckCircle2, ArrowLeft, ArrowRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-// Cliente Supabase
-const supabase = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
-)
-
-const plans = [
+// Planes disponibles
+const PLANS = [
   {
     id: 'basic',
-    name: 'auth_plan_basic',
+    name: 'home_plan_individual_name',
     icon: Users,
     price: '€19/mo',
     features: [
@@ -38,10 +30,9 @@ const plans = [
   },
   {
     id: 'premium',
-    name: 'auth_plan_premium',
+    name: 'home_plan_professional_name',
     icon: Crown,
     price: '€99/mo',
-    popular: true,
     features: [
       'home_plan_feature_professional_users',
       'home_plan_feature_shared_inbox',
@@ -53,9 +44,9 @@ const plans = [
   },
   {
     id: 'enterprise',
-    name: 'auth_plan_enterprise',
+    name: 'home_plan_enterprise_name',
     icon: Building2,
-    price: 'Custom',
+    price: '€299/mo',
     features: [
       'home_plan_feature_enterprise_users',
       'home_plan_feature_admin_controls',
@@ -123,68 +114,30 @@ export default function SignupMultiTenantPage() {
         return
       }
 
-      // Verificar que no existe una empresa con el mismo email
-      const { data: existingCompany } = await supabase
-        .from('companies')
-        .select('id')
-        .eq('email', companyEmail)
-        .single()
+      // Llamar a nuestra API para crear la empresa y usuario
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          // Datos de empresa
+          companyName,
+          companyEmail,
+          companyPhone: companyPhone || null,
+          companyWebsite: companyWebsite || null,
+          subscriptionPlan,
+          // Datos de usuario
+          fullName,
+          userEmail,
+          password
+        }),
+      })
 
-      if (existingCompany) {
-        setError(t('auth_error_company_exists'))
-        return
-      }
+      const result = await response.json()
 
-      // Verificar que no existe un usuario con el mismo email
-      const { data: existingUser } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', userEmail)
-        .single()
-
-      if (existingUser) {
-        setError(t('auth_error_user_exists'))
-        return
-      }
-
-      // Crear la empresa
-      const { data: company, error: companyError } = await supabase
-        .from('companies')
-        .insert({
-          name: companyName,
-          email: companyEmail,
-          phone: companyPhone || null,
-          website: companyWebsite || null,
-          subscription_plan: subscriptionPlan,
-          is_active: true
-        })
-        .select()
-        .single()
-
-      if (companyError || !company) {
-        setError('Error al crear la empresa: ' + (companyError?.message || 'Unknown error'))
-        return
-      }
-
-      // Crear el usuario super admin
-      // En lugar de usar Supabase Auth, insertar directamente en nuestra tabla
-      const { data: user, error: userError } = await supabase
-        .from('users')
-        .insert({
-          company_id: company.id,
-          email: userEmail,
-          full_name: fullName,
-          role: 'super_admin',
-          is_active: true,
-          // En producción, hashear la contraseña
-          password_hash: password // TEMPORAL: En producción usar bcrypt
-        })
-        .select()
-        .single()
-
-      if (userError) {
-        setError('Error al crear el usuario: ' + userError.message)
-        return
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al crear la cuenta')
       }
 
       setSuccess(t('auth_success_message'))
@@ -201,254 +154,350 @@ export default function SignupMultiTenantPage() {
     }
   }
 
-  const slideVariants = {
-    enter: { opacity: 0, x: 50 },
-    center: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -50 }
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-4xl"
-      >
-        <Card className="shadow-xl border border-primary/20 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-sm">
-          <CardHeader className="text-center space-y-4">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mx-auto w-16 h-16 bg-gradient-to-br from-primary/20 via-primary/15 to-accent/20 rounded-full flex items-center justify-center shadow-md"
-            >
-              <Building2 className="h-8 w-8 text-primary" />
-            </motion.div>
-            <div>
-              <CardTitle className="text-3xl font-bold">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  {t('auth_signup_title')}
-                </span>
-              </CardTitle>
-              <CardDescription className="text-muted-foreground mt-2">
-                {t('auth_signup_subtitle')}
-              </CardDescription>
-            </div>
-            
-            {/* Progress indicator */}
-            <div className="flex justify-center space-x-4 mt-6">
-              {[1, 2, 3].map((stepNum) => (
-                <div
-                  key={stepNum}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                    step >= stepNum
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground'
+      <div className="w-full max-w-4xl">
+        {/* Indicador de progreso */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-center space-x-4">
+            {[1, 2, 3].map((stepNumber) => (
+              <div key={stepNumber} className="flex items-center">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.5, delay: stepNumber * 0.1 }}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
+                    step >= stepNumber
+                      ? 'bg-gradient-to-br from-primary via-primary to-accent text-primary-foreground shadow-md'
+                      : 'bg-muted text-muted-foreground border border-border'
                   }`}
                 >
-                  {step > stepNum ? (
-                    <CheckCircle2 className="w-4 h-4" />
+                  {step > stepNumber ? (
+                    <CheckCircle2 className="w-6 h-6" />
                   ) : (
-                    stepNum
+                    stepNumber
                   )}
-                </div>
-              ))}
-            </div>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
-            <AnimatePresence mode="wait">
-              {/* Step 1: Plan Selection */}
-              {step === 1 && (
-                <motion.div
-                  key="step1"
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.3 }}
-                  className="space-y-6"
-                >
-                  <div className="text-center">
-                    <h3 className="text-xl font-semibold text-foreground">
-                      {t('auth_plan_selection_title')}
-                    </h3>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {plans.map((plan) => {
-                      const Icon = plan.icon
-                      return (
-                        <motion.div
-                          key={plan.id}
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className={`relative cursor-pointer`}
-                          onClick={() => handlePlanSelect(plan.id as any)}
-                        >
-                          <Card className={`transition-all duration-200 ${
-                            subscriptionPlan === plan.id
-                              ? 'ring-2 ring-primary bg-primary/5'
-                              : 'hover:shadow-md border-border'
-                          }`}>
-                            {plan.popular && (
-                              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                                <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium">
-                                  {t('home_plan_most_popular')}
-                                </span>
-                              </div>
-                            )}
-                            <CardHeader className="text-center">
-                              <Icon className="w-8 h-8 mx-auto text-primary mb-2" />
-                              <CardTitle className="text-lg">
-                                {t(plan.name as any)}
-                              </CardTitle>
-                              <div className="text-2xl font-bold text-foreground">
-                                {plan.price}
-                              </div>
-                            </CardHeader>
-                            <CardContent>
-                              <ul className="space-y-2 text-sm text-muted-foreground">
-                                {plan.features.map((feature, index) => (
-                                  <li key={index} className="flex items-center">
-                                    <CheckCircle2 className="w-4 h-4 text-primary mr-2 flex-shrink-0" />
-                                    {t(feature)}
-                                  </li>
-                                ))}
-                              </ul>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      )
-                    })}
-                  </div>
                 </motion.div>
-              )}
+                {stepNumber < 3 && (
+                  <div
+                    className={`w-16 h-1 ml-4 transition-all duration-300 ${
+                      step > stepNumber ? 'bg-gradient-to-r from-primary to-accent' : 'bg-muted'
+                    }`}
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex justify-center mt-4"
+          >
+            <div className="text-sm text-muted-foreground">
+              {step === 1 && "Seleccionar Plan"}
+              {step === 2 && "Información de Empresa"}
+              {step === 3 && "Crear Administrador"}
+            </div>
+          </motion.div>
+        </motion.div>
 
-              {/* Step 2: Company Information */}
-              {step === 2 && (
-                <motion.div
-                  key="step2"
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.3 }}
-                  className="space-y-6"
-                >
-                  <div className="text-center">
-                    <h3 className="text-xl font-semibold text-foreground">
-                      {t('auth_company_step_title')}
-                    </h3>
-                    <p className="text-muted-foreground">
-                      {t('auth_company_step_subtitle')}
-                    </p>
+        <AnimatePresence mode="wait">
+          {/* Paso 1: Selección de Plan */}
+          {step === 1 && (
+            <motion.div
+              key="step1"
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="shadow-xl border border-primary/20 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-sm">
+                <CardHeader className="text-center">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="mx-auto w-16 h-16 bg-gradient-to-br from-primary/20 via-primary/15 to-accent/20 rounded-full flex items-center justify-center shadow-md mb-4"
+                  >
+                    <Crown className="h-8 w-8 text-primary" />
+                  </motion.div>
+                  <CardTitle className="text-2xl text-foreground">
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      {t('auth_plan_selection_title')}
+                    </span>
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Selecciona el plan que mejor se adapte a tu empresa
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {PLANS.map((plan, index) => (
+                      <motion.div
+                        key={plan.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        className={`relative p-6 border-2 rounded-lg cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                          subscriptionPlan === plan.id
+                            ? 'border-primary bg-primary/5 shadow-md'
+                            : 'border-border hover:border-primary/50 bg-card'
+                        }`}
+                        onClick={() => setSubscriptionPlan(plan.id as 'basic' | 'premium' | 'enterprise')}
+                      >
+                        {subscriptionPlan === plan.id && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="absolute -top-2 -right-2"
+                          >
+                            <CheckCircle2 className="w-6 h-6 text-primary bg-background rounded-full" />
+                          </motion.div>
+                        )}
+                        <div className="text-center">
+                          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-primary/20 via-primary/15 to-accent/20 rounded-full flex items-center justify-center shadow-md mb-4">
+                            <plan.icon className="w-6 h-6 text-primary" />
+                          </div>
+                          <h3 className="text-lg font-semibold text-foreground mb-2">
+                            {t(plan.name)}
+                          </h3>
+                          <p className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-4">
+                            {plan.price}
+                          </p>
+                          <ul className="text-sm text-muted-foreground space-y-2">
+                            {plan.features.map((feature, featureIndex) => (
+                              <motion.li
+                                key={featureIndex}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.3, delay: (index * 0.1) + (featureIndex * 0.05) }}
+                                className="flex items-center text-left"
+                              >
+                                <CheckCircle2 className="w-4 h-4 text-primary mr-3 flex-shrink-0" />
+                                <span className="text-foreground">{t(feature)}</span>
+                              </motion.li>
+                            ))}
+                          </ul>
+                        </div>
+                      </motion.div>
+                    ))}
                   </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className="mt-8 flex justify-center"
+                  >
+                    <Button
+                      onClick={() => handlePlanSelect(subscriptionPlan)}
+                      className="px-8 bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 border-0 shadow-md hover:shadow-lg transition-all duration-300"
+                    >
+                      Continuar con este plan
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </motion.div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+          {/* Paso 2: Información de la Empresa */}
+          {step === 2 && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="shadow-xl border border-primary/20 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-sm">
+                <CardHeader className="text-center">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="mx-auto w-16 h-16 bg-gradient-to-br from-primary/20 via-primary/15 to-accent/20 rounded-full flex items-center justify-center shadow-md mb-4"
+                  >
+                    <Building2 className="h-8 w-8 text-primary" />
+                  </motion.div>
+                  <CardTitle className="text-2xl text-foreground">
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                      {t('auth_company_step_title')}
+                    </span>
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    {t('auth_company_step_subtitle')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
                       <Label htmlFor="companyName" className="text-foreground">
-                        {t('auth_company_name_label')}
+                        {t('auth_company_name_label')} *
                       </Label>
                       <Input
                         id="companyName"
-                        placeholder={t('auth_company_name_placeholder')}
                         value={companyName}
                         onChange={(e) => setCompanyName(e.target.value)}
                         required
-                        className="bg-background border-border focus:border-primary"
+                        className="mt-1 bg-background border-border focus:border-primary"
                       />
                     </div>
-
-                    <div className="space-y-2">
+                    <div>
                       <Label htmlFor="companyEmail" className="text-foreground">
-                        {t('auth_company_email_label')}
+                        {t('auth_company_email_label')} *
                       </Label>
                       <Input
                         id="companyEmail"
                         type="email"
-                        placeholder={t('auth_email_placeholder')}
                         value={companyEmail}
                         onChange={(e) => setCompanyEmail(e.target.value)}
                         required
-                        className="bg-background border-border focus:border-primary"
+                        className="mt-1 bg-background border-border focus:border-primary"
                       />
                     </div>
-
-                    <div className="space-y-2">
+                    <div>
                       <Label htmlFor="companyPhone" className="text-foreground">
                         {t('auth_company_phone_label')}
                       </Label>
                       <Input
                         id="companyPhone"
                         type="tel"
-                        placeholder={t('auth_company_phone_placeholder')}
                         value={companyPhone}
                         onChange={(e) => setCompanyPhone(e.target.value)}
-                        className="bg-background border-border focus:border-primary"
+                        className="mt-1 bg-background border-border focus:border-primary"
                       />
                     </div>
-
-                    <div className="space-y-2">
+                    <div>
                       <Label htmlFor="companyWebsite" className="text-foreground">
                         {t('auth_company_website_label')}
                       </Label>
                       <Input
                         id="companyWebsite"
                         type="url"
-                        placeholder={t('auth_company_website_placeholder')}
                         value={companyWebsite}
                         onChange={(e) => setCompanyWebsite(e.target.value)}
-                        className="bg-background border-border focus:border-primary"
+                        placeholder="https://www.example.com"
+                        className="mt-1 bg-background border-border focus:border-primary"
                       />
                     </div>
                   </div>
-
-                  <div className="flex justify-between">
+                  
+                  <div className="mt-8 flex justify-between">
                     <Button
-                      type="button"
                       variant="outline"
                       onClick={() => setStep(1)}
-                      className="flex items-center"
+                      className="border-border hover:bg-muted"
                     >
                       <ArrowLeft className="w-4 h-4 mr-2" />
-                      {t('auth_back_button')}
+                      {t('auth_back')}
                     </Button>
                     <Button
-                      type="button"
                       onClick={handleNextToAdmin}
                       disabled={!companyName || !companyEmail}
-                      className="flex items-center bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 border-0 shadow-md hover:shadow-lg transition-all duration-300"
+                      className="bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 border-0 shadow-md hover:shadow-lg transition-all duration-300"
                     >
-                      {t('auth_next_button')}
+                      {t('auth_continue')}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </div>
-                </motion.div>
-              )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
 
-              {/* Step 3: Admin Account */}
-              {step === 3 && (
-                <motion.div
-                  key="step3"
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.3 }}
-                  className="space-y-6"
-                >
-                  <div className="text-center">
-                    <h3 className="text-xl font-semibold text-foreground">
+          {/* Paso 3: Super Admin */}
+          {step === 3 && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, x: 100 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -100 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Card className="shadow-xl border border-primary/20 bg-gradient-to-br from-card via-card to-card/95 backdrop-blur-sm">
+                <CardHeader className="text-center">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="mx-auto w-16 h-16 bg-gradient-to-br from-primary/20 via-primary/15 to-accent/20 rounded-full flex items-center justify-center shadow-md mb-4"
+                  >
+                    <Users className="h-8 w-8 text-primary" />
+                  </motion.div>
+                  <CardTitle className="text-2xl text-foreground">
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                       {t('auth_admin_step_title')}
-                    </h3>
-                    <p className="text-muted-foreground">
-                      {t('auth_admin_step_subtitle')}
-                    </p>
-                  </div>
+                    </span>
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    {t('auth_admin_step_subtitle')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleFinalSubmit} className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <Label htmlFor="fullName" className="text-foreground">
+                          {t('auth_full_name_label')} *
+                        </Label>
+                        <Input
+                          id="fullName"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required
+                          className="mt-1 bg-background border-border focus:border-primary"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="userEmail" className="text-foreground">
+                          {t('auth_email_label')} *
+                        </Label>
+                        <Input
+                          id="userEmail"
+                          type="email"
+                          value={userEmail}
+                          onChange={(e) => setUserEmail(e.target.value)}
+                          required
+                          className="mt-1 bg-background border-border focus:border-primary"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="password" className="text-foreground">
+                          {t('auth_password_label')} *
+                        </Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          required
+                          minLength={6}
+                          className="mt-1 bg-background border-border focus:border-primary"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="confirmPassword" className="text-foreground">
+                          {t('auth_confirm_password_label')} *
+                        </Label>
+                        <Input
+                          id="confirmPassword"
+                          type="password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          required
+                          minLength={6}
+                          className="mt-1 bg-background border-border focus:border-primary"
+                        />
+                      </div>
+                    </div>
 
-                  <form onSubmit={handleFinalSubmit} className="space-y-4">
                     {error && (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
@@ -467,116 +516,59 @@ export default function SignupMultiTenantPage() {
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <Alert className="border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200">
-                          <CheckCircle2 className="h-4 w-4" />
-                          <AlertDescription>{success}</AlertDescription>
+                        <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
+                          <AlertDescription className="text-green-800 dark:text-green-200">
+                            {success}
+                          </AlertDescription>
                         </Alert>
                       </motion.div>
                     )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="fullName" className="text-foreground">
-                          {t('auth_full_name_label')}
-                        </Label>
-                        <Input
-                          id="fullName"
-                          placeholder={t('auth_full_name_placeholder')}
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          required
-                          className="bg-background border-border focus:border-primary"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="userEmail" className="text-foreground">
-                          {t('auth_email_label')}
-                        </Label>
-                        <Input
-                          id="userEmail"
-                          type="email"
-                          placeholder={t('auth_email_placeholder')}
-                          value={userEmail}
-                          onChange={(e) => setUserEmail(e.target.value)}
-                          required
-                          className="bg-background border-border focus:border-primary"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="password" className="text-foreground">
-                          {t('auth_password_label')}
-                        </Label>
-                        <Input
-                          id="password"
-                          type="password"
-                          placeholder={t('auth_password_placeholder')}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          required
-                          className="bg-background border-border focus:border-primary"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="confirmPassword" className="text-foreground">
-                          {t('auth_confirm_password_label')}
-                        </Label>
-                        <Input
-                          id="confirmPassword"
-                          type="password"
-                          placeholder={t('auth_password_placeholder')}
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          required
-                          className="bg-background border-border focus:border-primary"
-                        />
-                      </div>
-                    </div>
 
                     <div className="flex justify-between">
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => setStep(2)}
-                        className="flex items-center"
+                        className="border-border hover:bg-muted"
                       >
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         {t('auth_back_button')}
                       </Button>
                       <Button
                         type="submit"
-                        disabled={loading}
-                        className="flex items-center bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 border-0 shadow-md hover:shadow-lg transition-all duration-300"
+                        disabled={loading || !fullName || !userEmail || !password || !confirmPassword}
+                        className="bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 border-0 shadow-md hover:shadow-lg transition-all duration-300"
                       >
-                        {loading ? (
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
-                          />
-                        ) : (
-                          <CheckCircle2 className="w-4 h-4 mr-2" />
-                        )}
                         {loading ? t('auth_loading_signup') : t('auth_signup_button')}
                       </Button>
                     </div>
                   </form>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-            {/* Login link */}
-            <div className="text-center text-sm border-t border-border pt-4">
-              <span className="text-muted-foreground">{t('auth_already_have_account')} </span>
-              <Link href="/auth/login-mt" className="text-primary hover:underline font-medium">
-                {t('auth_login_link')}
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
+        {/* Footer */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="mt-8 text-center"
+        >
+          <p className="text-sm text-muted-foreground">
+            {t('auth_already_have_account')}{' '}
+            <Link
+              href="/auth/login-mt"
+              className="text-accent hover:text-accent/80 hover:underline font-medium transition-colors duration-300"
+            >
+              {t('auth_login_link')}
+            </Link>
+          </p>
+        </motion.div>
+      </div>
     </div>
   )
 }
+
+
