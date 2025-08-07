@@ -1,153 +1,263 @@
+'use client'
 
-"use client";
+import { useSubscription } from '@/hooks/use-subscription'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { CreditCard, Download, DollarSign, Users, CalendarClock, AlertCircle } from 'lucide-react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { CreditCard, Download, DollarSign, Users, CalendarClock } from "lucide-react";
-
-interface SubscriptionPlan {
-  name: string;
-  pricePerMonth: number;
-  userLimit: number | 'Custom';
-  features: string[];
-}
-
-interface Invoice {
-  id: string;
-  date: string;
-  amount: number;
-  status: 'Paid' | 'Pending' | 'Overdue';
-}
-
-// Mock Data
-const currentPlan: SubscriptionPlan = {
-  name: 'Medium Team Plan',
-  pricePerMonth: 99,
-  userLimit: 10,
-  features: [
-    'Up to 10 Users',
-    'Shared Inbox & Collaboration',
-    'Team & Role Management',
-    'Advanced AI (Call Analysis, etc)',
-    'AI Activity Logs',
-    'Priority Support'
-  ],
-};
-
-const availablePlans: SubscriptionPlan[] = [
-   { name: 'Individual', pricePerMonth: 19, userLimit: 1, features: ['1 User', 'Email & WhatsApp Inbox', 'Calendar Management', 'Personal Task Management', 'Contact Management', 'Basic AI Features'] },
-];
-
-const mockInvoices: Invoice[] = [
-  { id: 'INV-2024-003', date: '2024-07-01', amount: 99, status: 'Paid' },
-  { id: 'INV-2024-002', date: '2024-06-01', amount: 99, status: 'Paid' },
-  { id: 'INV-2024-001', date: '2024-05-01', amount: 99, status: 'Paid' },
-];
+// Mock invoices data - would come from your billing system
+const mockInvoices = [
+  {
+    id: 'inv_001',
+    date: '2025-01-07',
+    amount: 19900,
+    currency: 'USD',
+    status: 'PAID' as const,
+    description: 'Monthly subscription - Basic Plan'
+  },
+  {
+    id: 'inv_002', 
+    date: '2024-12-07',
+    amount: 19900,
+    currency: 'USD', 
+    status: 'PAID' as const,
+    description: 'Monthly subscription - Basic Plan'
+  },
+  {
+    id: 'inv_003',
+    date: '2024-11-07', 
+    amount: 19900,
+    currency: 'USD',
+    status: 'PAID' as const,
+    description: 'Monthly subscription - Basic Plan'
+  }
+]
 
 export default function BillingPage() {
+  const { subscription, isLoading } = useSubscription()
 
-  // TODO: Integrate with Firebase/Stripe for actual billing data.
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 bg-gray-200 rounded animate-pulse" />
+        <div className="h-64 bg-gray-200 rounded animate-pulse" />
+      </div>
+    )
+  }
+
+  if (!subscription) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Facturación</h1>
+          <p className="text-gray-600">Gestiona tu facturación y pagos</p>
+        </div>
+        
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            No tienes una suscripción activa. Contacta a tu administrador.
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
+  }
+
+  const formatCurrency = (amount: number, currency: string = 'USD') => {
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: currency
+    }).format(amount / 100)
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'PAID':
+        return 'bg-green-100 text-green-800'
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'OVERDUE':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const nextBillingDate = new Date(subscription.current_period_end)
+  const isYearly = subscription.billing_cycle === 'YEARLY'
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Billing & Subscription</h1>
-        <p className="text-muted-foreground mt-1">Manage your subscription, payment methods, and view invoices.</p>
+        <h1 className="text-3xl font-bold">Facturación</h1>
+        <p className="text-gray-600">Gestiona tu facturación y pagos</p>
       </div>
 
-      <Card className="shadow-lg">
+      {/* Current Plan */}
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl flex items-center"><DollarSign className="mr-2 h-6 w-6 text-primary" />Current Subscription</CardTitle>
-            <Button variant="outline">Change Plan</Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 border rounded-lg bg-muted/30">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Current Plan</p>
-              <p className="text-xl font-semibold text-primary">{currentPlan.name}</p>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Plan Actual: {subscription.plan}
+              </CardTitle>
+              <CardDescription>
+                {formatCurrency(subscription.unit_amount, subscription.currency)} / {isYearly ? 'año' : 'mes'}
+              </CardDescription>
             </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Price</p>
-              <p className="text-xl font-semibold">€{currentPlan.pricePerMonth}/month</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Users</p>
-              <p className="text-xl font-semibold flex items-center"><Users className="h-5 w-5 mr-1.5 text-muted-foreground"/>Up to {currentPlan.userLimit} users</p>
-            </div>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2">Plan Features:</h4>
-            <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-              {currentPlan.features.map(feature => <li key={feature}>{feature}</li>)}
-            </ul>
-          </div>
-          <div className="pt-4 border-t">
-             <p className="text-sm text-muted-foreground flex items-center"><CalendarClock className="h-4 w-4 mr-1.5"/>Next billing date: August 1, 2024</p>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card className="shadow-lg">
-        <CardHeader>
-           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl flex items-center"><CreditCard className="mr-2 h-5 w-5 text-primary" />Payment Method</CardTitle>
-            <Button variant="outline">Update Payment</Button>
+            <Badge className="bg-green-100 text-green-800">
+              {subscription.status}
+            </Badge>
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">Visa **** **** **** 1234 <span className="text-sm">(Expires 12/2025)</span></p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CalendarClock className="h-4 w-4 text-gray-500" />
+                <p className="text-sm text-gray-600">Próximo Pago</p>
+              </div>
+              <p className="font-semibold">
+                {nextBillingDate.toLocaleDateString('es-ES')}
+              </p>
+              <p className="text-sm text-gray-500">
+                {formatCurrency(subscription.unit_amount, subscription.currency)}
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-gray-500" />
+                <p className="text-sm text-gray-600">Límites del Plan</p>
+              </div>
+              <p className="font-semibold">
+                {subscription.max_users === 999999 ? 'Usuarios Ilimitados' : `${subscription.max_users} Usuarios`}
+              </p>
+              <p className="text-sm text-gray-500">
+                {subscription.max_storage === BigInt('999999999999999') 
+                  ? 'Almacenamiento Ilimitado' 
+                  : `${Math.round(Number(subscription.max_storage) / 1024 / 1024 / 1024)}GB Almacenamiento`
+                }
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-gray-500" />
+                <p className="text-sm text-gray-600">Ciclo de Facturación</p>
+              </div>
+              <p className="font-semibold">
+                {subscription.billing_cycle === 'MONTHLY' ? 'Mensual' : 'Anual'}
+              </p>
+              <p className="text-sm text-gray-500">
+                Renovación automática
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg">
+      {/* Plan Features */}
+      <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Invoice History</CardTitle>
-          <CardDescription>Download your past invoices for record keeping.</CardDescription>
+          <CardTitle>Funcionalidades Incluidas</CardTitle>
+          <CardDescription>
+            Las siguientes funcionalidades están incluidas en tu plan {subscription.plan}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          {mockInvoices.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Invoice ID</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mockInvoices.map((invoice) => (
-                  <TableRow key={invoice.id}>
-                    <TableCell className="font-medium">{invoice.id}</TableCell>
-                    <TableCell className="text-muted-foreground">{invoice.date}</TableCell>
-                    <TableCell>€{invoice.amount.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={invoice.status === 'Paid' ? 'default' : invoice.status === 'Pending' ? 'outline' : 'destructive'}
-                        className={`${invoice.status === 'Paid' && 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200'}`}
-                      >
-                        {invoice.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="outline" size="sm">
-                        <Download className="mr-2 h-4 w-4" /> Download PDF
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          ) : (
-            <p className="text-muted-foreground text-center py-8">No invoices found.</p>
-          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {subscription.features.map((feature: string, index: number) => (
+              <div key={index} className="flex items-center gap-2">
+                <div className="h-2 w-2 bg-green-600 rounded-full" />
+                <span className="text-sm capitalize">
+                  {feature.replace(/_/g, ' ')}
+                </span>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
+
+      {/* Invoice History */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Historial de Facturas</CardTitle>
+          <CardDescription>
+            Revisa y descarga tus facturas anteriores
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Factura</TableHead>
+                <TableHead>Fecha</TableHead>
+                <TableHead>Descripción</TableHead>
+                <TableHead>Monto</TableHead>
+                <TableHead>Estado</TableHead>
+                <TableHead>Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockInvoices.map((invoice) => (
+                <TableRow key={invoice.id}>
+                  <TableCell className="font-medium">
+                    #{invoice.id.toUpperCase()}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(invoice.date).toLocaleDateString('es-ES')}
+                  </TableCell>
+                  <TableCell>{invoice.description}</TableCell>
+                  <TableCell>
+                    {formatCurrency(invoice.amount, invoice.currency)}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getStatusColor(invoice.status)}>
+                      {invoice.status === 'PAID' ? 'Pagada' : invoice.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        // Download invoice logic
+                        console.log('Download invoice:', invoice.id)
+                      }}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      Descargar
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Actions */}
+      <div className="flex gap-4">
+        <Button 
+          onClick={() => {
+            // Navigate to subscription page
+            window.location.href = '/dashboard/subscriptions'
+          }}
+        >
+          Gestionar Suscripción
+        </Button>
+        <Button variant="outline">
+          Actualizar Método de Pago
+        </Button>
+        <Button variant="outline">
+          Descargar Todas las Facturas
+        </Button>
+      </div>
     </div>
-  );
+  )
 }

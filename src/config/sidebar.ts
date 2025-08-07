@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Mail, CalendarDays, Phone, ListChecks, Lightbulb, BarChartHorizontalBig, Bot, Users, UserCog, Clock, Settings, Brain, Settings2, Briefcase, FileText, DollarSign, Target, Folder, Book, Star, Home, MessageSquare, Lock, Globe, BarChart3, Plane, Activity, FileDigit, Wallet, Bell, BookOpen } from 'lucide-react';
+import { Mail, CalendarDays, Phone, ListChecks, Lightbulb, BarChartHorizontalBig, Bot, Users, UserCog, Clock, Settings, Brain, Settings2, Briefcase, FileText, DollarSign, Target, Folder, Book, Star, Home, MessageSquare, Lock, Globe, BarChart3, Plane, Activity, FileDigit, Wallet, Bell, BookOpen, CreditCard, UserPlus } from 'lucide-react';
 
 export interface NavItem {
   id: string;
@@ -26,6 +26,9 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'role_management', href: '/dashboard/roles', label: 'Role Management', icon: UserCog },
   { id: 'services', href: '/dashboard/services', label: 'Booking Settings', icon: Briefcase },
   { id: 'online-booking', href: '/dashboard/online-booking', label: 'Online Booking', icon: BookOpen },
+  { id: 'subscriptions', href: '/dashboard/subscriptions', label: 'Subscription', icon: CreditCard },
+  { id: 'invitations', href: '/dashboard/invitations', label: 'Invitations', icon: UserPlus },
+  { id: 'billing', href: '/dashboard/billing', label: 'Billing', icon: Wallet },
   { id: 'ai_logs', href: '/dashboard/logs', label: 'AI Logs', icon: Brain },
   { id: 'assistant', href: '/dashboard/assistant', label: 'Assistant', icon: Bot },
   { id: 'suggestions', href: '/dashboard/suggestions', label: 'Suggestions', icon: Lightbulb },

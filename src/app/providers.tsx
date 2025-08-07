@@ -1,9 +1,10 @@
 
 "use client";
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { SessionProvider } from 'next-auth/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SettingsProvider, useSettings } from '@/context/settings-context'; 
 
 function SettingsApplier({ children }: { children: React.ReactNode }) {
@@ -19,13 +20,24 @@ function SettingsApplier({ children }: { children: React.ReactNode }) {
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        refetchOnWindowFocus: false,
+      },
+    },
+  }))
+
   return (
-    <SessionProvider>
-      <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
-        <SettingsProvider>
-          <SettingsApplier>{children}</SettingsApplier>
-        </SettingsProvider>
-      </NextThemesProvider>
-    </SessionProvider>
+    <QueryClientProvider client={queryClient}>
+      <SessionProvider>
+        <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+          <SettingsProvider>
+            <SettingsApplier>{children}</SettingsApplier>
+          </SettingsProvider>
+        </NextThemesProvider>
+      </SessionProvider>
+    </QueryClientProvider>
   );
 }
