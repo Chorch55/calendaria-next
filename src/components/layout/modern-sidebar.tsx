@@ -145,7 +145,7 @@ const RenderStructureItem = ({
 
 export function ModernSidebar() {
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const { appSettings, isSettingsLoaded } = useSettings();
   const { topNavOrder, bottomNavOrder, sidebarVisibility } = appSettings;
   const { theme, setTheme } = useTheme();
@@ -175,7 +175,7 @@ export function ModernSidebar() {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await logout();
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -185,12 +185,26 @@ export function ModernSidebar() {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
+  // Show loading state while authentication is loading
+  if (isLoading || !isSettingsLoaded) {
+    return (
+      <div className="h-full w-64 bg-background border-r border-border flex flex-col overflow-hidden">
+        <div className="p-4 border-b border-border flex justify-center">
+          <Logo className="h-10 w-auto" href="/dashboard" />
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   // Use actual user data or fallback to mock
   const currentUser = user ? {
-    name: user.full_name || user.email?.split('@')[0] || 'Usuario',
+    name: user.name || user.email?.split('@')[0] || 'Usuario',
     email: user.email,
-    avatar: user.avatar_url,
-    initials: user.full_name?.slice(0, 2).toUpperCase() || user.email?.slice(0, 2).toUpperCase() || 'U'
+    avatar: user.image,
+    initials: user.name?.slice(0, 2).toUpperCase() || user.email?.slice(0, 2).toUpperCase() || 'U'
   } : mockUser;
 
   return (

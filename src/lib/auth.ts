@@ -1,11 +1,9 @@
-import NextAuth from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from 'bcryptjs'
 import { prisma } from "@/lib/prisma"
+import type { NextAuthOptions } from "next-auth"
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+const authConfig: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -45,9 +43,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           name: user.name,
           image: user.image,
-          role: user.role,
-          companyId: user.company_id,
-          companyName: user.company?.name
         }
       }
     })
@@ -58,22 +53,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role
-        token.companyId = user.companyId
-        token.companyName = user.companyName
+        // Obtener información adicional del usuario desde la base de datos
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          include: { company: true }
+        })
+        
+        if (dbUser) {
+          token.role = dbUser.role
+          token.companyId = dbUser.company_id || undefined
+          token.companyName = dbUser.company?.name
+        }
       }
       return token
     },
     async session({ session, token }) {
-      session.user.id = token.sub!
-      session.user.role = token.role as string
-      session.user.companyId = token.companyId as string
-      session.user.companyName = token.companyName as string
+      if (token && token.sub) {
+        session.user.id = token.sub
+        session.user.role = token.role as string
+        session.user.companyId = token.companyId as string
+        session.user.companyName = token.companyName as string
+      }
       return session
     },
   },
   pages: {
     signIn: '/auth/login-mt',
-    signUp: '/auth/signup-mt',
   },
-})
+}
+
+export default authConfig

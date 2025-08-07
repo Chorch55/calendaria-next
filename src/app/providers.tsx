@@ -3,6 +3,7 @@
 
 import React, { useEffect } from 'react';
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
+import { SessionProvider } from 'next-auth/react';
 import { SettingsProvider, useSettings } from '@/context/settings-context'; 
 
 function SettingsApplier({ children }: { children: React.ReactNode }) {
@@ -19,10 +20,12 @@ function SettingsApplier({ children }: { children: React.ReactNode }) {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
-      <SettingsProvider>
-        <SettingsApplier>{children}</SettingsApplier>
-      </SettingsProvider>
-    </NextThemesProvider>
+    <SessionProvider>
+      <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+        <SettingsProvider>
+          <SettingsApplier>{children}</SettingsApplier>
+        </SettingsProvider>
+      </NextThemesProvider>
+    </SessionProvider>
   );
 }
