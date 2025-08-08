@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
+import { PricingComparison } from '@/components/ui/pricing-comparison';
 
 
 
@@ -433,8 +434,14 @@ export default function LandingPage() {
                   </Card>
                 ))}
               </div>
-                <Card className="mt-12 text-center p-6 bg-muted/50 border-dashed grayscale opacity-60">
-                  <CardHeader>
+
+              <div className="mt-16">
+                <h3 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8">{t('home_pricing_comparison_title')}</h3>
+                <PricingComparison />
+              </div>
+
+              <Card className="mt-12 text-center p-6 bg-muted/50 border-dashed grayscale opacity-60">
+                <CardHeader>
                     <CardTitle className="text-2xl">{t('home_custom_plan_title')}</CardTitle>
                   </CardHeader>
                   <CardContent>
