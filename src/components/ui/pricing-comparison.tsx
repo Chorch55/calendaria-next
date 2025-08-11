@@ -3,6 +3,7 @@
 import { CheckCircle, X } from 'lucide-react';
 import { Card } from './card';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/use-translation';
 
 interface Feature {
   name: string;
@@ -177,18 +178,24 @@ const features: Feature[] = [
 ];
 
 export function PricingComparison() {
+  const { t } = useTranslation();
   return (
     <div className="w-full overflow-x-auto">
-      <Card className="border rounded-lg">
-        <div className="min-w-[836px]">
+      <Card className="border border-t-0 rounded-xl shadow-sm overflow-hidden">
+        <div className="min-w-[860px]">
           {/* Plans Header - Fixed */}
-          <div className="grid grid-cols-4 bg-primary text-primary-foreground p-3">
+          <div className="grid grid-cols-4 bg-primary text-primary-foreground p-4 rounded-t-xl">
             <div></div>
             <div className="font-bold text-center text-lg">Individual</div>
-            <div className="font-bold text-center text-lg">Profesional</div>
+            <div className="font-bold text-center text-lg flex items-center justify-center gap-2">
+              <span>Profesional</span>
+              <span className="hidden sm:inline-flex text-xs px-2 py-0.5 rounded-full bg-primary-foreground/20 text-primary-foreground/90 border border-primary-foreground/30">
+                {t('home_plan_most_popular')}
+              </span>
+            </div>
             <div className="font-bold text-center text-lg">Enterprise</div>
           </div>
-          {/* Features Header */}
+          {/* Pricing Row */}
           <div className="grid grid-cols-4 bg-muted/50 p-5 border-b">
             <div className="font-semibold text-sm">Características</div>
             <div className="font-semibold text-sm text-center">19€/mes</div>
@@ -201,22 +208,34 @@ export function PricingComparison() {
             <div
               key={index}
               className={cn(
-                "grid grid-cols-4 py-3 px-5 bg-card"
+                "grid grid-cols-4 py-4 px-5 bg-card border-b",
+                index % 2 === 0 ? "bg-muted/20" : "bg-card"
               )}
             >
               <div className="flex flex-col justify-center">
                 {feature.name.includes("(") ? (
                   <>
-                    <span>{feature.name.split("(")[0].trim()}</span>
+                    <span className="font-medium">{feature.name.split("(")[0].trim()}</span>
                     <span className="text-sm text-muted-foreground">({feature.name.split("(")[1]}</span>
                   </>
                 ) : (
-                  <span>{feature.name}</span>
+                  <span className="font-medium">{feature.name}</span>
+                )}
+                {feature.isAddOn && (
+                  <span className="mt-1 inline-flex w-fit items-center gap-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2 py-0.5 text-xs font-medium">
+                    Add-on
+                  </span>
                 )}
               </div>
-              
-              {["individual", "professional", "enterprise"].map((plan) => (
-                <div key={plan} className="flex flex-col items-center justify-center text-center">
+
+      {["individual", "professional", "enterprise"].map((plan) => (
+                <div
+                  key={plan}
+                  className={cn(
+        "flex flex-col items-center justify-center text-center px-2",
+        plan === "professional" ? "bg-primary/5 rounded-md ring-1 ring-primary/20" : ""
+                  )}
+                >
                   {(() => {
                     const value = feature[plan as keyof typeof feature];
                     if (typeof value === "boolean") {
@@ -237,7 +256,7 @@ export function PricingComparison() {
                     );
                   })()}
                   {feature.addOnPrice && feature.addOnPrice[plan as keyof typeof feature.addOnPrice] && (
-                    <span className="text-sm text-muted-foreground mt-0.5">
+                    <span className="text-xs text-muted-foreground mt-1">
                       +{feature.addOnPrice[plan as keyof typeof feature.addOnPrice]}
                     </span>
                   )}

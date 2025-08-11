@@ -120,9 +120,9 @@ export default function LandingPage() {
         t('home_plan_feature_ai_logs'),
         t('home_plan_feature_priority_support')
       ],
-      cta: t('home_plan_professional_cta'),
-      href: '/auth/signup-mt?plan=professional',
-      popular: true,
+  cta: t('home_plan_professional_cta'),
+  href: '/auth/signup-mt?plan=professional',
+  popular: true,
     },
     {
       name: t('home_plan_enterprise_name'),
@@ -136,9 +136,8 @@ export default function LandingPage() {
         t('home_plan_feature_custom_workflows'),
         t('home_plan_feature_dedicated_support')
       ],
-      cta: t('home_plan_coming_soon_cta'),
-      href: '/auth/signup-mt?plan=enterprise',
-      disabled: true,
+  cta: t('home_plan_enterprise_cta'),
+  href: '/auth/signup-mt?plan=enterprise',
     },
   ];
 
@@ -440,21 +439,7 @@ export default function LandingPage() {
                 <PricingComparison />
               </div>
 
-              <Card className="mt-12 text-center p-6 bg-muted/50 border-dashed grayscale opacity-60">
-                <CardHeader>
-                    <CardTitle className="text-2xl">{t('home_custom_plan_title')}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground max-w-xl mx-auto">
-                      {t('home_custom_plan_desc')}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="justify-center">
-                    <Button variant="outline" disabled>
-                      {t('home_custom_plan_cta')}
-                    </Button>
-                  </CardFooter>
-                </Card>
+              {/* Tailored solution block intentionally removed per request */}
             </div>
           </motion.section>
 

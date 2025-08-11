@@ -1,7 +1,9 @@
+
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -64,10 +66,27 @@ export default function SignupMultiTenantPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { t } = useTranslation()
 
   // Datos del plan
   const [subscriptionPlan, setSubscriptionPlan] = useState<'basic' | 'premium' | 'enterprise'>('premium')
+
+  // Preselect plan from query param (?plan=user|professional|enterprise)
+  useEffect(() => {
+    const planParam = searchParams.get('plan')?.toLowerCase()
+    if (!planParam) return
+    const map: Record<string, 'basic' | 'premium' | 'enterprise'> = {
+      user: 'basic',
+      individual: 'basic',
+      basic: 'basic',
+      professional: 'premium',
+      premium: 'premium',
+      enterprise: 'enterprise',
+    }
+    const mapped = map[planParam]
+    if (mapped) setSubscriptionPlan(mapped)
+  }, [searchParams])
 
   // Datos de la empresa
   const [companyName, setCompanyName] = useState('')
