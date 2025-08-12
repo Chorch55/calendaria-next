@@ -1,6 +1,7 @@
 'use client'
 
 import { useInvitations } from '@/hooks/use-subscription'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,7 +17,7 @@ interface InviteFormData {
   email: string
   role: string
   department?: string
-  job_title?: string
+  jobTitle?: string
 }
 
 export default function InvitationsPage() {
@@ -26,7 +27,9 @@ export default function InvitationsPage() {
     revokeInvitation, 
     isLoading,
     isSeandingInvitation,
-    isRevoking
+  isRevoking,
+  resendInvitation,
+  isResending
   } = useInvitations()
   const [showInviteDialog, setShowInviteDialog] = useState(false)
   
@@ -38,7 +41,12 @@ export default function InvitationsPage() {
 
   const onSubmitInvite = async (data: InviteFormData) => {
     try {
-      await sendInvitationAsync(data)
+      await sendInvitationAsync({
+        email: data.email,
+        role: data.role,
+        department: data.department,
+        jobTitle: data.jobTitle,
+      })
       setShowInviteDialog(false)
       reset()
     } catch (error) {
@@ -86,14 +94,7 @@ export default function InvitationsPage() {
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-64 bg-gray-200 rounded animate-pulse" />
-      </div>
-    )
-  }
+  // Do not block the entire page – render progressively
 
   return (
     <div className="space-y-6">
@@ -157,7 +158,7 @@ export default function InvitationsPage() {
                 <label className="text-sm font-medium">Puesto (Opcional)</label>
                 <Input
                   placeholder="Ej: Desarrollador, Gerente de Ventas"
-                  {...register('job_title')}
+                  {...register('jobTitle')}
                 />
               </div>
               
@@ -244,7 +245,14 @@ export default function InvitationsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {!invitations || invitations.length === 0 ? (
+          {!invitations ? (
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-1/3" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-3/4" />
+            </div>
+          ) : !invitations || invitations.length === 0 ? (
             <div className="text-center py-8">
               <Mail className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No hay invitaciones enviadas</p>
@@ -304,10 +312,8 @@ export default function InvitationsPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => {
-                              // Resend invitation logic
-                              console.log('Resend:', invitation.id)
-                            }}
+                            onClick={() => resendInvitation(invitation.id)}
+                            disabled={isResending}
                           >
                             Reenviar
                           </Button>

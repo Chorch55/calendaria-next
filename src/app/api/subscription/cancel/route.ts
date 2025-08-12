@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getToken } from 'next-auth/jwt'
 import { SubscriptionService } from '@/lib/services/subscription'
 import { z } from 'zod'
+import { requireCompany } from '@/lib/auth-helpers'
 
 const cancelSubscriptionSchema = z.object({
   cancelAtPeriodEnd: z.boolean().default(true),
@@ -9,22 +9,12 @@ const cancelSubscriptionSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const token = await getToken({ req: request })
-    
-    if (!token?.companyId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
+  const companyId = await requireCompany(request)
 
     const body = await request.json()
     const { cancelAtPeriodEnd } = cancelSubscriptionSchema.parse(body)
 
-    const result = await SubscriptionService.cancelSubscription(
-      token.companyId as string,
-      cancelAtPeriodEnd
-    )
+  const result = await SubscriptionService.cancelSubscription(companyId, cancelAtPeriodEnd)
 
     return NextResponse.json(result)
 

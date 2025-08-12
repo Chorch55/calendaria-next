@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, X } from 'lucide-react';
 import { Card } from './card';
@@ -9,15 +9,22 @@ import { useTranslation } from '@/hooks/use-translation';
 
 interface Feature {
   name: string;
-  individual: string | boolean | number;
-  professional: string | boolean | number;
-  enterprise: string | boolean | number;
+  individual: string | boolean;
+  professional: string | boolean;
+  enterprise: string | boolean;
   isAddOn?: boolean;
-  addOnPrice?: {
-    individual?: string;
-    professional?: string;
-    enterprise?: string;
-  };
+}
+
+type PlanKey = 'BASIC' | 'PREMIUM' | 'ENTERPRISE'
+
+interface ConfigResponse {
+  planLimits: Record<PlanKey, {
+    max_users: number;
+    max_api_calls: number;
+    included_languages?: string[];
+    included_reminders?: number;
+  }>;
+  addonDisplay?: Record<string, { unit: string; monthlyByPlan?: Record<PlanKey, string>; monthly?: string }>;
 }
 
 export function PricingComparison() {
@@ -25,6 +32,8 @@ export function PricingComparison() {
 
   const [hoveredCol, setHoveredCol] = useState<"individual" | "professional" | "enterprise" | null>(null);
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+  const [config, setConfig] = useState<ConfigResponse | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const containerVariants = {
     hidden: { opacity: 0, y: 8 },
@@ -40,38 +49,130 @@ export function PricingComparison() {
     visible: { opacity: 1, y: 0 },
   } as const;
 
-  const features: Feature[] = [
-    // Base features
-    { name: t('plan_compare_booking_calendar'), individual: true, professional: true, enterprise: true },
-    { name: t('plan_compare_email_bot'), individual: true, professional: true, enterprise: true },
-    { name: t('plan_compare_whatsapp_bot'), individual: true, professional: true, enterprise: true },
-    { name: t('home_plan_feature_contact_management'), individual: true, professional: true, enterprise: true },
-    { name: t('plan_compare_unified_inbox'), individual: true, professional: true, enterprise: true },
-    // Capacity & scalability
-    { name: t('plan_compare_users_label'), individual: '1', professional: '20', enterprise: '50' },
-    {
-      name: t('plan_compare_add_users_label'),
-      individual: t('plan_compare_add_users_individual'),
-      professional: t('plan_compare_add_users_professional'),
-      enterprise: t('plan_compare_add_users_enterprise'),
-      isAddOn: true,
-    },
-    // Differentiators
-    { name: t('plan_compare_call_bot'), individual: false, professional: true, enterprise: true, isAddOn: true, addOnPrice: { individual: '10€' } },
-    { name: t('plan_compare_call_transfer'), individual: false, professional: true, enterprise: true },
-    // Value add
-    { name: t('plan_compare_reminders'), individual: t('plan_compare_messages_50'), professional: t('plan_compare_messages_200'), enterprise: t('plan_compare_messages_1000'), addOnPrice: { individual: '0.05€/U', professional: '0.03€/U', enterprise: '0.015€/U' } },
-    { name: t('plan_compare_multilanguage'), individual: t('plan_compare_multilang_individual'), professional: t('plan_compare_multilang_professional'), enterprise: t('plan_compare_multilang_enterprise'), isAddOn: true },
-    // Enterprise premium
-    { name: t('plan_compare_call_recording'), individual: false, professional: false, enterprise: true, isAddOn: true, addOnPrice: { individual: '15€', professional: '10€' } },
-    { name: t('plan_compare_custom_embed_chat'), individual: false, professional: false, enterprise: true, isAddOn: true, addOnPrice: { individual: '10€', professional: '5€' } },
-    { name: t('plan_compare_staff_mgmt'), individual: false, professional: false, enterprise: true, isAddOn: true, addOnPrice: { individual: '20€', professional: '20€' } },
-    { name: t('plan_compare_task_mgmt_team'), individual: false, professional: false, enterprise: true, isAddOn: true, addOnPrice: { individual: '', professional: '20€' } },
-    { name: t('plan_compare_staff_stats_realtime'), individual: false, professional: false, enterprise: true, isAddOn: true, addOnPrice: { individual: '', professional: '25€' } },
-    { name: t('plan_compare_advanced_call_analytics'), individual: false, professional: false, enterprise: true, isAddOn: true, addOnPrice: { individual: '', professional: '25€' } },
-    // Support
-    { name: t('plan_compare_support'), individual: t('plan_compare_support_mail'), professional: t('plan_compare_support_whatsapp_mail'), enterprise: t('plan_compare_support_phone_whatsapp_mail') },
-  ];
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/config/plans');
+        if (!res.ok) throw new Error('Failed to load plans config');
+        const json: ConfigResponse = await res.json();
+        if (mounted) setConfig(json);
+      } catch (e) {
+        // fail closed with no config; we will render fallback
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    load();
+    return () => { mounted = false };
+  }, []);
+
+  const d = (config?.addonDisplay) || {};
+
+  const features: Feature[] = (() => {
+    // Base rows always present
+    const baseRows: Feature[] = [
+      { name: t('plan_compare_booking_calendar'), individual: true, professional: true, enterprise: true },
+      { name: t('plan_compare_email_bot'), individual: true, professional: true, enterprise: true },
+      { name: t('plan_compare_whatsapp_bot'), individual: true, professional: true, enterprise: true },
+      { name: t('plan_compare_unified_inbox'), individual: true, professional: true, enterprise: true },
+      { name: t('home_plan_feature_contact_management'), individual: true, professional: true, enterprise: true },
+    ];
+
+    // If config missing, render a minimal fallback
+    if (!config) {
+      return baseRows;
+    }
+
+    const fmt = (n: number) => (n === -1 ? '∞' : String(n));
+
+    const limitsRows: Feature[] = [
+      {
+        name: t('plan_compare_users_label'),
+        individual: fmt(config.planLimits.BASIC.max_users),
+        professional: fmt(config.planLimits.PREMIUM.max_users),
+        enterprise: fmt(config.planLimits.ENTERPRISE.max_users),
+      },
+      {
+        name: (t('plan_compare_api_calls' as any) || 'Cupo de automatizaciones (API)'),
+        individual: fmt(config.planLimits.BASIC.max_api_calls),
+        professional: fmt(config.planLimits.PREMIUM.max_api_calls),
+        enterprise: fmt(config.planLimits.ENTERPRISE.max_api_calls),
+      },
+      {
+        name: (t('plan_compare_languages_included' as any) || 'Idiomas incluidos'),
+        individual: (config.planLimits.BASIC.included_languages || ['ES']).join(', '),
+        professional: (config.planLimits.PREMIUM.included_languages || ['ES', 'EN']).join(', '),
+        enterprise: (config.planLimits.ENTERPRISE.included_languages || ['ES', 'EN', 'FR', 'DE', 'PT', 'IT', 'AR']).join(', '),
+      },
+      {
+        name: (t('plan_compare_reminders_included' as any) || 'Recordatorios incluidos'),
+        individual: String(config.planLimits.BASIC.included_reminders ?? ''),
+        professional: String(config.planLimits.PREMIUM.included_reminders ?? ''),
+        enterprise: String(config.planLimits.ENTERPRISE.included_reminders ?? ''),
+      },
+    ];
+
+    // Add-ons: show prices directly (no extra '+ price' footnote)
+    const addonRows: Feature[] = [
+      {
+        name: (t('plan_compare_add_users_label') || 'Usuarios extra') + ' (pack 5)',
+        individual: d.EXTRA_USERS ? `${d.EXTRA_USERS.monthlyByPlan?.BASIC || d.EXTRA_USERS.monthly || ''}/${d.EXTRA_USERS.unit}`.replace(/^\//, '') : '-',
+        professional: d.EXTRA_USERS ? `${d.EXTRA_USERS.monthlyByPlan?.PREMIUM || d.EXTRA_USERS.monthly || ''}/${d.EXTRA_USERS.unit}`.replace(/^\//, '') : '-',
+        enterprise: d.EXTRA_USERS ? `${d.EXTRA_USERS.monthlyByPlan?.ENTERPRISE || d.EXTRA_USERS.monthly || ''}/${d.EXTRA_USERS.unit}`.replace(/^\//, '') : '-',
+        isAddOn: true,
+      },
+      {
+        name: (t('plan_compare_add_storage_label' as any) || 'Almacenamiento extra'),
+        individual: d.EXTRA_STORAGE ? `${d.EXTRA_STORAGE.monthlyByPlan?.BASIC || d.EXTRA_STORAGE.monthly || ''}/${d.EXTRA_STORAGE.unit}`.replace(/^\//, '') : '-',
+        professional: d.EXTRA_STORAGE ? `${d.EXTRA_STORAGE.monthlyByPlan?.PREMIUM || d.EXTRA_STORAGE.monthly || ''}/${d.EXTRA_STORAGE.unit}`.replace(/^\//, '') : '-',
+        enterprise: d.EXTRA_STORAGE ? `${d.EXTRA_STORAGE.monthlyByPlan?.ENTERPRISE || d.EXTRA_STORAGE.monthly || ''}/${d.EXTRA_STORAGE.unit}`.replace(/^\//, '') : '-',
+        isAddOn: true,
+      },
+      {
+        name: (t('plan_compare_add_api_calls_label' as any) || 'Cupo extra de automatizaciones (API)'),
+        individual: d.API_CALLS ? `${d.API_CALLS.monthlyByPlan?.BASIC || d.API_CALLS.monthly || ''}/${d.API_CALLS.unit}`.replace(/^\//, '') : '-',
+        professional: d.API_CALLS ? `${d.API_CALLS.monthlyByPlan?.PREMIUM || d.API_CALLS.monthly || ''}/${d.API_CALLS.unit}`.replace(/^\//, '') : '-',
+        enterprise: d.API_CALLS ? `${d.API_CALLS.monthlyByPlan?.ENTERPRISE || d.API_CALLS.monthly || ''}/${d.API_CALLS.unit}`.replace(/^\//, '') : '-',
+        isAddOn: true,
+      },
+      {
+        name: (t('plan_compare_custom_branding' as any) || 'Custom branding'),
+        individual: d.CUSTOM_BRANDING ? `${d.CUSTOM_BRANDING.monthlyByPlan?.BASIC || d.CUSTOM_BRANDING.monthly || ''}`.replace(/^\//, '') : '-',
+        professional: t('plan_compare_included' as any) || 'Incluido',
+        enterprise: t('plan_compare_included' as any) || 'Incluido',
+        isAddOn: true,
+      },
+    ];
+
+    const curatedRows: Feature[] = [
+      { name: t('plan_compare_call_bot'), individual: false, professional: true, enterprise: true },
+      { name: t('plan_compare_call_transfer'), individual: false, professional: true, enterprise: true },
+      { name: t('plan_compare_call_recording'), individual: false, professional: false, enterprise: true },
+      { name: t('plan_compare_custom_embed_chat'), individual: false, professional: false, enterprise: true },
+      { name: t('plan_compare_staff_mgmt'), individual: false, professional: false, enterprise: true },
+      { name: t('plan_compare_task_mgmt_team'), individual: false, professional: false, enterprise: true },
+      { name: t('plan_compare_advanced_call_analytics'), individual: false, professional: false, enterprise: true },
+    ];
+
+    return [
+      ...baseRows,
+      ...limitsRows,
+      ...addonRows,
+      ...curatedRows,
+      { name: t('plan_compare_support'), individual: t('plan_compare_support_mail'), professional: t('plan_compare_support_whatsapp_mail'), enterprise: t('plan_compare_support_phone_whatsapp_mail') },
+    ];
+  })();
+
+  if (loading) {
+    return (
+      <div className="w-full overflow-x-auto">
+        <Card className="border border-t-0 rounded-xl shadow-sm overflow-hidden">
+          <div className="p-8 text-sm text-muted-foreground">Cargando planes…</div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full overflow-x-auto">
@@ -145,7 +246,7 @@ export function PricingComparison() {
                   )}
                 >
                   {(() => {
-                    const value = feature[plan as keyof typeof feature];
+                    const value = feature[plan as keyof Feature];
                     if (typeof value === "boolean") {
                       return value ? (
                         <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.18 }}>
@@ -167,11 +268,6 @@ export function PricingComparison() {
                       </div>
                     );
                   })()}
-                  {feature.addOnPrice && feature.addOnPrice[plan as keyof typeof feature.addOnPrice] && (
-                    <span className="text-xs text-muted-foreground mt-1">
-                      +{feature.addOnPrice[plan as keyof typeof feature.addOnPrice]}
-                    </span>
-                  )}
                 </motion.div>
               ))}
             </motion.div>

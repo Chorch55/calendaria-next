@@ -10,7 +10,8 @@ export async function POST(request: NextRequest) {
       companyEmail,
       companyPhone,
       companyWebsite,
-      subscriptionPlan,
+  subscriptionPlan,
+    selectedAddons,
       fullName,
       userEmail,
       password
@@ -58,17 +59,29 @@ export async function POST(request: NextRequest) {
     // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    // Crear empresa y usuario en una transacción
+    // Generar slug básico a partir del nombre de la empresa
+    const baseSlug = String(companyName)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^[-]+|[-]+$/g, '')
+
+  // Crear empresa y usuario en una transacción
     const result = await prisma.$transaction(async (tx) => {
       // Crear la empresa
-      const company = await tx.company.create({
+  const company = await tx.company.create({
         data: {
           name: companyName,
           email: companyEmail,
           phone: companyPhone,
           website: companyWebsite,
-          subscription_plan: subscriptionPlan,
-          subscription_status: 'active',
+          slug: baseSlug,
+      // Nota: la suscripción se crea posteriormente mediante /api/subscription
+      // Puedes almacenar metadatos iniciales en settings si lo necesitas
+  settings: {
+    initialPlan: subscriptionPlan || 'premium',
+    selectedAddons: selectedAddons || null,
+      } as any,
         }
       })
 
@@ -78,7 +91,8 @@ export async function POST(request: NextRequest) {
           email: userEmail,
           name: fullName,
           password_hash: hashedPassword,
-          role: 'super_admin',
+      // Ajuste al enum UserRole de Prisma
+      role: 'SUPER_ADMIN' as any,
           company_id: company.id,
         }
       })

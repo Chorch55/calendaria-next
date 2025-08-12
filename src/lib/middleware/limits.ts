@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import { prisma } from '@/lib/prisma'
+import { FEATURE_MATRIX } from '@/config/features'
 import { SubscriptionService } from '@/lib/services/subscription'
+import { usageSummaryCache } from '@/lib/cache'
 
 export interface LimitCheckOptions {
   resource: 'users' | 'storage' | 'api_calls' | 'projects' | 'integrations'
@@ -96,15 +98,26 @@ export async function hasFeature(companyId: string, feature: string): Promise<bo
         company: {
           id: companyId
         }
-      }
+      },
+      include: { addons: true }
     })
     
     if (!subscription) {
       return false
     }
     
-    const features = subscription.features as any
-    return Array.isArray(features) ? features.includes(feature) : false
+    // Source of truth: FEATURE_MATRIX
+    const rule = FEATURE_MATRIX[feature as keyof typeof FEATURE_MATRIX]
+    if (!rule) {
+      // fallback al array features en DB si existe
+      const features = subscription.features as any
+      return Array.isArray(features) ? features.includes(feature) : false
+    }
+    if (rule.basePlans?.includes(subscription.plan)) return true
+    if (rule.addonType && Array.isArray(subscription.addons)) {
+      return subscription.addons.some(a => a.addon_type === rule.addonType)
+    }
+    return false
     
   } catch (error) {
     console.error('Error checking feature:', error)
@@ -115,6 +128,8 @@ export async function hasFeature(companyId: string, feature: string): Promise<bo
 // Utility to get company usage summary
 export async function getUsageSummary(companyId: string) {
   try {
+  const cached = usageSummaryCache.get(companyId)
+  if (cached) return cached
     const company = await prisma.company.findUnique({
       where: { id: companyId },
       include: { subscription: true }
@@ -153,7 +168,7 @@ export async function getUsageSummary(companyId: string) {
     
     const subscription = company.subscription
     
-    return {
+  const result = {
       subscription: {
         plan: subscription.plan,
         status: subscription.status,
@@ -180,6 +195,8 @@ export async function getUsageSummary(companyId: string) {
       },
       thisMonthUsage
     }
+  usageSummaryCache.set(companyId, result, 30_000)
+  return result
     
   } catch (error) {
     console.error('Error getting usage summary:', error)

@@ -1,52 +1,75 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useSubscription } from '@/hooks/use-subscription'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { CreditCard, Download, DollarSign, Users, CalendarClock, AlertCircle } from 'lucide-react'
+import { CreditCard, Download, DollarSign, Users, CalendarClock, AlertCircle, Plus, X } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Skeleton } from '@/components/ui/skeleton'
 
-// Mock invoices data - would come from your billing system
-const mockInvoices = [
-  {
-    id: 'inv_001',
-    date: '2025-01-07',
-    amount: 19900,
-    currency: 'USD',
-    status: 'PAID' as const,
-    description: 'Monthly subscription - Basic Plan'
-  },
-  {
-    id: 'inv_002', 
-    date: '2024-12-07',
-    amount: 19900,
-    currency: 'USD', 
-    status: 'PAID' as const,
-    description: 'Monthly subscription - Basic Plan'
-  },
-  {
-    id: 'inv_003',
-    date: '2024-11-07', 
-    amount: 19900,
-    currency: 'USD',
-    status: 'PAID' as const,
-    description: 'Monthly subscription - Basic Plan'
-  }
-]
+type Invoice = { id: string; number: string; date: string | null; amount: number; currency: string; status: string; description?: string; hosted_invoice_url?: string | null; invoice_pdf?: string | null }
 
 export default function BillingPage() {
   const { subscription, isLoading } = useSubscription()
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded animate-pulse" />
-        <div className="h-64 bg-gray-200 rounded animate-pulse" />
-      </div>
-    )
+  const [busy, setBusy] = useState(false)
+  const [invoices, setInvoices] = useState<Invoice[] | null>(null)
+  const openPortal = async () => {
+    setBusy(true)
+    try {
+      const res = await fetch('/api/billing/portal', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error')
+      if (data.url) window.location.href = data.url
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setBusy(false)
+    }
   }
+  const changePlan = async (plan: 'BASIC' | 'PREMIUM' | 'ENTERPRISE', billingCycle: 'MONTHLY' | 'YEARLY') => {
+    setBusy(true)
+    try {
+      const res = await fetch('/api/billing/change-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan, billingCycle }) })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error')
+      location.reload()
+    } catch (e) { console.error(e) } finally { setBusy(false) }
+  }
+  const cancelSubscription = async () => {
+    if (!confirm('¿Cancelar la suscripción al final del periodo?')) return
+    setBusy(true)
+    try {
+      const res = await fetch('/api/subscription/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ cancelAtPeriodEnd: true }) })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error')
+      location.reload()
+    } catch (e) { console.error(e) } finally { setBusy(false) }
+  }
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/billing/invoices')
+        const data = await res.json()
+        if (res.ok) setInvoices(data.invoices || [])
+      } catch {}
+    })()
+  }, [])
+  const addAddon = async (addon: 'EXTRA_USERS' | 'EXTRA_STORAGE' | 'API_CALLS' | 'INTEGRATIONS' | 'CUSTOM_BRANDING') => {
+    setBusy(true)
+    try {
+      const res = await fetch('/api/billing/addon', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ addon, quantity: 1 }) })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Error')
+      location.reload()
+    } catch (e) { console.error(e) } finally { setBusy(false) }
+  }
+
+  const currentAddons: Array<{ addon_type: string; quantity: number }> = (subscription as any)?.addons || []
+
+  // Don't block page; show progressive content
 
   if (!subscription) {
     return (
@@ -88,6 +111,8 @@ export default function BillingPage() {
 
   const nextBillingDate = new Date(subscription.current_period_end)
   const isYearly = subscription.billing_cycle === 'YEARLY'
+  const storageBytes = Number((subscription as any).max_storage)
+  const storageUnlimited = (subscription as any).max_storage === BigInt(-1) || (Number.isFinite(storageBytes) ? storageBytes <= 0 : false)
 
   return (
     <div className="space-y-6">
@@ -103,14 +128,14 @@ export default function BillingPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="h-5 w-5" />
-                Plan Actual: {subscription.plan}
+                Plan Actual: {subscription?.plan || '—'}
               </CardTitle>
               <CardDescription>
-                {formatCurrency(subscription.unit_amount, subscription.currency)} / {isYearly ? 'año' : 'mes'}
+                {subscription ? `${formatCurrency(subscription.unit_amount, subscription.currency)} / ${isYearly ? 'año' : 'mes'}` : <Skeleton className="h-4 w-28" />}
               </CardDescription>
             </div>
             <Badge className="bg-green-100 text-green-800">
-              {subscription.status}
+              {subscription?.status || '—'}
             </Badge>
           </div>
         </CardHeader>
@@ -122,10 +147,10 @@ export default function BillingPage() {
                 <p className="text-sm text-gray-600">Próximo Pago</p>
               </div>
               <p className="font-semibold">
-                {nextBillingDate.toLocaleDateString('es-ES')}
+                {subscription ? nextBillingDate.toLocaleDateString('es-ES') : <Skeleton className="h-4 w-24" />}
               </p>
               <p className="text-sm text-gray-500">
-                {formatCurrency(subscription.unit_amount, subscription.currency)}
+                {subscription ? formatCurrency(subscription.unit_amount, subscription.currency) : <Skeleton className="h-4 w-16" />}
               </p>
             </div>
             
@@ -138,10 +163,7 @@ export default function BillingPage() {
                 {subscription.max_users === 999999 ? 'Usuarios Ilimitados' : `${subscription.max_users} Usuarios`}
               </p>
               <p className="text-sm text-gray-500">
-                {subscription.max_storage === BigInt('999999999999999') 
-                  ? 'Almacenamiento Ilimitado' 
-                  : `${Math.round(Number(subscription.max_storage) / 1024 / 1024 / 1024)}GB Almacenamiento`
-                }
+                {storageUnlimited ? 'Almacenamiento Ilimitado' : `${Math.round(storageBytes / 1024 / 1024 / 1024)}GB Almacenamiento`}
               </p>
             </div>
             
@@ -157,6 +179,19 @@ export default function BillingPage() {
                 Renovación automática
               </p>
             </div>
+          </div>
+          <div className="mt-4 flex gap-2">
+            <Button variant="outline" onClick={() => changePlan('BASIC', isYearly ? 'YEARLY' : 'MONTHLY')} disabled={busy}>Cambiar a BASIC</Button>
+            <Button variant="outline" onClick={() => changePlan('PREMIUM', isYearly ? 'YEARLY' : 'MONTHLY')} disabled={busy}>Cambiar a PREMIUM</Button>
+            <Button variant="outline" onClick={() => changePlan('ENTERPRISE', isYearly ? 'YEARLY' : 'MONTHLY')} disabled={busy}>Cambiar a ENTERPRISE</Button>
+          </div>
+          <div className="mt-2 flex gap-2">
+            <Button onClick={openPortal} disabled={busy}>Abrir portal</Button>
+            <Button variant="secondary" onClick={() => addAddon('INTEGRATIONS')} disabled={busy}>Añadir Integraciones</Button>
+            <Button variant="secondary" onClick={() => addAddon('CUSTOM_BRANDING')} disabled={busy}>Añadir Branding</Button>
+            <Button variant="destructive" onClick={cancelSubscription} disabled={busy}>
+              <X className="h-4 w-4 mr-1" /> Cancelar suscripción
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -183,6 +218,34 @@ export default function BillingPage() {
         </CardContent>
       </Card>
 
+      {/* Add-ons */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Add-ons activos</CardTitle>
+          <CardDescription>
+            Añade capacidad o funcionalidades adicionales a tu suscripción
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {['EXTRA_USERS', 'EXTRA_STORAGE', 'API_CALLS', 'INTEGRATIONS', 'CUSTOM_BRANDING'].map((key) => {
+              const existing = currentAddons.find(a => a.addon_type === key)
+              return (
+                <div key={key} className="flex items-center justify-between border rounded-md px-3 py-2">
+                  <div className="flex flex-col">
+                    <span className="font-medium">{key.replace(/_/g, ' ')}</span>
+                    <span className="text-xs text-gray-500">Cantidad: {existing ? existing.quantity : 0}</span>
+                  </div>
+                  <Button size="sm" variant="outline" disabled={busy} onClick={() => addAddon(key as any)}>
+                    <Plus className="h-4 w-4 mr-1" /> Añadir +1
+                  </Button>
+                </div>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Invoice History */}
       <Card>
         <CardHeader>
@@ -192,6 +255,14 @@ export default function BillingPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {!invoices ? (
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-full" />
+              <Skeleton className="h-6 w-3/4" />
+            </div>
+          ) : (
           <Table>
             <TableHeader>
               <TableRow>
@@ -204,57 +275,45 @@ export default function BillingPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockInvoices.map((invoice) => (
+              {(invoices || []).map((invoice) => (
                 <TableRow key={invoice.id}>
-                  <TableCell className="font-medium">
-                    #{invoice.id.toUpperCase()}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(invoice.date).toLocaleDateString('es-ES')}
-                  </TableCell>
-                  <TableCell>{invoice.description}</TableCell>
-                  <TableCell>
-                    {formatCurrency(invoice.amount, invoice.currency)}
-                  </TableCell>
+                  <TableCell className="font-medium">#{(invoice.number || invoice.id).toUpperCase()}</TableCell>
+                  <TableCell>{invoice.date ? new Date(invoice.date).toLocaleDateString('es-ES') : '-'}</TableCell>
+                  <TableCell>{invoice.description || '-'}</TableCell>
+                  <TableCell>{formatCurrency(invoice.amount, invoice.currency)}</TableCell>
                   <TableCell>
                     <Badge className={getStatusColor(invoice.status)}>
-                      {invoice.status === 'PAID' ? 'Pagada' : invoice.status}
+                      {invoice.status?.toUpperCase() === 'PAID' ? 'Pagada' : invoice.status}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        // Download invoice logic
-                        console.log('Download invoice:', invoice.id)
-                      }}
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Descargar
-                    </Button>
+                    {invoice.hosted_invoice_url ? (
+                      <Button asChild variant="outline" size="sm">
+                        <a href={invoice.hosted_invoice_url} target="_blank" rel="noreferrer">
+                          <Download className="h-4 w-4 mr-2" /> Ver/Descargar
+                        </a>
+                      </Button>
+                    ) : (
+                      <span className="text-xs text-gray-500">—</span>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
 
       {/* Actions */}
       <div className="flex gap-4">
-        <Button 
-          onClick={() => {
-            // Navigate to subscription page
-            window.location.href = '/dashboard/subscriptions'
-          }}
-        >
+        <Button onClick={() => { window.location.href = '/dashboard/subscriptions' }}>
           Gestionar Suscripción
         </Button>
-        <Button variant="outline">
+        <Button variant="outline" onClick={openPortal}>
           Actualizar Método de Pago
         </Button>
-        <Button variant="outline">
+        <Button variant="outline" onClick={openPortal}>
           Descargar Todas las Facturas
         </Button>
       </div>

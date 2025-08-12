@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import { SubscriptionService } from '@/lib/services/subscription'
+import { toSafeJSON } from '@/lib/utils'
 import { z } from 'zod'
 
 const createSubscriptionSchema = z.object({
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const subscription = await SubscriptionService.getSubscriptionWithUsage(
+  const subscription = await SubscriptionService.getSubscriptionWithUsage(
       token.companyId as string
     )
 
@@ -70,7 +71,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(subscription)
+  const res = NextResponse.json(toSafeJSON(subscription))
+  res.headers.set('Cache-Control', 'private, max-age=15, stale-while-revalidate=60')
+  return res
 
   } catch (error: any) {
     console.error('Error getting subscription:', error)

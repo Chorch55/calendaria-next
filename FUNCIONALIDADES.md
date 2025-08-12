@@ -1,338 +1,174 @@
-# Funcionalidades del Proyecto
+¡Perfecto! He reescrito tu README para que explique de forma clara todo lo que hace **CalendarIA** y, además, incluya un apartado de **planes, precios y add-ons** (según la tabla de tu captura). Lo tienes listo para copiar/pegar:
 
-Esta aplicación, denominada **CalendarIA**, combina comunicación, calendario y herramientas de gestión con apoyo de IA.
+---
 
-## Tecnologías utilizadas
+# CalendarIA
 
-- **Frontend:** Next.js + Tailwind CSS + shadcn/ui
-- **Autenticación:** NextAuth.js (JWT, Credentials Provider)
-- **Base de datos:** PostgreSQL + Prisma ORM
-- **Automatización:** N8N vía webhooks/API
-- **Pagos:** Stripe Checkout
-- **Hosting:** Frontend en Vercel y backend/bd en PostgreSQL
-- **Seguridad:** NextAuth.js, HTTPS, JWT, roles y variables protegidas
+**CalendarIA** es una plataforma de comunicación unificada y calendario con IA para automatizar citas, centralizar mensajes (Email/WhatsApp/SMS), gestionar equipo y tareas, y analizar llamadas con ayuda de modelos de inteligencia artificial.
 
-## Principales funcionalidades
+## Tecnologías
 
-### Bandeja de entrada unificada
+* **Frontend:** Next.js + Tailwind CSS + shadcn/ui
+* **Autenticación:** NextAuth.js (JWT, Credentials Provider)
+* **Base de datos:** PostgreSQL + Prisma ORM
+* **Automatización:** N8N vía webhooks/API
+* **Pagos:** Stripe Checkout
+* **Hosting:** Frontend en Vercel; backend/BD en PostgreSQL
+* **Seguridad:** HTTPS, JWT, control de roles/permisos, variables de entorno protegidas
 
-El código de `Inbox` define la estructura de cada mensaje con metadatos de interacción de IA:
-```ts
-  type: 'whatsapp';
-  account: string; // WhatsApp number
-}
+---
 
-type MessageChannelDetails = MessageChannelDetailsEmail | MessageChannelDetailsWhatsApp;
+## Funcionalidades
 
-interface Message {
-  id: string;
-  sender: string;
-  subject: string;
-  snippet: string;
-  timestamp: string;
-  avatar: string;
-  read: boolean;
-  aiInteraction?: 'ai-responded' | 'needs-attention' | 'summarized' | 'none';
-  conversationLog: ConversationMessage[];
-  channelDetails: MessageChannelDetails;
-```
-Estos mensajes se muestran y filtran por servicio y por tipo de interacción con la IA.
+### 1) Bandeja de entrada unificada
 
-### Gestión de eventos
+* Centraliza **Gmail/Outlook**, **WhatsApp** y **SMS** en un solo lugar.
+* Etiquetado por canal y estado; búsqueda y filtrado.
+* IA para **resumir**, **responder automáticamente** y marcar **“requiere atención”**.
+* Registro de conversación por hilo y trazabilidad.
 
-La sección de eventos consulta e inserta registros en Supabase:
-```ts
-  useEffect(() => {
-    const fetchEvents = async () => {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .order('start_time', { ascending: true })
+### 2) Reserva online y calendario
 
-      if (error) {
-        console.error('Error cargando eventos:', error.message)
-      } else {
-        setEvents(data ?? [])
-      }
-```
+* Widget de **reserva de citas** para clientes.
+* Gestión de **servicios**, huecos y citas programadas.
+* Recordatorios automáticos (ver límites por plan en “Precios”).
 
-### Registro de llamadas
+### 3) Contactos y empresas (mini-CRM)
 
-Cada llamada tiene resumen, sentimiento y enlace a la grabación:
-```ts
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Phone Call Logs</h1>
-        <p className="text-muted-foreground mt-1">
-          Review AI-analyzed summaries and recordings of your inbound calls.
-        </p>
-      </div>
+* Altas, edición y búsqueda avanzada de **contactos** y **empresas**.
+* Favoritos, filtros por texto y relación contacto⇄empresa.
+* Vista vinculada: al abrir una empresa, ves sus contactos asociados.
 
-      {mockCallLogs.length > 0 ? (
-        <div className="space-y-4">
-          {mockCallLogs.map((log) => (
-            <Card key={log.id} className="shadow-lg">
-              <CardHeader>
-                <div className="flex items-start justify-between gap-4">
-                    <div>
-                        <CardTitle className="flex items-center text-xl">
-                            <User className="mr-2 h-5 w-5 text-primary" /> {log.callerName}
-                            {log.appointmentScheduled && (
-                                <Badge variant="secondary" className="ml-2 font-normal">
-                                    {appSettings.phoneCallAppointmentLabel}
-                                </Badge>
-                            )}
-                        </CardTitle>
-                        <CardDescription className="flex items-center text-sm mt-1">
-                            <Phone className="mr-2 h-4 w-4" /> {log.callerNumber}
-                             <span className="mx-2">|</span>
-                            <Clock className="mr-2 h-4 w-4" /> {log.timestamp}
-                        </CardDescription>
-                    </div>
-                     <Badge
-                        className={cn(
-                            "capitalize whitespace-nowrap",
-                            {
-                                'bg-green-500 text-white border-transparent hover:bg-green-600': log.sentiment === 'Positive',
-                                'bg-white text-black border border-gray-300': log.sentiment === 'Neutral',
-                                'bg-red-500 text-white border-transparent hover:bg-red-600': log.sentiment === 'Negative',
-                            }
-                        )}
-                    >
-                        {log.sentiment}
-```
+### 4) Llamadas telefónicas y bot de voz
 
-### Contactos y empresas
+* **Bot de llamadas** que atiende como un humano y puede **concertar citas**.
+* **Transferencia a agente humano** (según plan).
+* **Registro de llamadas** con **resumen por IA**, **análisis de sentimiento** y enlace a **grabación** (si está activada).
+* **Analítica avanzada** opcional (palabras clave, perfilado, etc., según plan).
 
-El panel de contactos permite buscar, filtrar y editar tanto contactos como empresas:
-```ts
-    const filteredContacts = useMemo(() => {
-        return contacts
-            .filter(contact => filter === 'favorites' ? contact.isFavorite : true)
-            .filter(contact => {
-                if (!searchTerm.trim()) return true;
-                const lowerSearch = searchTerm.toLowerCase();
-                return (
-                    contact.name.toLowerCase().includes(lowerSearch) ||
-                    contact.email.toLowerCase().includes(lowerSearch) ||
-                    contact.phone.includes(searchTerm) ||
-                    (contact.company && contact.company.toLowerCase().includes(lowerSearch))
-                );
-            });
-    }, [contacts, filter, searchTerm]);
+### 5) Gestión de tareas (Kanban)
 
-    const filteredCompanies = useMemo(() => {
-        return companies.filter(company => {
-            if (!searchTerm.trim()) return true;
-            const lowerSearch = searchTerm.toLowerCase();
-            return (
-                company.name.toLowerCase().includes(lowerSearch) ||
-                (company.email && company.email.toLowerCase().includes(lowerSearch)) ||
-                (company.phone && company.phone.includes(searchTerm))
-            );
-        });
-    }, [companies, searchTerm]);
-    
-    const contactsForViewingCompany = useMemo(() => {
-        if (!viewingCompany) return [];
-        return contacts.filter(c => c.companyId === viewingCompany.id);
-    }, [contacts, viewingCompany]);
+* Tablero estilo Kanban para **crear, asignar y mover tareas** por estados.
+* Formularios de creación/edición y filtros.
 
-    // --- Dialog Open/Close Handlers ---
-    const handleOpenAddContactDialog = (companyId?: string) => {
-        setEditingContact(null);
-        const company = companies.find(c => c.id === companyId);
-        setContactForm({ ...emptyContactFormState, companyId, company: company?.name });
-        setIsContactDialogOpen(true);
-    };
+### 6) Control horario y ausencias (RR. HH.)
 
-    const handleOpenEditContactDialog = (contact: Contact) => {
-        setEditingContact(contact);
-```
+* **Fichaje** (entrada/salida), cómputo de tiempo por tarea y edición puntual.
+* **Calendario mensual** y **solicitudes de vacaciones/ausencias** con validaciones.
+* (Módulo RR. HH. incluido o como add-on según plan.)
 
-### Gestión de tareas (Kanban)
+### 7) Asistente conversacional con IA
 
-Existe un tablero de tareas con formularios de creación y edición:
-```ts
-  return (
-    <div className="space-y-4 h-full flex flex-col">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">Task Management</h1>
-            <CardDescription>Organize, assign, and track your team's work using a Kanban-style board.</CardDescription>
-        </div>
-        <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => alert("Filters functionality will be added later.")}>
-                <Filter className="h-4 w-4 mr-2" /> Filters
-            </Button>
-            <Button className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleOpenCreateTaskDialog}>
-```
+* **Chat** con un asistente entrenado en CalendarIA (vía **Genkit**).
+* Explica funciones, guía al usuario y sugiere acciones en la app.
 
-### Control horario y ausencias
+### 8) Personalización, conexiones e integraciones
 
-Se registran las horas trabajadas y se gestionan solicitudes de vacaciones:
-```ts
-  const [activeTab, setActiveTab] = useState("time-log");
+* Conexión de **cuentas**: Gmail, Outlook, WhatsApp, teléfono (estado por conexión).
+* **Ajustes de interfaz**: orden del menú, idioma, tamaño de fuente, notificaciones.
+* **Gestión de equipo y roles**: invita usuarios y define permisos.
+* **Automatizaciones N8N** para flujos personalizados (webhooks/API).
 
-  // State for Time Logging
-  const [isClockedIn, setIsClockedIn] = useState(false);
-  const [currentTask, setCurrentTask] = useState('');
-  const [startTime, setStartTime] = useState<Date | null>(null);
-  const [timeEntries, setTimeEntries] = useState<TimeEntry[]>(initialEntries);
-  const [sessionSeconds, setSessionSeconds] = useState(0);
+---
 
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  
-  const [selectionMode, setSelectionMode] = useState<'single' | 'multiple' | 'range'>('single');
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [selectedDates, setSelectedDates] = useState<Date[] | undefined>([]);
-  const [range, setRange] = useState<DateRange | undefined>();
-  
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingEntry, setEditingEntry] = useState<TimeEntry | null>(null);
-  const [editForm, setEditForm] = useState({ taskDescription: '', startTime: '', endTime: '' });
+## Planes, precios y add-ons
 
-  // State for Leave Requests
-  const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>(initialLeaveRequests);
-  const [newRequestForm, setNewRequestForm] = useState(emptyRequestForm);
+> Los planes de CalendarIA se ofrecen en tres modos: **Basic**, **Professional** y **Enterprise**.
+> Los precios son **mensuales** y **orientativos** (pueden variar). La contratación y el cobro se realizan mediante **Stripe Checkout**.
 
+### Comparativa de planes
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isClockedIn && startTime) {
-      timer = setInterval(() => {
-        setSessionSeconds(differenceInSeconds(new Date(), startTime));
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [isClockedIn, startTime]);
+| Característica                                               |        **Basic** |     **Professional** |                  **Enterprise** |
+| ------------------------------------------------------------ | ---------------: | -------------------: | ------------------------------: |
+| **Precio**                                                   |     **19 €/mes** |         **99 €/mes** |                   **299 €/mes** |
+| **Reserva online y calendario**                              |               ✔︎ |                   ✔︎ |                              ✔︎ |
+| **Bot de Email** (responde y agenda por email)               |               ✔︎ |                   ✔︎ |                              ✔︎ |
+| **Bot de WhatsApp** (responde y agenda por WhatsApp)         |               ✔︎ |                   ✔︎ |                              ✔︎ |
+| **Gestión de contactos**                                     |               ✔︎ |                   ✔︎ |                              ✔︎ |
+| **Bandeja unificada (WhatsApp, Email, SMS)**                 |               ✔︎ |                   ✔︎ |                              ✔︎ |
+| **Usuarios incluidos**                                       |            **1** |               **20** |                          **50** |
+| **Bot de llamadas (voz)**                                    | **Add-on +10 €** |                   ✔︎ |                              ✔︎ |
+| **Transferencia de llamadas a humanos**                      |                — |                   ✔︎ |                              ✔︎ |
+| **Recordatorios incluidos**                                  |           **50** |              **200** |                       **1.000** |
+| **Idiomas incluidos**                                        |           **ES** |            **ES/EN** |        **ES/EN/FR/DE/PT/IT/AR** |
+| **Grabación de llamadas**                                    | **Add-on +15 €** |     **Add-on +10 €** |                              ✔︎ |
+| **IA chat integrable personalizada** (widget embebible)      | **Add-on +10 €** |      **Add-on +5 €** |                              ✔︎ |
+| **Módulo RR. HH.** (horas, vacaciones, ausencias)            | **Add-on +20 €** |     **Add-on +20 €** |                              ✔︎ |
+| **Gestión de tareas (Kanban)**                               |                — |     **Add-on +20 €** |                              ✔︎ |
+| **Estadísticas de personal y monitorización en tiempo real** |                — |     **Add-on +25 €** |                              ✔︎ |
+| **Analítica avanzada de llamadas**                           |                — |     **Add-on +25 €** |                              ✔︎ |
+| **Atención al cliente**                                      |        **Email** | **WhatsApp + Email** | **Teléfono + WhatsApp + Email** |
 
-  const handleClockIn = () => {
-    if (!currentTask.trim()) {
-      toast({
-        title: "Task Required",
-        description: "Please enter a description for the task you are starting.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsClockedIn(true);
-    setStartTime(new Date());
-    setSessionSeconds(0);
-    toast({ title: "Clocked In", description: `Started tracking time for: ${currentTask}` });
-  };
+**Notas sobre idiomas (multilingüe):**
 
-  const handleClockOut = () => {
-    if (!startTime) return;
+* **Basic:** Español incluido. Otros idiomas (**EN, FR, DE, PT, IT, AR**) a **+5 € por idioma** o **+15 € pack completo**.
+* **Professional:** Español e inglés incluidos. Idiomas extra a **+4 € por idioma** o **+10 € pack completo**.
+* **Enterprise:** Todos los idiomas anteriores incluidos.
 
-    const endTime = new Date();
-    const durationInSeconds = differenceInSeconds(endTime, startTime);
+**Usuarios adicionales (packs):**
 
-    const newEntry: TimeEntry = {
-      id: `entry-${Date.now()}`,
-      taskDescription: currentTask,
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString(),
-      durationInSeconds,
-    };
+* **Basic:** packs de **5 usuarios** a **+7,99 €**/mes por pack.
+* **Professional:** packs de **5 usuarios** a **+6,99 €**/mes por pack.
+* **Enterprise:** packs de **5 usuarios** a **+5,99 €**/mes por pack.
 
-    setTimeEntries(prev => [newEntry, ...prev]);
-    setIsClockedIn(false);
-    setCurrentTask('');
-    setStartTime(null);
-    setSessionSeconds(0);
-```
+**Recordatorios:**
 
-### Asistente conversacional
+* Cada plan incluye un cupo mensual. Si necesitas más, puedes ampliar tu plan o solicitar un incremento de cupo desde soporte. (Se contabilizan recordatorios enviados por email/SMS/WhatsApp según configuración y disponibilidad del canal).
 
-La página del asistente usa el flujo `askAssistant` para responder en un chat:
-```ts
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
+### Add-ons disponibles (resumen)
 
-    try {
-      const result = await askAssistant({ query: input });
-      const assistantMessage: Message = { role: 'assistant', content: result.response };
-      setMessages(prev => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Error calling assistant flow:", error);
-      show(
-        <>
-          <strong>{t('assistant_error_toast_title')}</strong>
-          <div>{t('assistant_error_toast_description')}</div>
-        </>
-      );
-       const errorMessage: Message = { role: 'assistant', content: t('assistant_error_message') };
-       setMessages(prev => [...prev, errorMessage]);
-```
+* **Bot de llamadas (Basic):** +10 €/mes
+* **Grabación de llamadas:** +15 €/mes (Basic) · +10 €/mes (Professional)
+* **IA chat integrable personalizada:** +10 €/mes (Basic) · +5 €/mes (Professional)
+* **RR. HH. (horas, vacaciones, ausencias):** +20 €/mes (Basic/Professional)
+* **Gestión de tareas (Kanban):** +20 €/mes (Professional)
+* **Estadísticas de personal y monitorización en tiempo real:** +25 €/mes (Professional)
+* **Analítica avanzada de llamadas:** +25 €/mes (Professional)
+* **Idiomas adicionales:** ver notas por plan
+* **Usuarios extra:** packs de 5 (precio por plan)
 
-### Personalización y conexiones
+> **Cómo se factura:** Los add-ons y packs se **suman al plan base** y se cobran mensualmente vía **Stripe**. Puedes activar/desactivar add-ons según tus necesidades.
 
-El contexto de ajustes controla las conexiones y la visibilidad del menú:
-```ts
+---
 
-const defaultTopNavOrder: (string | CustomNavGroup)[] = [
-  'inbox', 'calendar', 'phone-calls', 'notifications', 'contacts', 'tasks', 'chat', 'time-tracking',
-  {
-    id: 'human-resources',
-    type: 'group',
-    name: 'Human Resources',
-    icon: 'Briefcase',
-    children: ['leave', 'payroll'],
-  },
-];
-const defaultBottomNavOrder: (string | CustomNavGroup)[] = [
-  {
-    id: 'management',
-    type: 'group',
-    name: 'Management',
-    icon: 'Settings2',
-    children: ['team_management', 'role_management', 'services', 'online-booking'],
-  },
-  'ai_logs', 'settings', 'suggestions', 'assistant'
-];
+## Requisitos y despliegue
 
-const defaultAppSettings: AppSettings = {
-  phoneCallAppointmentLabel: 'Appointment',
-  topNavOrder: defaultTopNavOrder,
-  bottomNavOrder: defaultBottomNavOrder,
-  sidebarVisibility: NAV_ITEMS.reduce((acc, item) => ({ ...acc, [item.id]: true }), {}),
-  showNotificationBadge: true,
-  fontSize: 105,
-  language: 'en',
-};
+1. **Variables de entorno** (ejemplos):
 
-const defaultConnections: ConnectionsState = {
-  gmail: { connected: true, account: 'default_user@gmail.com' },
-  outlook: { connected: false, account: null },
-  whatsapp: { connected: false, account: null, active: false },
-  phone: { connected: false, account: null },
-```
+   * `DATABASE_URL` (PostgreSQL)
+   * `NEXTAUTH_SECRET`, `NEXTAUTH_URL`
+   * Credenciales de Gmail/Outlook/WhatsApp/N8N/Stripe
+2. **Migraciones:** `prisma migrate deploy`
+3. **Build:** `pnpm build`
+4. **Start:** `pnpm start` (o despliegue en Vercel para frontend)
 
-### Flujos de IA con Genkit
+> La app utiliza **NextAuth** para autenticación, **Prisma** para acceso a datos, y **N8N** para flujos de automatización. Stripe gestiona el checkout y la suscripción.
 
-El flujo `assistantFlow` describe las habilidades del asistente y procesa la consulta del usuario:
-```ts
+---
 
-const prompt = ai.definePrompt({
-  name: 'assistantPrompt',
-  input: {schema: AssistantInputSchema},
-  output: {schema: AssistantOutputSchema},
-  prompt: `You are a friendly and expert AI assistant for an application called "CalendarIA".
-Your goal is to help users understand and use the application effectively.
+## Seguridad y privacidad
 
-CalendarIA is an AI-powered calendar and unified communications platform. Its key features include:
-- Unified Inbox: Manages emails (Gmail, Outlook) and WhatsApp messages in one place.
-- Calendar Integration: Syncs appointments, which can be created automatically from messages.
-- Task Management: A Kanban-style board to organize and track team tasks.
-- Phone Call Logs: AI-analyzed summaries and recordings of inbound calls.
-- AI-Powered Assistance: Features like automated responses, message summarization, and appointment suggestions.
-- Settings: Allows users to connect accounts, customize the UI (theme, font size, sidebar order), and manage notifications.
-- Team & Role Management: Admins can invite users and define permissions.
+* Comunicación sobre **HTTPS**, tokens **JWT**, y **roles/permiso** por área.
+* Principio de **mínimos privilegios** para integraciones.
+* Registros esenciales para auditoría (eventos clave, llamadas y actividad de IA).
 
-When a user asks a question, provide a clear, concise, and helpful response. Be polite and encouraging.
-If a user asks about a function you don't have, explain that you're an assistant for the CalendarIA app and can only answer questions about its features.
-```
+---
 
-Todas estas funcionalidades se integran con la autenticación de Supabase para mantener la seguridad de los datos.
+## Soporte
+
+* **Basic:** atención por **email**.
+* **Professional:** **WhatsApp + email**.
+* **Enterprise:** **teléfono + WhatsApp + email**.
+
+---
+
+### FAQ (breve)
+
+* **¿Puedo ampliar usuarios sin cambiar de plan?** Sí: packs de 5 usuarios (precio según plan).
+* **¿Qué ocurre al superar los recordatorios incluidos?** Se aplica el precio por unidad del plan.
+* **¿Puedo usar varios idiomas?** Sí. En Basic/Professional puedes añadir idiomas o activar el pack completo; en Enterprise todos ya están incluidos.
+* **¿Cómo activo add-ons?** Desde la configuración de tu espacio. La facturación se gestiona por **Stripe**.
+
+---
+
+¿Quieres que lo entregue también en **inglés** o que lo formatee con un **índice** al principio? Si te va bien, lo dejo así para sustituir tu README actual.
