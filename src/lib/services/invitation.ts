@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma'
 import type { UserRole } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { randomBytes } from 'crypto'
+import { SubscriptionService } from '@/lib/services/subscription'
+import { invitationsCache } from '@/lib/cache'
 
 export class InvitationService {
 
@@ -40,25 +42,10 @@ export class InvitationService {
         throw new Error('Invitation already sent to this email')
       }
 
-      // Check usage limits
-      const company = await prisma.company.findUnique({
-        where: { id: companyId },
-        include: { subscription: true }
-      })
-
-      if (!company) {
-        throw new Error('Company not found')
-      }
-
-      // Check if company can add more users
-      if (company.subscription) {
-        const currentUsers = await prisma.user.count({
-          where: { company_id: companyId, is_active: true }
-        })
-
-        if (currentUsers >= company.subscription.max_users) {
-          throw new Error('User limit reached for your current plan')
-        }
+      // Enforce user limit (plan + add-ons)
+      const userLimit = await SubscriptionService.checkUsageLimit(companyId, 'users')
+      if (userLimit.isAtLimit) {
+        throw new Error('Has alcanzado el límite de usuarios de tu plan. Añade un pack de usuarios o sube de plan.')
       }
 
       // Generate invitation token
@@ -111,7 +98,7 @@ export class InvitationService {
     const { token, userData } = data
 
     try {
-      // Find invitation
+  // Find invitation
       const invitation = await prisma.invitation.findUnique({
         where: { token },
         include: { company: true }
@@ -136,6 +123,12 @@ export class InvitationService {
 
       if (existingUser) {
         throw new Error('User with this email already exists')
+      }
+
+      // Enforce user limit again right before creating the user (race-safe)
+      const userLimit = await SubscriptionService.checkUsageLimit(invitation.company_id, 'users')
+      if (userLimit.isAtLimit) {
+        throw new Error('Has alcanzado el límite de usuarios de tu plan. Añade un pack de usuarios o sube de plan.')
       }
 
       // Hash password
@@ -250,20 +243,27 @@ export class InvitationService {
   }
 
   // Get company invitations
-  static async getCompanyInvitations(companyId: string) {
-    return await prisma.invitation.findMany({
-      where: { company_id: companyId },
-      include: {
-        inviter: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          }
-        }
-      },
-      orderBy: { created_at: 'desc' }
-    })
+  static async getCompanyInvitations(companyId: string, opts?: { limit?: number; offset?: number }) {
+    const key = `${companyId}:${opts?.limit || 20}:${opts?.offset || 0}`
+    const cached = invitationsCache.get(key)
+    if (cached) return cached
+
+    const [items, total] = await Promise.all([
+      prisma.invitation.findMany({
+        where: { company_id: companyId },
+        include: {
+          inviter: { select: { id: true, name: true, email: true } },
+        },
+        orderBy: { created_at: 'desc' },
+        take: opts?.limit || 20,
+        skip: opts?.offset || 0,
+      }),
+      prisma.invitation.count({ where: { company_id: companyId } }),
+    ])
+
+    const result = { invitations: items, total }
+    invitationsCache.set(key, result, 30_000)
+    return result
   }
 
   // Send invitation email (configure based on your email service)

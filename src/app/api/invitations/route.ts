@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getToken } from 'next-auth/jwt'
 import { InvitationService } from '@/lib/services/invitation'
 import { z } from 'zod'
+import { requireCompany } from '@/lib/auth-helpers'
+import { requireRole } from '@/lib/auth-helpers'
 
 const sendInvitationSchema = z.object({
   email: z.string().email(),
@@ -13,32 +14,14 @@ const sendInvitationSchema = z.object({
 // Send invitation
 export async function POST(request: NextRequest) {
   try {
-    const token = await getToken({ req: request })
-    
-    if (!token?.companyId || !token?.sub) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    // Check if user has permission to invite others
-    const userRole = token.role as string
-    if (!['SUPER_ADMIN', 'ADMIN'].includes(userRole)) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions to send invitations' },
-        { status: 403 }
-      )
-    }
+  const token = await requireRole(request, ['SUPER_ADMIN', 'ADMIN'])
+  const tokenCompanyId = token.companyId as string
 
     const body = await request.json()
     const data = sendInvitationSchema.parse(body)
 
-    const invitation = await InvitationService.sendInvitation({
-      companyId: token.companyId as string,
-      invitedBy: token.sub,
-      ...data
-    })
+  // Nota: requireRole disponible si deseas reforzar rol
+  const invitation = await InvitationService.sendInvitation({ companyId: tokenCompanyId, invitedBy: token.sub as string, ...data })
 
     return NextResponse.json(invitation)
 
@@ -62,20 +45,17 @@ export async function POST(request: NextRequest) {
 // Get company invitations
 export async function GET(request: NextRequest) {
   try {
-    const token = await getToken({ req: request })
-    
-    if (!token?.companyId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
+  const companyId = await requireCompany(request)
+  const url = new URL(request.url)
+  const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit') || '20')))
+  const page = Math.max(1, Number(url.searchParams.get('page') || '1'))
+  const offset = (page - 1) * limit
 
-    const invitations = await InvitationService.getCompanyInvitations(
-      token.companyId as string
-    )
+  const { invitations, total } = await InvitationService.getCompanyInvitations(companyId, { limit, offset })
 
-    return NextResponse.json(invitations)
+  const res = NextResponse.json({ invitations, total, page, pageSize: limit })
+  res.headers.set('Cache-Control', 'private, max-age=15, stale-while-revalidate=60')
+  return res
 
   } catch (error: any) {
     console.error('Error getting invitations:', error)

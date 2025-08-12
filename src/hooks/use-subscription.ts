@@ -64,6 +64,10 @@ export function useSubscription() {
       return response.json()
     },
     enabled: !!session?.user,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 
   const {
@@ -80,13 +84,19 @@ export function useSubscription() {
       return response.json()
     },
     enabled: !!session?.user,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+    refetchInterval: 60_000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 
   return {
     subscription,
     usageSummary,
     isLoading: isLoadingSubscription || isLoadingUsage,
+    loadingSubscription: isLoadingSubscription,
+    loadingUsage: isLoadingUsage,
     error: subscriptionError || usageError,
   }
 }
@@ -102,13 +112,18 @@ export function useInvitations() {
   } = useQuery<Invitation[]>({
     queryKey: ['invitations'],
     queryFn: async () => {
-      const response = await fetch('/api/invitations')
+      const response = await fetch('/api/invitations?limit=50')
       if (!response.ok) {
         throw new Error('Failed to fetch invitations')
       }
-      return response.json()
+      const data = await response.json()
+      return data.invitations || []
     },
     enabled: !!session?.user && ['SUPER_ADMIN', 'ADMIN'].includes(session.user.role as string),
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   })
 
   const sendInvitationMutation = useMutation({

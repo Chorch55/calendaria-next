@@ -22,7 +22,9 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(summary)
+  const res = NextResponse.json(summary)
+  res.headers.set('Cache-Control', 'private, max-age=15, stale-while-revalidate=60')
+  return res
 
   } catch (error: any) {
     console.error('Error getting usage summary:', error)
