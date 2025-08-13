@@ -11,6 +11,25 @@ type Translations = {
 
 export const translations: Translations = {
   en: {
+    // Navigation
+    main_navigation: "Main",
+    navigation_settings: "Settings",
+    calendar: "Calendar",
+    inbox: "Inbox",
+    contacts: "Contacts",
+    phone_calls: "Phone Calls",
+    tasks: "Tasks",
+    team: "Team",
+    time_tracking: "Time Tracking",
+    assistant: "AI Assistant",
+    settings: "Settings",
+    billing: "Billing",
+    user: "User",
+    account: "Account",
+    profile: "Profile",
+    sign_out: "Sign Out",
+    theme: "Theme",
+    
     // Public Nav
     features: "Features",
     pricing: "Pricing",

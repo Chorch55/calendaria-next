@@ -97,13 +97,22 @@ export default function LandingPage() {
       name: t('home_plan_individual_name'),
       price: '€19',
       priceSuffix: '/mo',
+      addOnBadge: '+ Add Below',
       features: [
-        t('home_plan_feature_individual_user'), 
-        t('home_plan_feature_email_whatsapp'),
-        t('home_plan_feature_calendar_management'),
-        t('home_plan_feature_task_management'),
-        t('home_plan_feature_contact_management'),
-        t('home_plan_feature_ai_basic')
+        // Usuarios y capacidad
+        'From 1 User',
+        // Funciones de comunicación básicas
+        'Online booking and calendar management',
+        'WhatsApp & Email bot (books appointments)',
+        'Unified inbox: WhatsApp, Email, SMS',
+        // Límites
+        '50 Reminders',
+        // Idiomas
+        'Language: ES included',
+        // Automatizaciones
+        '5.000 Automatizations Included',
+        // Soporte
+        'Customer support: EMAIL'
       ],
       cta: t('home_plan_individual_cta'),
       href: '/auth/signup-mt?plan=user',
@@ -112,32 +121,56 @@ export default function LandingPage() {
       name: t('home_plan_professional_name'),
       price: '€99',
       priceSuffix: '/mo',
+      addOnBadge: '+ Add Below',
       features: [
-        t('home_plan_feature_professional_users'), 
-        t('home_plan_feature_shared_inbox'),
-        t('home_plan_feature_team_collaboration'),
-        t('home_plan_feature_ai_advanced'),
-        t('home_plan_feature_ai_logs'),
-        t('home_plan_feature_priority_support')
+        // Usuarios y capacidad
+        'From 20 Users',
+        // Funciones de comunicación básicas
+        'Online, WhatsApp & Email booking and calendar management',
+        'Call bot (human-like answers with AI)',
+        // Funciones de gestión
+        'Call transfer to humans',
+        // Límites
+        '200 Reminders',
+        // Idiomas
+        'Language: ES/EN included',
+        '25.000 Automatizations Included',
+        // Soporte
+        'Customer support: WHATSAPP, EMAIL'
       ],
-  cta: t('home_plan_professional_cta'),
-  href: '/auth/signup-mt?plan=professional',
-  popular: true,
+      cta: t('home_plan_professional_cta'),
+      href: '/auth/signup-mt?plan=professional',
+      popular: true,
     },
     {
       name: t('home_plan_enterprise_name'),
       price: '€299',
       priceSuffix: '/mo',
+      addOnBadge: '+ Add Below ',
       features: [
-        t('home_plan_feature_enterprise_users'), 
-        t('home_plan_feature_admin_controls'),
-        t('home_plan_feature_full_customization'),
-        t('home_plan_feature_billing_management'),
-        t('home_plan_feature_custom_workflows'),
-        t('home_plan_feature_dedicated_support')
+        // Usuarios y capacidad
+        'From 50 Users',
+        // Funciones de comunicación avanzadas
+        'Call bot (human-like answers with AI)',
+        'Online, WhatsApp & Email booking and calendar management',
+        'Advanced call analytics',
+        'Admin Controls',
+        'Full UI Customization',
+        // Características premium
+        'Call recording Included',
+        'Custom embeddable AI chat',
+        'Staff management (time, leave & absences)',
+        'Team task management',
+        // Límites
+        '1.000 Reminders',
+        // Idiomas
+        'Language: ES/EN/FR/DE/PT/IT/AR included',
+        'Infinite Automatizations Included',
+        // Soporte
+        'Customer support: by PHONE, WHATSAPP, EMAIL'
       ],
-  cta: t('home_plan_enterprise_cta'),
-  href: '/auth/signup-mt?plan=enterprise',
+      cta: t('home_plan_enterprise_cta'),
+      href: '/auth/signup-mt?plan=enterprise',
     },
   ];
 
@@ -387,7 +420,7 @@ export default function LandingPage() {
                 {t('home_pricing_desc')}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-                {plans.map((plan: any) => (
+                {plans.map((plan: { name: string; price: string; priceSuffix: string; features: string[]; cta: string; href: string; popular?: boolean; disabled?: boolean; addOnBadge?: string }) => (
                   <Card key={plan.name} className={cn(
                     'flex flex-col shadow-lg transition-shadow duration-300',
                     plan.popular && !plan.disabled ? 'border-2 border-primary relative' : '',
@@ -397,10 +430,17 @@ export default function LandingPage() {
                     
                     <CardHeader className="text-center">
                       <CardTitle className="text-2xl font-semibold">{plan.name}</CardTitle>
-                      <div className="mt-2 flex flex-col items-center justify-center h-[56px]">
+                      <div className="mt-2 flex flex-col items-center justify-center">
                         <p className="text-4xl font-bold text-primary">
                           {plan.price}<span className="text-lg font-normal text-muted-foreground">{plan.priceSuffix}</span>
                         </p>
+                        {plan.addOnBadge && (
+                          <div className="mt-2 inline-flex items-center rounded-full bg-yellow-500/10 px-2.5 py-1 text-xs font-medium text-yellow-600 dark:text-yellow-400 ring-1 ring-inset ring-yellow-500/20">
+                            <span className="flex items-center">
+                              {plan.addOnBadge}
+                            </span>
+                          </div>
+                        )}
                         {plan.disabled && (
                           <p className="text-sm font-semibold text-muted-foreground mt-1">{t('home_plan_coming_soon_cta')}</p>
                         )}
@@ -435,7 +475,9 @@ export default function LandingPage() {
               </div>
 
               <div className="mt-16">
-                <h3 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8">{t('home_pricing_comparison_title')}</h3>
+                <h3 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8">
+                  Plan Comparison + <span className="inline-flex items-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 text-[0.95em] font-semibold ring-1 ring-inset ring-amber-500/20">Add Ons</span>
+                </h3>
                 <PricingComparison />
               </div>
 

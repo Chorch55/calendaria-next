@@ -56,7 +56,7 @@ export const PLAN_LIMITS = {
     features: ['basic_support', 'email_notifications'],
   },
   PREMIUM: {
-  max_users: 25,
+  max_users: 20,
   max_storage: 1073741824 * 50, // 50GB
   max_api_calls: 25000,
   max_projects: 25,
