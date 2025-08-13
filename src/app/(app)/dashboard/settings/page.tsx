@@ -15,7 +15,7 @@ import { useSettings } from '@/context/settings-context';
 import { CustomNavGroup, AppSettings, Language } from '../../../../config/types';
 import { NavItem } from '@/config/sidebar';
 import { Badge } from '@/components/ui/badge';
-import { NAV_ITEMS, AVAILABLE_GROUP_ICONS, iconMap, GroupIconName } from '@/config/sidebar';
+import { sidebarConfig, AVAILABLE_GROUP_ICONS, iconMap, GroupIconName } from '@/config/sidebar';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { useTranslation } from '@/hooks/use-translation';
@@ -38,16 +38,28 @@ const initialUserData = {
   initials: 'ER'
 };
 
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+
 export default function SettingsPage() {
+  // 1. Authentication hook
+  const { data: session, status } = useSession();
+
+  // 2. All state hooks first
   const [userData, setUserData] = useState(initialUserData);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const { t } = useTranslation();
-  const { connections, updateConnection, appSettings, updateAppSettings, isSettingsLoaded } = useSettings();
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<CustomNavGroup | null>(null);
   const [groupTargetList, setGroupTargetList] = useState<'top' | 'bottom'>('top');
+
+  // 3. Context hooks
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { t } = useTranslation();
+  const { connections, updateConnection, appSettings, updateAppSettings, isSettingsLoaded } = useSettings();
+
+  // Primero, todos los hooks
+  useEffect(() => { setMounted(true); }, []);
 
   const connectionsSectionRef = useCallback((node: HTMLDivElement) => {
     if (node !== null && window.location.hash === '#connections') {
@@ -55,12 +67,36 @@ export default function SettingsPage() {
     }
   }, []);
 
-  const { topNavOrder, bottomNavOrder, sidebarVisibility } = appSettings;
-  const navItemMap = useMemo<Map<string, NavItem>>(
-    () => new Map( NAV_ITEMS.map((item: NavItem) => [item.id, item]) ), []
-  );
-  
-  useEffect(() => { setMounted(true); }, []);
+  const navItemMap = useMemo<Map<string, NavItem>>(() => {
+    const allNavItems = [...sidebarConfig.mainNav, ...sidebarConfig.secondaryNav];
+    return new Map(allNavItems.map((item: NavItem) => [item.title, item]));
+  }, []);
+
+  // 4. All effects together
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      redirect("/auth/login-mt");
+    }
+  }, [status]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 5. Loading states
+  if (!mounted || status === "loading" || !isSettingsLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-lg font-medium">Loading...</h2>
+          <p className="text-sm text-muted-foreground">Please wait while we load your settings</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 6. Extract settings after all hooks
+  const { topNavOrder = [], bottomNavOrder = [], sidebarVisibility = {} } = appSettings;
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => { setUserData({ ...userData, [e.target.name]: e.target.value }); };
   const handleAppSettingsChange = (e: React.ChangeEvent<HTMLInputElement>) => { updateAppSettings({ [e.target.name]: e.target.value }); };
@@ -555,13 +591,13 @@ const SimpleNavItem = ({ itemId, item, updateAppSettings, t, appSettings, listKe
                 const Icon = item.icon as React.ComponentType<React.SVGProps<SVGSVGElement>>;
                 return <Icon className="h-5 w-5 text-primary" />;
               })()}
-              <span className="font-medium text-sm">{t(item.id)}</span>
+              <span className="font-medium text-sm">{t(item.title)}</span>
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
               <Switch 
-                checked={appSettings.sidebarVisibility?.[item.id] ?? true} 
-                onCheckedChange={(checked) => updateAppSettings({ sidebarVisibility: { ...appSettings.sidebarVisibility, [item.id]: checked } })} 
-                disabled={item.id === 'settings'}
+                checked={appSettings.sidebarVisibility?.[item.title] ?? true} 
+                onCheckedChange={(checked) => updateAppSettings({ sidebarVisibility: { ...appSettings.sidebarVisibility, [item.title]: checked } })} 
+                disabled={item.title === 'settings'}
               />
               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onMove(itemId, listKey === 'topNavOrder' ? 'down' : 'up')}>
                   {listKey === 'topNavOrder' ? <ArrowDownCircle className="h-4 w-4" /> : <ArrowUpCircle className="h-4 w-4" />}
@@ -686,7 +722,7 @@ const GroupNavItem = ({ group, allNavItems, appSettings, updateAppSettings, t, o
                                                 const Icon = childItem.icon as React.ComponentType<React.SVGProps<SVGSVGElement>>;
                                                 return <Icon className="h-4 w-4 text-teal-600" />;
                                             })()}
-                                            <span className="text-sm">{t(childItem.id)}</span>
+                                            <span className="text-sm">{t(childItem.title)}</span>
                                         </div>
                                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleUnGroup(childId); }}>
                                             <Unlink className="h-3.5 w-3.5 text-destructive" />

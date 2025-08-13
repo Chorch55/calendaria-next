@@ -17,6 +17,7 @@ export interface AppSettings {
   fontSize: number;
   language: string;
   showNotificationBadge: boolean;
+  phoneCallAppointmentLabel: string;
 }
 
 export interface Language {

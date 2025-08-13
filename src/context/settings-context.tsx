@@ -2,7 +2,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
-import { NAV_ITEMS } from '@/config/sidebar';
+import { sidebarConfig } from '@/config/sidebar';
+import { AppSettings } from '@/config/types';
 
 interface ConnectionDetail {
   connected: boolean;
@@ -20,53 +21,14 @@ interface ConnectionsState {
   phone: ConnectionDetail;
 }
 
-export interface CustomNavGroup {
-  id: string; // e.g., 'custom-162...
-  type: 'group';
-  name: string;
-  icon: string; // name of lucide-react icon
-  children: string[]; // array of nav item ids
-}
-
-interface AppSettings {
-  phoneCallAppointmentLabel: string;
-  topNavOrder: (string | CustomNavGroup)[];
-  bottomNavOrder: (string | CustomNavGroup)[];
-  sidebarVisibility: Record<string, boolean>;
-  showNotificationBadge: boolean;
-  fontSize: number;
-  language: string;
-}
-
-const defaultTopNavOrder: (string | CustomNavGroup)[] = [
-  'inbox', 'calendar', 'phone-calls', 'notifications', 'contacts', 'tasks', 'chat', 'time-tracking',
-  {
-    id: 'human-resources',
-    type: 'group',
-    name: 'Human Resources',
-    icon: 'Briefcase',
-    children: ['leave', 'payroll'],
-  },
-];
-const defaultBottomNavOrder: (string | CustomNavGroup)[] = [
-  {
-    id: 'management',
-    type: 'group',
-    name: 'Management',
-    icon: 'Settings2',
-    children: ['team_management', 'role_management', 'services', 'online-booking'],
-  },
-  'ai_logs', 'suggestions', 'assistant'
-];
-
 const defaultAppSettings: AppSettings = {
   phoneCallAppointmentLabel: 'Appointment',
-  topNavOrder: defaultTopNavOrder,
-  bottomNavOrder: defaultBottomNavOrder,
-  sidebarVisibility: NAV_ITEMS.reduce((acc, item) => ({ ...acc, [item.id]: true }), {}),
+  sidebarVisibility: {},  // Will be populated with the sidebar items
   showNotificationBadge: true,
   fontSize: 105,
   language: 'en',
+  topNavOrder: [],
+  bottomNavOrder: []
 };
 
 const defaultConnections: ConnectionsState = {
@@ -102,76 +64,34 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     
     // Load app settings from local storage and reconcile them
     const storedAppSettings = localStorage.getItem('calendaria-app-settings');
+    
+    // Initialize visibility state for all current sidebar items
+    const currentItems = [...sidebarConfig.mainNav, ...sidebarConfig.secondaryNav];
+    const defaultVisibility = currentItems.reduce((acc, item) => ({
+      ...acc,
+      [item.title]: true
+    }), {});
+
     if (storedAppSettings) {
       const loaded = JSON.parse(storedAppSettings);
       
-      // Start with default settings and merge loaded ones
-      const mergedAppSettings: AppSettings = { ...defaultAppSettings, ...loaded };
-
-      const allNavIds = new Set(NAV_ITEMS.map(item => item.id));
-      const seenIds = new Set<string>();
-
-      // Filter function to remove duplicates and invalid items from any list
-      const filterAndTrack = (item: string | CustomNavGroup) => {
-        const id = typeof item === 'string' ? item : item.id;
-        
-        if (!id || seenIds.has(id)) return false;
-        
-        if (typeof item === 'string') {
-            if (!allNavIds.has(item)) return false;
-        } else if (item.type !== 'group') {
-            return false;
+      // Load and merge app settings
+      const mergedAppSettings: AppSettings = {
+        ...defaultAppSettings,
+        ...loaded,
+        // Ensure sidebarVisibility has all current items while preserving saved states
+        sidebarVisibility: {
+          ...defaultVisibility,
+          ...(loaded.sidebarVisibility || {})
         }
-
-        seenIds.add(id);
-        
-        // If it's a group, sanitize its children
-        if (typeof item !== 'string' && item.type === 'group') {
-            const childSeenIds = new Set<string>();
-            item.children = item.children.filter(childId => {
-                if(allNavIds.has(childId) && !seenIds.has(childId) && !childSeenIds.has(childId)) {
-                    seenIds.add(childId);
-                    childSeenIds.add(childId);
-                    return true;
-                }
-                return false;
-            });
-        }
-        return true;
-      };
-      
-      let reconciledTopOrder = Array.isArray(mergedAppSettings.topNavOrder) 
-        ? mergedAppSettings.topNavOrder.filter(filterAndTrack) 
-        : defaultTopNavOrder;
-        
-      let reconciledBottomOrder = Array.isArray(mergedAppSettings.bottomNavOrder)
-        ? mergedAppSettings.bottomNavOrder.filter(filterAndTrack)
-        : defaultBottomNavOrder;
-      
-      // Add back any items that are completely missing after sanitization
-      const missingNavItems = NAV_ITEMS.filter(item => !seenIds.has(item.id));
-      if (missingNavItems.length > 0) {
-        const defaultBottomIds = new Set(defaultBottomNavOrder.map(item => typeof item === 'string' ? item : item.id));
-        missingNavItems.forEach(item => {
-          if (defaultBottomIds.has(item.id)) {
-            reconciledBottomOrder.push(item.id);
-          } else {
-            reconciledTopOrder.push(item.id);
-          }
-        });
-      }
-      
-      mergedAppSettings.topNavOrder = reconciledTopOrder;
-      mergedAppSettings.bottomNavOrder = reconciledBottomOrder;
-      mergedAppSettings.sidebarVisibility = {
-        ...defaultAppSettings.sidebarVisibility,
-        ...(loaded.sidebarVisibility || {})
       };
       
       setAppSettings(mergedAppSettings);
-
     } else {
-      setAppSettings(defaultAppSettings);
+      setAppSettings({
+        ...defaultAppSettings,
+        sidebarVisibility: defaultVisibility
+      });
     }
 
     setIsSettingsLoaded(true);
