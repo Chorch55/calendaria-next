@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Mail, Bot, Globe, DraftingCompass, Send, MapPin, Phone, ShieldCheck, Clock, Moon, Sun, Briefcase, User } from 'lucide-react';
+import { CheckCircle, Mail, Bot, Globe, DraftingCompass, Send, MapPin, Phone, ShieldCheck, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
@@ -101,6 +101,7 @@ export default function LandingPage() {
       features: [
         // Usuarios y capacidad
         'From 1 User',
+        '2GB Storage',
         // Funciones de comunicación básicas
         'Online booking and calendar management',
         'WhatsApp & Email bot (books appointments)',
@@ -125,6 +126,7 @@ export default function LandingPage() {
       features: [
         // Usuarios y capacidad
         'From 20 Users',
+        '5GB Storage',
         // Funciones de comunicación básicas
         'Online, WhatsApp & Email booking and calendar management',
         'Call bot (human-like answers with AI)',
@@ -150,6 +152,7 @@ export default function LandingPage() {
       features: [
         // Usuarios y capacidad
         'From 50 Users',
+        '10GB Storage',
         // Funciones de comunicación avanzadas
         'Call bot (human-like answers with AI)',
         'Online, WhatsApp & Email booking and calendar management',
