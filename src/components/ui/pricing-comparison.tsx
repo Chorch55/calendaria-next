@@ -110,6 +110,20 @@ export function PricingComparison() {
       professional: '5 usuarios + 6,99€',
       enterprise: '5 usuarios + 5,99€'
     },
+    
+    // Almacenamiento
+    {
+      name: 'Almacenamiento',
+      individual: '2GB',
+      professional: '5GB',
+      enterprise: '10GB'
+    },
+    {
+      name: 'Almacenamiento extra',
+      individual: '+5€/GB',
+      professional: '+4€/GB',
+      enterprise: '+3€/GB'
+    },
 
     // Funcionalidades de llamadas y bots
     {
@@ -134,9 +148,9 @@ export function PricingComparison() {
     },
     {
       name: 'Multilingüismo',
-      individual: 'ES\n5€ POR IDIOMA: EN, FR, GE, POR, IT, AR\n+15€ TODOS (PACK)',
-      professional: 'ES/EN\n4€ POR IDIOMA: EN, FR, GE, POR, IT, AR\n+10€ TODOS (PACK)',
-      enterprise: 'ES/EN/FR/GE/POR/IT/AR'
+      individual: 'ES\n3€ POR IDIOMA: EN, FR, DE, PT, IT, AR\n+15€ TODOS (PACK)',
+      professional: 'ES/EN\n2€ POR IDIOMA: FR, DE, PT, IT, AR\n+10€ TODOS (PACK)',
+      enterprise: 'ES/EN/FR/DE/PT/IT/AR'
     },
 
     // Características avanzadas

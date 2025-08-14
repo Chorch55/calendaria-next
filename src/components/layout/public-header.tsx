@@ -157,34 +157,46 @@ export function PublicHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="container relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="container relative mx-auto flex h-16 max-w-7xl items-center px-2 sm:px-4 md:px-6 lg:px-8">
         
         {/* Left item: Logo */}
         <div className="flex items-center gap-6">
             <Logo />
         </div>
 
-        {/* Center item: Nav links - hidden on mobile and small tablets */}
-        <nav className="hidden lg:absolute lg:left-1/2 lg:top-1/2 lg:flex lg:-translate-x-1/2 lg:-translate-y-1/2 lg:gap-x-6">
+        {/* Center item: Nav links - hidden on mobile */}
+        <nav className="hidden md:flex md:items-center md:justify-center md:space-x-4 lg:space-x-6 flex-1 mx-4">
             {navItems}
         </nav>
         
         {/* Right Grouping: Actions and Mobile Menu */}
-        <div className="flex items-center gap-2">
-          {/* Desktop actions - hide on medium screens and below */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Button variant="outline" asChild className="whitespace-nowrap border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 transition-all duration-300">
+        <div className="flex items-center justify-end space-x-2 md:space-x-4 ml-auto min-w-[200px] sm:min-w-[250px] md:min-w-[300px]">
+          {/* Desktop actions - hide on small screens */}
+          <div className="hidden md:flex md:items-center md:space-x-2 lg:space-x-3">
+            {/* Theme and Language grouped together */}
+            <div className="flex items-center space-x-2">
+              <ThemeToggle />
+              <LanguageSelector />
+            </div>
+            
+            {/* Auth buttons with reduced text size on smaller screens */}
+            <Button 
+              variant="outline" 
+              asChild 
+              className="hidden lg:inline-flex whitespace-nowrap border-primary/30 text-primary hover:bg-primary/10 hover:border-primary/50 transition-all duration-300 text-sm"
+            >
               <Link href="/auth/login-mt">{t('login')}</Link>
             </Button>
-            <Button asChild className="whitespace-nowrap bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 shadow-md hover:shadow-lg transition-all duration-300 border-0">
+            <Button 
+              asChild 
+              className="hidden lg:inline-flex whitespace-nowrap bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:via-primary/80 hover:to-accent/90 shadow-md hover:shadow-lg transition-all duration-300 border-0 text-sm"
+            >
               <Link href="/auth/signup-mt">{t('signup')}</Link>
             </Button>
-            <ThemeToggle />
-            <LanguageSelector />
           </div>
 
-          {/* Mobile Menu - show on medium screens and below */}
-          <div className="lg:hidden">
+          {/* Mobile Menu - show on small screens */}
+          <div className="md:hidden">
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon">

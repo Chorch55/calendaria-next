@@ -160,6 +160,26 @@ export const translations: Translations = {
   plan_compare_support_whatsapp_mail: "WHATSAPP, EMAIL",
   plan_compare_support_phone_whatsapp_mail: "PHONE, WHATSAPP, EMAIL",
 
+  // Nuevas características para planes
+  plan_feature_from_1_user: "From 1 User",
+  plan_feature_from_20_users: "From 20 Users", 
+  plan_feature_from_50_users: "From 50 Users",
+  plan_feature_2gb_storage: "2GB Storage",
+  plan_feature_5gb_storage: "5GB Storage",
+  plan_feature_10gb_storage: "10GB Storage",
+  plan_feature_50_reminders: "50 Reminders",
+  plan_feature_200_reminders: "200 Reminders",
+  plan_feature_1000_reminders: "1000 Reminders",
+  plan_feature_language_es: "Language: ES included",
+  plan_feature_language_es_en: "Language: ES/EN included",
+  plan_feature_language_all: "Language: ES/EN/FR/DE/PT/IT/AR included",
+  plan_feature_5000_automatizations: "5.000 Automatizations Included",
+  plan_feature_25000_automatizations: "25.000 Automatizations Included",
+  plan_feature_infinite_automatizations: "Infinite Automatizations Included",
+  plan_feature_support_email: "Customer support: EMAIL",
+  plan_feature_support_whatsapp_email: "Customer support: WHATSAPP, EMAIL",
+  plan_feature_support_phone_whatsapp_email: "Customer support: by PHONE, WHATSAPP, EMAIL",
+
     // Sidebar & Nav
     inbox: "Inbox",
     calendar: "Calendar",
@@ -502,6 +522,26 @@ export const translations: Translations = {
   plan_compare_support_mail: "MAIL",
   plan_compare_support_whatsapp_mail: "WHATSAPP, MAIL",
   plan_compare_support_phone_whatsapp_mail: "TELEFÓNICA, WHATSAPP, MAIL",
+
+  // Nuevas características para planes
+  plan_feature_from_1_user: "Desde 1 Usuario",
+  plan_feature_from_20_users: "Desde 20 Usuarios", 
+  plan_feature_from_50_users: "Desde 50 Usuarios",
+  plan_feature_2gb_storage: "2GB Almacenamiento",
+  plan_feature_5gb_storage: "5GB Almacenamiento",
+  plan_feature_10gb_storage: "10GB Almacenamiento",
+  plan_feature_50_reminders: "50 Recordatorios",
+  plan_feature_200_reminders: "200 Recordatorios",
+  plan_feature_1000_reminders: "1000 Recordatorios",
+  plan_feature_language_es: "Idioma: ES incluido",
+  plan_feature_language_es_en: "Idioma: ES/EN incluido",
+  plan_feature_language_all: "Idioma: ES/EN/FR/DE/PT/IT/AR incluido",
+  plan_feature_5000_automatizations: "5.000 Automatizaciones Incluidas",
+  plan_feature_25000_automatizations: "25.000 Automatizaciones Incluidas",
+  plan_feature_infinite_automatizations: "Automatizaciones Infinitas Incluidas",
+  plan_feature_support_email: "Atención al cliente: EMAIL",
+  plan_feature_support_whatsapp_email: "Atención al cliente: WHATSAPP, EMAIL",
+  plan_feature_support_phone_whatsapp_email: "Atención al cliente: por TELÉFONO, WHATSAPP, EMAIL",
 
     // Sidebar & Nav
     inbox: "Bandeja de entrada",
