@@ -65,138 +65,138 @@ export function PricingComparison() {
   }, []);
 
   const features: Feature[] = [
-    // Características básicas
+    // Basic features
     { 
-      name: 'Reserva de citas online y gestiona tu calendario',
+      name: t('plan_compare_booking_calendar'),
       individual: true,
       professional: true,
       enterprise: true
     },
     { 
-      name: 'Bot de Email (Responde a tus clientes y les concierta citas por Email)',
+      name: t('plan_compare_email_bot'),
       individual: true,
       professional: true,
       enterprise: true
     },
     { 
-      name: 'Bot de WhatsApp (Responde a tus clientes y les concierta citas por WhatsApp)',
+      name: t('plan_compare_whatsapp_bot'),
       individual: true,
       professional: true,
       enterprise: true
     },
     {
-      name: 'Gestión de contactos',
+      name: t('plan_compare_contact_mgmt'),
       individual: true,
       professional: true,
       enterprise: true
     },
     {
-      name: 'Bandeja unificada WhatsApp, Email, SMS',
+      name: t('plan_compare_unified_inbox'),
       individual: true,
       professional: true,
       enterprise: true
     },
 
-    // Usuarios
+    // Users
     {
-      name: 'Usuarios',
-      individual: '1',
-      professional: '20',
-      enterprise: '50'
+      name: t('plan_compare_users_label'),
+      individual: String(config?.planLimits?.BASIC?.max_users ?? 1),
+      professional: String(config?.planLimits?.PREMIUM?.max_users ?? 20),
+      enterprise: String(config?.planLimits?.ENTERPRISE?.max_users ?? 50)
     },
     {
-      name: 'Añade usuarios',
-      individual: '5 usuarios + 7,99€',
-      professional: '5 usuarios + 6,99€',
-      enterprise: '5 usuarios + 5,99€'
+      name: t('plan_compare_add_users_label'),
+      individual: t('plan_compare_add_users_individual'),
+      professional: t('plan_compare_add_users_professional'),
+      enterprise: t('plan_compare_add_users_enterprise')
     },
     
-    // Almacenamiento
+    // Storage
     {
-      name: 'Almacenamiento',
+      name: t('plan_compare_storage_label'),
       individual: '2GB',
       professional: '5GB',
       enterprise: '10GB'
     },
     {
-      name: 'Almacenamiento extra',
+      name: t('plan_compare_extra_storage_label'),
       individual: '+5€/GB',
       professional: '+4€/GB',
       enterprise: '+3€/GB'
     },
 
-    // Funcionalidades de llamadas y bots
+    // Calls & bots
     {
-      name: 'Bot de llamadas (Contesta a tus clientes como un humano y les concierta citas telefónicas)',
+      name: t('plan_compare_call_bot'),
       individual: '+10€',
       professional: true,
       enterprise: true
     },
     {
-      name: 'Transferencia de llamadas a humanos',
+      name: t('plan_compare_call_transfer'),
       individual: false,
       professional: true,
       enterprise: true
     },
 
-    // Límites y configuración
+    // Limits & configuration
     {
-      name: 'Recordatorios',
-      individual: '50 MENSAJES\n+0.05€/U',
-      professional: '200 MENSAJES\n+0.03€/U',
-      enterprise: '1000 MENSAJES\n+0.015€/U'
+      name: t('plan_compare_reminders'),
+      individual: t('plan_compare_messages_50'),
+      professional: t('plan_compare_messages_200'),
+      enterprise: t('plan_compare_messages_1000')
     },
     {
-      name: 'Multilingüismo',
-      individual: 'ES\n3€ POR IDIOMA: EN, FR, DE, PT, IT, AR\n+15€ TODOS (PACK)',
-      professional: 'ES/EN\n2€ POR IDIOMA: FR, DE, PT, IT, AR\n+10€ TODOS (PACK)',
-      enterprise: 'ES/EN/FR/DE/PT/IT/AR'
+      name: t('plan_compare_multilanguage'),
+      individual: t('plan_compare_multilang_individual'),
+      professional: t('plan_compare_multilang_professional'),
+      enterprise: t('plan_compare_multilang_enterprise')
     },
 
-    // Características avanzadas
+    // Advanced features
     {
-      name: 'Grabación llamadas',
+      name: t('plan_compare_call_recording'),
       individual: '+15€',
       professional: '+10€',
       enterprise: true
     },
     {
-      name: 'IA chat integrable personalizada',
+      name: t('plan_compare_custom_embed_chat'),
       individual: '+10€',
       professional: '+5€',
       enterprise: true
     },
     {
-      name: 'Gestión de personal (Registro de horarios, vacaciones y ausencias)',
+      name: t('plan_compare_staff_mgmt'),
       individual: '+20€',
       professional: '+20€',
       enterprise: true
     },
     {
-      name: 'Gestión de tareas (Distribuye las tareas entre el equipo)',
+      name: t('plan_compare_task_mgmt_team'),
       individual: false,
       professional: '+20€',
       enterprise: true
     },
     {
-      name: 'Estadísticas de personal y monitoreo en tiempo real (Gestiona el rendimiento del equipo)',
+      name: t('plan_compare_staff_stats_realtime'),
       individual: false,
       professional: '+25€',
       enterprise: true
     },
     {
-      name: 'Estadísticas análisis avanzado llamadas (Analiza mejor a tu perfil de clientes, palabras clave, etc.)',
+      name: t('plan_compare_advanced_call_analytics'),
       individual: false,
       professional: '+25€',
       enterprise: true
     },
 
-    // Soporte
+    // Support
     {
-      name: 'Atención al cliente',
-      individual: 'MAIL',
-      professional: 'WHATSAPP, MAIL',
-      enterprise: 'TELEFÓNICA, WHATSAPP, MAIL'
+      name: t('plan_compare_support'),
+      individual: t('plan_compare_support_mail'),
+      professional: t('plan_compare_support_whatsapp_mail'),
+      enterprise: t('plan_compare_support_phone_whatsapp_mail')
     }
   ];
 
@@ -204,7 +204,7 @@ export function PricingComparison() {
     return (
       <div className="w-full overflow-x-auto">
         <Card className="border border-t-0 rounded-xl shadow-sm overflow-hidden">
-          <div className="p-8 text-sm text-muted-foreground">Cargando planes…</div>
+          <div className="p-8 text-sm text-muted-foreground">{t('plan_compare_loading')}</div>
         </Card>
       </div>
     );
@@ -219,9 +219,10 @@ export function PricingComparison() {
           animate="visible"
           variants={containerVariants}
         >
-          {/* Plans Header */}
+          {/* Plans Header */
+          }
           <motion.div variants={rowVariants} className="grid grid-cols-4 bg-primary text-primary-foreground p-4 rounded-t-xl">
-            <div className="font-semibold">Características</div>
+            <div className="font-semibold">{t('plan_compare_features_label')}</div>
             <div className="font-bold text-center text-lg">{t('home_plan_individual_name')}</div>
             <div className="font-bold text-center text-lg flex items-center justify-center gap-2">
               <span>{t('home_plan_professional_name')}</span>
@@ -234,9 +235,9 @@ export function PricingComparison() {
           {/* Pricing Row */}
           <motion.div variants={rowVariants} className="grid grid-cols-4 bg-muted/50 p-5 border-b">
             <div className="font-semibold text-sm"></div>
-            <div className="font-semibold text-sm text-center">19€/mes</div>
-            <div className="font-semibold text-sm text-center">99€/mes</div>
-            <div className="font-semibold text-sm text-center">299€/mes</div>
+            <div className="font-semibold text-sm text-center">{t('plan_compare_price_individual')}</div>
+            <div className="font-semibold text-sm text-center">{t('plan_compare_price_professional')}</div>
+            <div className="font-semibold text-sm text-center">{t('plan_compare_price_enterprise')}</div>
           </motion.div>
 
           {/* Features */}

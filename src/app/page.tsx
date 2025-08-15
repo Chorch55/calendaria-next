@@ -97,23 +97,17 @@ export default function LandingPage() {
       name: t('home_plan_individual_name'),
       price: '€19',
       priceSuffix: '/mo',
-      addOnBadge: '+ Add Below',
+      addOnBadge: t('plan_compare_addon_badge'),
       features: [
-        // Usuarios y capacidad
-        'From 1 User',
-        '2GB Storage',
-        // Funciones de comunicación básicas
-        'Online booking and calendar management',
-        'WhatsApp & Email bot (books appointments)',
-        'Unified inbox: WhatsApp, Email, SMS',
-        // Límites
-        '50 Reminders',
-        // Idiomas
-        'Language: ES included',
-        // Automatizaciones
-        '5.000 Automatizations Included',
-        // Soporte
-        'Customer support: EMAIL'
+        t('plan_feature_from_1_user'),
+        t('plan_feature_2gb_storage'),
+        t('plan_compare_booking_calendar'),
+        t('plan_compare_email_bot'),
+        t('plan_compare_unified_inbox'),
+        t('plan_feature_50_reminders'),
+        t('plan_feature_language_es'),
+        t('plan_feature_5000_automatizations'),
+        t('plan_feature_support_email')
       ],
       cta: t('home_plan_individual_cta'),
       href: '/auth/signup-mt?plan=user',
@@ -122,23 +116,18 @@ export default function LandingPage() {
       name: t('home_plan_professional_name'),
       price: '€99',
       priceSuffix: '/mo',
-      addOnBadge: '+ Add Below',
+      addOnBadge: t('plan_compare_addon_badge'),
       features: [
-        // Usuarios y capacidad
-        'From 20 Users',
-        '5GB Storage',
-        // Funciones de comunicación básicas
-        'Online, WhatsApp & Email booking and calendar management',
-        'Call bot (human-like answers with AI)',
-        // Funciones de gestión
-        'Call transfer to humans',
-        // Límites
-        '200 Reminders',
-        // Idiomas
-        'Language: ES/EN included',
-        '25.000 Automatizations Included',
-        // Soporte
-        'Customer support: WHATSAPP, EMAIL'
+        t('plan_feature_from_20_users'),
+        t('plan_feature_5gb_storage'),
+        t('plan_compare_booking_calendar'),
+        t('plan_compare_email_bot'),
+        t('plan_compare_call_bot'),
+        t('plan_compare_call_transfer'),
+        t('plan_feature_200_reminders'),
+        t('plan_feature_language_es_en'),
+        t('plan_feature_25000_automatizations'),
+        t('plan_feature_support_whatsapp_email')
       ],
       cta: t('home_plan_professional_cta'),
       href: '/auth/signup-mt?plan=professional',
@@ -148,29 +137,23 @@ export default function LandingPage() {
       name: t('home_plan_enterprise_name'),
       price: '€299',
       priceSuffix: '/mo',
-      addOnBadge: '+ Add Below ',
+      addOnBadge: t('plan_compare_addon_badge'),
       features: [
-        // Usuarios y capacidad
-        'From 50 Users',
-        '10GB Storage',
-        // Funciones de comunicación avanzadas
-        'Call bot (human-like answers with AI)',
-        'Online, WhatsApp & Email booking and calendar management',
-        'Advanced call analytics',
-        'Admin Controls',
-        'Full UI Customization',
-        // Características premium
-        'Call recording Included',
-        'Custom embeddable AI chat',
-        'Staff management (time, leave & absences)',
-        'Team task management',
-        // Límites
-        '1.000 Reminders',
-        // Idiomas
-        'Language: ES/EN/FR/DE/PT/IT/AR included',
-        'Infinite Automatizations Included',
-        // Soporte
-        'Customer support: by PHONE, WHATSAPP, EMAIL'
+        t('plan_feature_from_50_users'),
+        t('plan_feature_10gb_storage'),
+        t('plan_compare_call_bot'),
+        t('plan_compare_booking_calendar'),
+        t('plan_compare_advanced_call_analytics'),
+        t('home_plan_feature_admin_controls'),
+        t('home_plan_feature_full_customization'),
+        t('plan_compare_call_recording'),
+        t('plan_compare_custom_embed_chat'),
+        t('plan_compare_staff_mgmt'),
+        t('plan_compare_task_mgmt_team'),
+        t('plan_feature_1000_reminders'),
+        t('plan_feature_language_all'),
+        t('plan_feature_infinite_automatizations'),
+        t('plan_feature_support_phone_whatsapp_email')
       ],
       cta: t('home_plan_enterprise_cta'),
       href: '/auth/signup-mt?plan=enterprise',
@@ -479,7 +462,7 @@ export default function LandingPage() {
 
               <div className="mt-16">
                 <h3 className="text-2xl md:text-3xl font-bold text-center text-foreground mb-8">
-                  Plan Comparison + <span className="inline-flex items-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 text-[0.95em] font-semibold ring-1 ring-inset ring-amber-500/20">Add Ons</span>
+                  {t('home_pricing_comparison_title')} <span className="inline-flex items-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1 text-[0.95em] font-semibold ring-1 ring-inset ring-amber-500/20">{t('plan_compare_addon_badge')}</span>
                 </h3>
                 <PricingComparison />
               </div>
