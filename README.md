@@ -1,78 +1,96 @@
 # CalendarIA
 
-**CalendarIA** es una plataforma de comunicaciones y calendario potenciada con IA, construida con **Next.js**, **Tailwind CSS** y **shadcn/ui**, e integrada con servicios como **Supabase**, **Stripe** y **N8N**.
+Plataforma de calendario y comunicaciones unificadas con IA. SaaS multi‑tenant con planes, add‑ons y límites por suscripción.
 
 ---
 
 ## 📋 Tabla de contenidos
 
-1. [Requisitos previos](#-requisitos-previos)
-2. [Instalación](#-instalación)
-3. [Variables de entorno](#-variables-de-entorno)
-4. [Scripts disponibles](#-scripts-disponibles)
-5. [Estructura del proyecto](#-estructura-del-proyecto)
-6. [Funcionalidades principales](#-funcionalidades-principales)
-7. [Workflow de desarrollo](#-workflow-de-desarrollo)
-8. [Despliegue](#-despliegue)
+1) Requisitos previos
+2) Instalación rápida
+3) Variables de entorno
+4) Scripts disponibles
+5) Estructura del proyecto
+6) Funcionalidades principales
+7) Despliegue
+8) Tecnologías y decisiones técnicas
 
 ---
 
 ## 🛠 Requisitos previos
 
-* **Node.js** v18 o superior
-* **pnpm** (recomendado para instalar dependencias)
-* Cuenta activa en **Supabase** con un proyecto configurado
-* (Opcional) Cuenta en **Stripe** y **N8N** para pagos y automatizaciones
+- Node.js 18+ (recomendado 20+)
+- pnpm
+- Docker (para la base de datos local con Postgres)
+- Cuenta en Stripe (para pruebas de suscripción)
 
 ---
 
-## 🚀 Instalación
+## 🚀 Instalación rápida
 
-Clona el repositorio e instala las dependencias usando **pnpm**:
+1) Instalar dependencias
 
-```bash
-git clone https://github.com/tu-usuario/calendaria-next.git
-cd calendaria-next
+```powershell
 pnpm install
 ```
 
-> **Importante:** No mezclar con `npm` o `yarn`, siempre usar `pnpm` para garantizar compatibilidad y reproducibilidad.
+2) Levantar la base de datos (PostgreSQL via Docker Compose)
+
+```powershell
+pnpm db:start
+```
+
+3) Configurar variables de entorno (ver sección siguiente) y aplicar Prisma
+
+```powershell
+# crear .env.local y ejecutar migraciones
+# (si no existen migraciones, generarlas primero en desarrollo)
+npx prisma migrate dev
+```
+
+4) Arrancar en desarrollo
+
+```powershell
+pnpm dev
+```
 
 ---
 
 ## 🔒 Variables de entorno
 
-Copia el fichero de ejemplo y rellena tus credenciales:
+Mínimas para arrancar en local:
 
-```bash
-cp .env.example .env.local
+```
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/postgres
+NEXTAUTH_SECRET=your-long-random-secret
+NEXTAUTH_URL=http://localhost:3000
+STRIPE_SECRET_KEY=sk_test_...
+# IA (Genkit + GoogleAI)
+GOOGLE_GENERATIVE_AI_API_KEY=your-gemini-api-key
 ```
 
-Edita `.env.local` con:
+Opcionales, según integración:
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-STRIPE_SECRET_KEY=your-stripe-secret
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable
-N8N_WEBHOOK_BASE_URL=http://localhost:5678
-```
+- NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+- SENTRY_DSN=... (si se habilita observabilidad con Sentry)
 
-> El fichero `.env.local` está ignorado por Git (`.gitignore`), mientras que `.env.example` sí debe versionarse.
+El archivo `.env.local` no se versiona. Asegúrate de que `DATABASE_URL` apunta a tu Postgres local o gestionado.
 
 ---
 
 ## 📦 Scripts disponibles
 
-| Comando       | Descripción                            |
-| ------------- | -------------------------------------- |
-| `pnpm dev`    | Arranca el servidor en modo desarrollo |
-| `pnpm build`  | Compila la aplicación para producción  |
-| `pnpm start`  | Inicia el servidor en modo producción  |
-| `pnpm lint`   | Ejecuta ESLint                         |
-| `pnpm format` | Formatea el código con Prettier        |
+| Comando             | Descripción                                          |
+| ------------------- | ---------------------------------------------------- |
+| `pnpm dev`          | Next.js en desarrollo (Turbopack)                    |
+| `pnpm build`        | Compila para producción                              |
+| `pnpm start`        | Arranca en producción                                |
+| `pnpm lint`         | Linter                                              |
+| `pnpm db:start`     | Inicia Postgres (Docker Compose simple)              |
+| `pnpm db:stop`      | Detiene Postgres                                     |
+| `pnpm db:restart`   | Reinicia Postgres                                    |
+| `pnpm db:reset`     | Reinicia contenedor borrando datos (desarrollo)      |
+| `pnpm db:logs`      | Logs del contenedor de base de datos                 |
 
 ---
 
@@ -80,60 +98,59 @@ N8N_WEBHOOK_BASE_URL=http://localhost:5678
 
 ```
 /
-├── app/                   # Rutas de Next.js (App Router)
-├── components/            # Componentes reutilizables (UI, layouts)
-├── lib/                   # Clientes y utilidades (supabaseClient, stripe)
-├── prisma/                # (Opcional) Esquema de Prisma
-├── public/                # Archivos estáticos
-├── styles/                # CSS global y configuraciones
-├── .env.example           # Plantilla de variables de entorno
-├── tailwind.config.ts     
-├── postcss.config.mjs     
-├── next.config.js         
-└── README.md              # Documentación del proyecto
+├─ app/                       # App Router (Next.js 15)
+├─ src/
+│  ├─ ai/                     # Flujos Genkit (assistant)
+│  ├─ config/                 # Matriz de features y configuración
+│  ├─ lib/                    # Prisma, Stripe, auth helpers, cachés
+│  └─ components/             # UI (shadcn/Radix), pricing, layouts
+├─ prisma/                    # schema.prisma y migraciones
+├─ public/                    # estáticos
+├─ docker-compose.simple.yml  # Postgres local
+└─ README.md
 ```
 
 ---
 
 ## ✨ Funcionalidades principales
 
-Consulta [`FUNCIONALIDADES.md`](./FUNCIONALIDADES.md) para un detalle completo. A grandes rasgos:
+Resumen (detallado en `FUNCIONALIDADES.md`):
 
-* **Bandeja de entrada unificada**: Gmail, Outlook y WhatsApp con IA para respuestas y resúmenes.
-* **Calendario & eventos**: Crear, editar, eliminar y listar eventos con RLS en Supabase.
-* **Kanban de tareas**: Tablero para gestión de tareas en equipo.
-* **Registro de llamadas**: Summaries de llamadas y análisis de sentimiento.
-* **Contactos & empresas**: CRUD completo con filtros y diálogos.
-* **Control horario & ausencias**: Tracking de horas y gestión de vacaciones.
-* **Asistente conversacional**: Chat integrado usando Genkit.
-* **Automatizaciones IA**: Workflows en N8N conectados vía webhooks.
-* **Pagos**: Stripe Checkout para suscripciones y cargos puntuales.
-* **Roles & seguridad**: RLS, JWT, HTTPS y roles custom en Supabase.
+- Multi‑tenant: compañías, usuarios, invitaciones y roles.
+- Suscripciones y add‑ons con Stripe. Límites por plan y gating de features.
+- Panel de uso (límites/consumo) y API pública de configuración de planes.
+- Recordatorios y automatizaciones básicas (endpoints /api/reminders, /api/webhooks).
+- Asistente conversacional integrado (Genkit + GoogleAI).
+- UI moderna con Tailwind + shadcn/Radix y comparativa de precios.
 
----
-
-## 🧑‍💻 Workflow de desarrollo
-
-1. **Clonar** e **instalar** dependencias con `pnpm install`.
-2. **Configurar** credenciales en `.env.local`.
-3. **Ejecutar** `pnpm dev` para desarrollo.
-4. **Crear** nuevas ramas por funcionalidad o bugfix.
-5. **Commit** con mensajes claros (ej. `feat: ...`, `fix: ...`).
-6. **Abrir PR** para revisión y merge.
-7. **Desplegar** en Vercel o tu plataforma preferida.
+Más detalle y estado por módulo: ver `FUNCIONALIDADES.md`.
 
 ---
 
 ## 🌐 Despliegue
 
-Recomendamos **Vercel** para el hosting frontend (Next.js) y **Supabase** para backend y BBDD:
+- Frontend/SSR: Vercel (recomendado). Configura las mismas variables de entorno.
+- Base de datos: PostgreSQL gestionado (Neon, Railway, Render, etc.). Ajusta `DATABASE_URL`.
+- Stripe: configura webhooks y precios (products/prices) para planes y add‑ons.
 
-1. Conecta tu repositorio en Vercel y configura las mismas variables de entorno.
-2. En Supabase, asegúrate de tener RLS activado y las políticas definidas.
-3. Para Stripe y N8N, configura sus webhooks apuntando a tu dominio de producción.
+---
 
-¡Y listo! Tu aplicación estará en línea con HTTPS y escalable.
+## 🧪 Notas de desarrollo
 
+- Tipos y ESLint están configurados para no bloquear builds en CI mientras evoluciona el proyecto (`ignoreBuildErrors`, `ignoreDuringBuilds`).
+- Prisma Client se inicializa de forma segura en desarrollo para evitar múltiples instancias.
 
+---
 
-Esto es todo
+## 🧰 Tecnologías y decisiones técnicas
+
+- Next.js 15 (App Router) + React 19 + TypeScript 5
+- Tailwind CSS 4 + Radix UI + shadcn/ui
+- Prisma ORM 6 + PostgreSQL (Docker en local)
+- Autenticación: NextAuth (Credentials) + JWT
+- Pagos y suscripciones: Stripe (SDK Server)
+- IA: Genkit + @genkit-ai/googleai (Gemini 2.0 Flash)
+- Caché simple in‑memory (TTL) para resúmenes de uso
+- Docker Compose para desarrollo de BBDD
+
+Nota: el proyecto ya no usa Supabase. La API/ORM principal es Prisma sobre PostgreSQL. Integraciones como N8N o Redis/BullMQ no están activas en el código actual.
