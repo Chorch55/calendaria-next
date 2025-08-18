@@ -24,7 +24,6 @@ interface ConnectionsState {
 const defaultAppSettings: AppSettings = {
   phoneCallAppointmentLabel: 'Appointment',
   sidebarVisibility: {},  // Will be populated with the sidebar items
-  showNotificationBadge: true,
   fontSize: 105,
   language: 'en',
   topNavOrder: [],

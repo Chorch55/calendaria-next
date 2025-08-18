@@ -6,6 +6,7 @@ import type { Company, User } from '@/types/database'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/logo'
 
 interface CompanyWithStats extends Company {
   user_count: number
@@ -119,8 +120,8 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Dashboard Multi-tenant</h1>
-        <p className="text-muted-foreground">
-          Vista general de todas las empresas y usuarios en Calendaria
+        <p className="text-muted-foreground flex items-center gap-2">
+          Vista general de todas las empresas y usuarios en <Logo className="h-4" />
         </p>
       </div>
 

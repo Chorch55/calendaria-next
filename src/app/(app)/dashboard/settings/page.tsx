@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from "sonner"
-import { Mail, MessageSquare, UserCircle, Building, Briefcase, Save, Wifi, WifiOff, Link as LinkIcon, Palette, Sun, Moon, Monitor, Phone, Paintbrush, ArrowUp, ArrowDown, GripVertical, Bell, Baseline, Globe, ArrowUpCircle, ArrowDownCircle, Users, UserCog, PlusCircle, Trash2, Edit, FolderInput, ChevronsUpDown, Unlink, Camera, User } from 'lucide-react';
+import { Mail, MessageSquare, UserCircle, Building, Briefcase, Save, Wifi, WifiOff, Link as LinkIcon, Palette, Sun, Moon, Monitor, Phone, Paintbrush, ArrowUp, ArrowDown, GripVertical, Baseline, Globe, ArrowUpCircle, ArrowDownCircle, Users, UserCog, PlusCircle, Trash2, Edit, FolderInput, ChevronsUpDown, Unlink, Camera, User } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useSettings } from '@/context/settings-context';
@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { motion, Reorder, useDragControls, AnimatePresence } from "framer-motion";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Logo } from '@/components/logo';
 
 
 const initialUserData = {
@@ -165,7 +166,9 @@ export default function SettingsPage() {
           {serviceState.connected ? (
             <p className="text-sm text-muted-foreground">Account: <span className="font-medium text-foreground">{serviceState.account}</span></p>
           ) : (
-            <p className="text-sm text-muted-foreground">Connect your {title} account to manage it within CalendarIA.</p>
+            <div className="text-sm text-muted-foreground flex items-center gap-1">
+              Connect your {title} account to manage it within <Logo className="h-3" />.
+            </div>
           )}
         </CardContent>
         <CardFooter><Button onClick={() => handleToggleConnection(serviceKey)} variant={serviceState.connected ? "destructive" : "default"} className={!serviceState.connected ? "bg-accent hover:bg-accent/90 text-accent-foreground" : ""}>{serviceState.connected ? 'Disconnect' : `Connect ${title}`}</Button></CardFooter>
@@ -372,29 +375,6 @@ export default function SettingsPage() {
       </Card>
       
       {isGroupDialogOpen && <GroupEditorDialog isOpen={isGroupDialogOpen} setIsOpen={setIsGroupDialogOpen} group={editingGroup} updateAppSettings={updateAppSettings} appSettings={appSettings} t={t} targetList={groupTargetList}/>}
-
-      <Separator />
-      
-      <Card className="shadow-lg">
-          <CardHeader>
-              <CardTitle className="flex items-center"><Bell className="h-6 w-6 mr-2 text-primary" />{t('notificationSettingsTitle')}</CardTitle>
-              <CardDescription>{t('notificationSettingsDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                      <Label htmlFor="show-badge" className="font-medium">{t('showNotifCountLabel')}</Label>
-                      <p className="text-sm text-muted-foreground">{t('showNotifCountDescription')}</p>
-                  </div>
-                  <Switch
-                      id="show-badge"
-                      checked={appSettings.showNotificationBadge}
-                      onCheckedChange={(checked) => updateAppSettings({ showNotificationBadge: checked })}
-                      aria-label={t('showNotifCountLabel')}
-                  />
-              </div>
-          </CardContent>
-      </Card>
 
       <Separator />
 

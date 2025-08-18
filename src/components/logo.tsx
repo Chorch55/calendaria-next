@@ -44,32 +44,22 @@ export function Logo({ className, href = '/' }: { className?: string, href?: str
     <Link 
       href={href} 
       onClick={handleClick}
-      className={`flex items-center justify-center space-x-2 text-2xl font-bold text-primary w-full ${className}`}
+      className={`flex items-center justify-center space-x-3 w-full ${className}`}
     >
-      <svg
-        width="32"
-        height="32"
-        viewBox="0 0 100 100"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-8 w-8"
-      >
-        {/* Binder rings */}
-        <rect x="30" y="5" width="10" height="15" rx="5" fill="#0891b2" />
-        <rect x="60" y="5" width="10" height="15" rx="5" fill="#0891b2" />
-        
-        {/* Main calendar body */}
-        <rect x="10" y="15" width="80" height="80" rx="15" fill="#0891b2" />
-        
-        {/* AI Sparkle, centered */}
-        <g transform="translate(38, 43) scale(0.8)">
-            <path
-            d="M20.5,0,25,12.5,37.5,16,25,19.5,20.5,32,16,19.5,3.5,16,16,12.5Z"
-            fill="#f59e0b"
-            />
-        </g>
-      </svg>
-      <span className="group-data-[collapsible=icon]:hidden">{/* This will hide text when sidebar uses collapsible="icon" and is collapsed */}
-        Calendar<span className="text-amber-500">IA</span>
+      <div className="relative">
+        {/* Minimal geometric logo */}
+        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+          <div className="w-6 h-6 bg-white/20 rounded-sm flex items-center justify-center">
+            <div className="w-3 h-3 bg-white rounded-full"></div>
+          </div>
+        </div>
+        {/* Subtle glow effect */}
+        <div className="absolute inset-0 w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg blur-sm opacity-50 -z-10"></div>
+      </div>
+      
+      <span className="group-data-[collapsible=icon]:hidden font-light text-2xl tracking-wide">
+        <span className="text-slate-700 dark:text-slate-200">Calendar</span>
+        <span className="text-blue-500 font-medium">IA</span>
       </span>
     </Link>
   );

@@ -134,5 +134,57 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-geist-sans);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+    line-height: 1.6;
+  }
+}
+
+/* Refined typography for elegant design */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
+
+  h1 {
+    font-weight: 200;
+    letter-spacing: 0.03em;
+  }
+
+  h2 {
+    font-weight: 300;
+    letter-spacing: 0.025em;
+  }
+
+  /* Enhanced sidebar typography */
+  .sidebar-nav-item {
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  .sidebar-nav-item.active {
+    font-weight: 500;
+    letter-spacing: 0.005em;
+  }
+
+  /* Light and elegant labels */
+  label {
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  /* Subtle button typography */
+  button {
+    font-weight: 400;
+    letter-spacing: 0.005em;
+  }
+
+  /* Refined content text */
+  p, span {
+    letter-spacing: 0.008em;
+    line-height: 1.65;
   }
 }
