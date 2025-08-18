@@ -1,0 +1,491 @@
+/* Premium Sidebar Styles */
+
+.premium-sidebar {
+  /* Solid background without gradient */
+  background: hsl(var(--sidebar));
+  
+  /* Keep blur only on the sidebar background */
+  backdrop-filter: blur(20px);
+  
+  /* Remove border since we'll use gradient extension */
+  border-right: none;
+  box-shadow: 
+    0 0 20px hsl(var(--sidebar-primary)/0.1),
+    0 8px 16px hsl(var(--sidebar-border)/0.1),
+    0 1px 4px hsl(var(--sidebar-border)/0.2);
+  position: relative;
+  z-index: 50;
+}
+
+/* Extended overlay that goes beyond the sidebar - simplified */
+.premium-sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: -60px; /* Extend 60px to the right */
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    hsl(var(--sidebar-accent)/0.05) 0%,
+    hsl(var(--sidebar-border)/0.03) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Simple glass effect */
+.premium-sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.12) 0%,
+    rgba(99, 102, 241, 0.08) 35%,
+    rgba(147, 51, 234, 0.04) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Simple border gradient that defines the sidebar edge */
+.premium-sidebar-edge {
+  position: absolute;
+  top: 0;
+  left: 288px; /* Width of sidebar (w-72 = 288px) */
+  width: 80px;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    hsl(var(--sidebar-border)/0.08) 0%,
+    hsl(var(--sidebar-border)/0.04) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 40;
+}
+
+.sidebar-nav-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  margin: 2px 0;
+}
+
+.sidebar-nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-nav-item:hover::before {
+  opacity: 1;
+}
+
+.sidebar-nav-item:hover {
+  background: hsl(var(--sidebar-accent)/0.5);
+  backdrop-filter: blur(8px);
+  transform: translateX(4px);
+  box-shadow: 
+    0 4px 20px hsl(var(--sidebar-primary)/0.1),
+    0 2px 8px hsl(var(--sidebar-border)/0.2);
+}
+
+.sidebar-nav-item.active {
+  background: #6EE7B7 !important;
+  color: white !important;
+  font-weight: 700;
+  border-radius: 8px;
+  transform: translateX(3px);
+  box-shadow: 0 4px 12px rgba(110, 231, 183, 0.3);
+}
+
+/* Create a speech bubble effect for category text */
+.sidebar-nav-item.active span {
+  background: #065F46 !important;
+  color: white !important;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Ensure active state applies to all text and icons within active items */
+.sidebar-nav-item.active * {
+  color: white !important;
+}
+
+/* Clean subcategories - only speech bubble effect with saturated green */
+.sidebar-collapsible-content .sidebar-nav-item.active {
+  background: transparent !important;
+  color: white !important;
+  font-weight: 700;
+  border-radius: 8px;
+  margin: 2px 0;
+  transform: translateX(4px);
+  box-shadow: none;
+}
+
+/* Speech bubble for subcategory text with saturated green */
+.sidebar-collapsible-content .sidebar-nav-item.active span {
+  background: #059669 !important;
+  color: white !important;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Ensure all text and icons are white in active subcategories */
+.sidebar-collapsible-content .sidebar-nav-item.active * {
+  color: white !important;
+}
+
+/* Category chevron arrow styling */
+.sidebar-nav-item svg[data-lucide="chevron-down"] {
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.sidebar-nav-item:hover svg[data-lucide="chevron-down"] {
+  opacity: 1;
+  color: rgba(59, 130, 246, 0.8);
+}
+
+.sidebar-nav-item.active svg[data-lucide="chevron-down"] {
+  opacity: 1;
+  color: white;
+}
+
+.sidebar-section-header {
+  position: relative;
+}
+
+/* Extend the logo section gradient to the entire sidebar */
+.premium-sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.12) 0%,
+    rgba(99, 102, 241, 0.08) 35%,
+    rgba(147, 51, 234, 0.04) 70%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.sidebar-section-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 30%,
+    rgba(255, 255, 255, 0.3) 70%,
+    transparent 100%
+  );
+}
+
+/* Text styles using theme colors with refined typography */
+.premium-sidebar,
+.premium-sidebar * {
+  color: hsl(var(--sidebar-foreground)) !important;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.premium-sidebar .sidebar-nav-item {
+  color: hsl(var(--sidebar-foreground)/0.8) !important;
+  font-weight: 400;
+  letter-spacing: 0.008em;
+}
+
+.premium-sidebar .sidebar-nav-item:hover {
+  color: hsl(var(--sidebar-foreground)) !important;
+  font-weight: 450;
+}
+
+.premium-sidebar .sidebar-nav-item.active {
+  color: hsl(var(--sidebar-primary)) !important;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+/* Badge styles using theme colors */
+.premium-sidebar .inline-flex {
+  background: hsl(var(--sidebar-accent)) !important;
+  color: hsl(var(--sidebar-accent-foreground)) !important;
+  border: 1px solid hsl(var(--sidebar-border));
+}
+
+.sidebar-user-section {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--sidebar)) 0%,
+    hsl(var(--sidebar-accent)/0.3) 100%
+  );
+  backdrop-filter: blur(15px);
+  border-top: 1px solid hsl(var(--sidebar-border)/0.5);
+  position: relative;
+}
+
+.sidebar-user-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--sidebar-primary)/0.2) 50%,
+    transparent 100%
+  );
+}
+
+/* Enhanced user section box styling */
+.sidebar-user-section .bg-gradient-to-br {
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.sidebar-user-section .bg-gradient-to-br:hover {
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Smooth chevron animation for user dropdown */
+.sidebar-user-section [data-state="open"] .chevron-down,
+.sidebar-user-section .group[aria-expanded="true"] svg[data-lucide="chevron-down"] {
+  transform: rotate(180deg);
+}
+
+/* Enhanced avatar ring animation */
+.sidebar-user-section .ring-2 {
+  transition: all 0.3s ease;
+}
+
+.sidebar-user-section .group:hover .ring-2 {
+  --tw-ring-color: hsl(var(--sidebar-primary) / 0.5);
+  transform: scale(1.05);
+}
+
+.sidebar-transition-blur {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--sidebar)/0.08) 0%,
+    hsl(var(--sidebar)/0.04) 25%,
+    transparent 50%
+  );
+  box-shadow: -2px 0 8px hsl(var(--sidebar)/0.1);
+}
+
+/* Dark mode adjustments */
+.dark .premium-sidebar {
+  box-shadow: 
+    0 0 40px hsl(var(--sidebar-primary)/0.3),
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dark .sidebar-nav-item.active {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--sidebar-primary)/0.25) 0%,
+    hsl(var(--sidebar-accent)/0.20) 100%
+  );
+  border: 1px solid hsl(var(--sidebar-primary)/0.4);
+  box-shadow: 
+    0 4px 12px hsl(var(--sidebar-primary)/0.25),
+    inset 0 1px 0 hsl(var(--sidebar-primary)/0.2);
+}
+
+.dark .sidebar-transition-blur {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--sidebar)/0.15) 0%,
+    hsl(var(--sidebar)/0.08) 25%,
+    transparent 50%
+  );
+  box-shadow: -2px 0 12px hsl(var(--sidebar)/0.2);
+}
+
+/* Animation utilities */
+@keyframes sidebar-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px hsl(var(--sidebar-primary)/0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px hsl(var(--sidebar-primary)/0.4);
+  }
+}
+
+.sidebar-glow-effect {
+  animation: sidebar-glow 4s ease-in-out infinite;
+}
+
+@keyframes sidebar-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.sidebar-pulse {
+  animation: sidebar-pulse 2s ease-in-out infinite;
+}
+
+/* Badge styles with enhanced gradient */
+.sidebar-badge {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--sidebar-primary)) 0%,
+    hsl(var(--accent)) 100%
+  );
+  color: white;
+  font-weight: 600;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 
+    0 2px 4px hsl(var(--sidebar-primary)/0.3),
+    0 0 0 1px hsl(var(--sidebar-primary)/0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 100%
+  );
+  transition: left 0.5s ease;
+}
+
+.sidebar-badge:hover::before {
+  left: 100%;
+}
+
+/* Enhanced scroll area styling */
+.sidebar-scroll-area {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--sidebar-accent)/0.4) transparent;
+}
+
+.sidebar-scroll-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 4px;
+}
+
+.sidebar-scroll-area::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    hsl(var(--sidebar-accent)/0.4) 0%,
+    hsl(var(--sidebar-primary)/0.3) 100%
+  );
+  border-radius: 4px;
+  border: 1px solid hsl(var(--sidebar-border)/0.1);
+}
+
+.sidebar-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    hsl(var(--sidebar-accent)/0.6) 0%,
+    hsl(var(--sidebar-primary)/0.5) 100%
+  );
+}
+
+/* Collapsible animations */
+.sidebar-collapsible-content {
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Section divider styles */
+.sidebar-section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    hsl(var(--sidebar-border)/0.3) 20%,
+    hsl(var(--sidebar-border)/0.5) 50%,
+    hsl(var(--sidebar-border)/0.3) 80%,
+    transparent 100%
+  );
+  margin: 1rem 0;
+  position: relative;
+}
+
+.sidebar-section-divider::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    hsl(var(--sidebar-primary)/0.5) 0%,
+    hsl(var(--accent)/0.5) 100%
+  );
+  border-radius: 2px;
+}
+
+/* New dot indicator for active states */
+.sidebar-nav-item.active::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: hsl(var(--sidebar-primary));
+  border-radius: 50%;
+  box-shadow: 0 0 6px hsl(var(--sidebar-primary)/0.6);
+}

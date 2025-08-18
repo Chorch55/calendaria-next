@@ -16,7 +16,6 @@ export interface AppSettings {
   sidebarVisibility: Record<string, boolean>;
   fontSize: number;
   language: string;
-  showNotificationBadge: boolean;
   phoneCallAppointmentLabel: string;
 }
 

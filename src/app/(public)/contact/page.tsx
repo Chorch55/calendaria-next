@@ -80,7 +80,7 @@ export default function ContactPage() {
                 <Mail className="h-5 w-5 mr-3 mt-1 text-primary shrink-0" />
                 <div>
                   <strong>Email:</strong><br />
-                  <a href="mailto:support@calendaria.app" className="hover:text-primary">support@calendaria.app</a>
+                  <a href="mailto:support@calendaria-ai.app" className="hover:text-primary">support@calendaria-ai.app</a>
                 </div>
               </div>
               <div className="flex items-start">

@@ -38,8 +38,7 @@ const ModernSidebar = React.memo(({ children }: ModernSidebarProps) => {
         {/* Logo */}
         <div className="h-16 flex items-center px-6 border-b">
           <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-            <Logo className="h-6 w-6" />
-            <span>CalendariA</span>
+            <Logo className="h-6" />
           </Link>
         </div>
 

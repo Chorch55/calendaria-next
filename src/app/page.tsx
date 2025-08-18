@@ -568,7 +568,7 @@ export default function LandingPage() {
                         <Mail className="h-5 w-5 mr-3 mt-1 text-primary shrink-0" />
                         <div>
                           <strong>{t('home_contact_info_email')}:</strong><br />
-                          <a href="mailto:support@calendaria.app" className="hover:text-primary">support@calendaria.app</a>
+                          <a href="mailto:support@calendaria-ai.app" className="hover:text-primary">support@calendaria-ai.app</a>
                         </div>
                       </div>
                       <div className="flex items-start">

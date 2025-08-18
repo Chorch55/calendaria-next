@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import {Providers} from '@/app/providers';
 
 export const metadata: Metadata = {
-  title: 'CalendarIA',
+  title: 'CalendarIA - AI-Powered Calendar and Communications',
   description: 'AI-Powered Calendar and Communications',
 };
 

@@ -81,7 +81,7 @@ const initialMockEmails: Message[] = [
   },
   { 
     id: 'email6', sender: 'Automated System', subject: 'Weekly Report', snippet: 'Your weekly performance report is ready.', timestamp: 'Wed', avatar: 'https://placehold.co/40x40.png', read: true, 
-    channelDetails: { type: 'email', service: 'outlook', account: 'reports@calendaria.internal' }, 
+    channelDetails: { type: 'email', service: 'outlook', account: 'reports@calendaria-ai.internal' }, 
     aiInteraction: 'none',
     conversationLog: [{ id: 'email6_initial', sender: 'Automated System', text: 'Your weekly performance report is ready.\n\n(This is the initial message content. More details would follow in a real scenario.)', timestamp: 'Wed', isUser: false }]
   },
@@ -108,7 +108,7 @@ const initialMockWhatsAppMessages: Message[] = [
   },
   { 
     id: 'wa4', sender: 'AI Assistant', subject: 'Follow-up Scheduled', snippet: 'I have scheduled a follow-up call for you.', timestamp: 'Tue', avatar: 'https://placehold.co/40x40.png', read: true, 
-    channelDetails: { type: 'whatsapp', account: 'CalendarIA-AI' }, 
+    channelDetails: { type: 'whatsapp', account: 'AI Assistant' }, 
     aiInteraction: 'ai-responded',
     conversationLog: [{ id: 'wa4_initial', sender: 'AI Assistant', text: 'I have scheduled a follow-up call for you.\n\n(This is the initial message content. More details would follow in a real scenario.)', timestamp: 'Tue', isUser: false }]
   },
