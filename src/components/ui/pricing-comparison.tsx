@@ -64,6 +64,40 @@ export function PricingComparison() {
     return () => { mounted = false };
   }, []);
 
+  // Helpers to format values from config
+  const gb = 1073741824;
+  const fmtStorage = (bytes?: number) => {
+    if (bytes == null) return '-';
+    if (bytes < 0) return 'Ilimitado';
+    const g = Math.round(bytes / gb);
+    return `${g} GB`;
+  };
+  const storageIncluded = {
+    BASIC: fmtStorage(config?.planLimits?.BASIC?.max_storage),
+    PREMIUM: fmtStorage(config?.planLimits?.PREMIUM?.max_storage),
+    ENTERPRISE: fmtStorage(config?.planLimits?.ENTERPRISE?.max_storage),
+  } as const;
+  const storageExtra = {
+    BASIC: `${config?.addonDisplay?.EXTRA_STORAGE?.monthlyByPlan?.BASIC ?? '€1'}/${config?.addonDisplay?.EXTRA_STORAGE?.unit ?? 'GB'}`,
+    PREMIUM: `${config?.addonDisplay?.EXTRA_STORAGE?.monthlyByPlan?.PREMIUM ?? '€1'}/${config?.addonDisplay?.EXTRA_STORAGE?.unit ?? 'GB'}`,
+    ENTERPRISE: `${config?.addonDisplay?.EXTRA_STORAGE?.monthlyByPlan?.ENTERPRISE ?? '€1'}/${config?.addonDisplay?.EXTRA_STORAGE?.unit ?? 'GB'}`,
+  } as const;
+  const apiExtra = {
+    BASIC: `${config?.addonDisplay?.API_CALLS?.monthlyByPlan?.BASIC ?? '€2'}/${config?.addonDisplay?.API_CALLS?.unit ?? '1000 calls'}`,
+    PREMIUM: `${config?.addonDisplay?.API_CALLS?.monthlyByPlan?.PREMIUM ?? '€2'}/${config?.addonDisplay?.API_CALLS?.unit ?? '1000 calls'}`,
+    ENTERPRISE: `${config?.addonDisplay?.API_CALLS?.monthlyByPlan?.ENTERPRISE ?? '€2'}/${config?.addonDisplay?.API_CALLS?.unit ?? '1000 calls'}`,
+  } as const;
+  const usersPack = {
+    BASIC: `${config?.addonDisplay?.EXTRA_USERS?.monthlyByPlan?.BASIC ?? '€7.99'}\n${config?.addonDisplay?.EXTRA_USERS?.unit ?? 'pack'}`,
+    PREMIUM: `${config?.addonDisplay?.EXTRA_USERS?.monthlyByPlan?.PREMIUM ?? '€6.99'}\n${config?.addonDisplay?.EXTRA_USERS?.unit ?? 'pack'}`,
+    ENTERPRISE: `${config?.addonDisplay?.EXTRA_USERS?.monthlyByPlan?.ENTERPRISE ?? '€5.99'}\n${config?.addonDisplay?.EXTRA_USERS?.unit ?? 'pack'}`,
+  } as const;
+  const remindersRow = {
+    BASIC: `${config?.planLimits?.BASIC?.included_reminders ?? 50} (+${(config?.planLimits?.BASIC?.overage_reminder_price_eur ?? 0.05).toFixed(3)}€/u)`,
+    PREMIUM: `${config?.planLimits?.PREMIUM?.included_reminders ?? 200} (+${(config?.planLimits?.PREMIUM?.overage_reminder_price_eur ?? 0.03).toFixed(3)}€/u)`,
+    ENTERPRISE: `${config?.planLimits?.ENTERPRISE?.included_reminders ?? 1000} (+${(config?.planLimits?.ENTERPRISE?.overage_reminder_price_eur ?? 0.015).toFixed(3)}€/u)`,
+  } as const;
+
   const features: Feature[] = [
     // Basic features
     { 
@@ -100,29 +134,35 @@ export function PricingComparison() {
     // Users
     {
       name: t('plan_compare_users_label'),
-      individual: String(config?.planLimits?.BASIC?.max_users ?? 1),
+      individual: String(config?.planLimits?.BASIC?.max_users ?? 5),
       professional: String(config?.planLimits?.PREMIUM?.max_users ?? 20),
       enterprise: String(config?.planLimits?.ENTERPRISE?.max_users ?? 50)
     },
     {
       name: t('plan_compare_add_users_label'),
-      individual: t('plan_compare_add_users_individual'),
-      professional: t('plan_compare_add_users_professional'),
-      enterprise: t('plan_compare_add_users_enterprise')
+      individual: usersPack.BASIC,
+      professional: usersPack.PREMIUM,
+      enterprise: usersPack.ENTERPRISE,
     },
     
     // Storage
     {
       name: t('plan_compare_storage_label'),
-      individual: '2GB',
-      professional: '5GB',
-      enterprise: '10GB'
+      individual: storageIncluded.BASIC,
+      professional: storageIncluded.PREMIUM,
+      enterprise: storageIncluded.ENTERPRISE,
     },
     {
       name: t('plan_compare_extra_storage_label'),
-      individual: '+5€/GB',
-      professional: '+4€/GB',
-      enterprise: '+3€/GB'
+      individual: storageExtra.BASIC,
+      professional: storageExtra.PREMIUM,
+      enterprise: storageExtra.ENTERPRISE,
+    },
+    {
+      name: t('plan_compare_api_extra_label') || 'Llamadas API extra',
+      individual: apiExtra.BASIC,
+      professional: apiExtra.PREMIUM,
+      enterprise: apiExtra.ENTERPRISE,
     },
 
     // Calls & bots
@@ -142,9 +182,9 @@ export function PricingComparison() {
     // Limits & configuration
     {
       name: t('plan_compare_reminders'),
-      individual: t('plan_compare_messages_50'),
-      professional: t('plan_compare_messages_200'),
-      enterprise: t('plan_compare_messages_1000')
+      individual: remindersRow.BASIC,
+      professional: remindersRow.PREMIUM,
+      enterprise: remindersRow.ENTERPRISE,
     },
     {
       name: t('plan_compare_multilanguage'),

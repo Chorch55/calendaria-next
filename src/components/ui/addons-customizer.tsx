@@ -5,6 +5,7 @@ import { AddonCard } from './addon-card';
 import { Badge } from './badge';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 
 
 interface AddonsCustomizerProps {
@@ -17,6 +18,7 @@ interface AddonsCustomizerProps {
   onUpdateApps: (apps: string[]) => void;
   selectedApps: string[];
   hasBranding: boolean;
+  planKey?: 'BASIC' | 'PREMIUM' | 'ENTERPRISE';
 }
 
 const availableApps = [
@@ -35,8 +37,32 @@ export function AddonsCustomizer({
   onUpdateApiCalls,
   onUpdateApps,
   selectedApps,
-  hasBranding
+  hasBranding,
+  planKey = 'PREMIUM'
 }: AddonsCustomizerProps) {
+  const [config, setConfig] = useState<any>(null);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/config/plans');
+        if (res.ok) {
+          const json = await res.json();
+          if (mounted) setConfig(json);
+        }
+      } catch {}
+    })();
+    return () => { mounted = false };
+  }, []);
+
+  const addonPrice = (key: 'EXTRA_USERS' | 'EXTRA_STORAGE' | 'API_CALLS' | 'INTEGRATIONS', fallback: string) => {
+    const price = config?.addonDisplay?.[key]?.monthlyByPlan?.[planKey];
+    return price ?? fallback;
+  };
+  const addonUnit = (key: 'EXTRA_USERS' | 'EXTRA_STORAGE' | 'API_CALLS' | 'INTEGRATIONS', fallback: string) => {
+    const unit = config?.addonDisplay?.[key]?.unit;
+    return unit ?? fallback;
+  };
   return (
     <div className="space-y-8">
       <div className="text-center mb-8">
@@ -58,8 +84,8 @@ export function AddonsCustomizer({
           value={0}
           onDecrease={() => {}}
           onIncrease={() => {}}
-          price="€6.99"
-          unit="pack (5 usuarios)"
+          price={addonPrice('EXTRA_USERS', '€6.99')}
+          unit={addonUnit('EXTRA_USERS', 'pack (5 usuarios)')}
           includedAmount={`${includedUsers} usuarios`}
         />
 
@@ -69,8 +95,8 @@ export function AddonsCustomizer({
           value={0}
           onDecrease={() => {}}
           onIncrease={() => {}}
-          price="€1"
-          unit="GB"
+          price={addonPrice('EXTRA_STORAGE', '€1')}
+          unit={addonUnit('EXTRA_STORAGE', 'GB')}
           includedAmount={`${includedStorage} GB`}
         />
 
@@ -80,8 +106,8 @@ export function AddonsCustomizer({
           value={0}
           onDecrease={() => {}}
           onIncrease={() => {}}
-          price="€2"
-          unit="1000 calls"
+          price={addonPrice('API_CALLS', '€2')}
+          unit={addonUnit('API_CALLS', '1000 calls')}
           includedAmount={`${includedApiCalls}k calls`}
         />
 
@@ -101,7 +127,7 @@ export function AddonsCustomizer({
                 </p>
               </div>
               <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/15">
-                €9/integración
+                {addonPrice('INTEGRATIONS', '€9')}/{addonUnit('INTEGRATIONS', 'integración')}
               </Badge>
             </div>
 
