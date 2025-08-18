@@ -20,8 +20,10 @@ interface ConfigResponse {
   planLimits: Record<PlanKey, {
     max_users: number;
     max_api_calls: number;
+    max_storage?: number;
     included_languages?: string[];
     included_reminders?: number;
+    overage_reminder_price_eur?: number;
   }>;
   addonDisplay?: Record<string, { unit: string; monthlyByPlan?: Record<PlanKey, string>; monthly?: string }>;
 }
