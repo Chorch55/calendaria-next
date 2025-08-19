@@ -295,7 +295,7 @@ export function AddonsDropdown({ trigger, align = 'end' }: AddonsDropdownProps) 
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
         {trigger || (
           <Button variant="ghost" className="flex items-center gap-2">
             <Sparkles className="h-4 w-4" />
@@ -304,7 +304,23 @@ export function AddonsDropdown({ trigger, align = 'end' }: AddonsDropdownProps) 
           </Button>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align={align} className="w-96 p-0 max-h-[80vh] overflow-hidden flex flex-col ml-4">
+      <DropdownMenuContent 
+        align={align} 
+        className="w-96 p-0 max-h-[80vh] overflow-hidden flex flex-col z-[70]"
+        side="right"
+        sideOffset={8}
+        onWheel={(e) => {
+          // Solo permitir scroll dentro del dropdown de add-ons
+          e.stopPropagation();
+        }}
+        onInteractOutside={(e) => {
+          // Evitar que se cierre cuando se interactúa con el dropdown padre
+          const target = e.target as Element;
+          if (target?.closest('[data-radix-dropdown-content]')) {
+            e.preventDefault();
+          }
+        }}
+      >
         {/* Header */}
         <div className="p-6 bg-gradient-to-br from-sidebar-accent/10 to-sidebar-primary/5 border-b border-border/50 flex-shrink-0">
           <div className="flex items-center gap-3 mb-3">

@@ -154,7 +154,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span>Usuarios activos:</span>
-                <span className="font-semibold text-green-600">{company.active_users}</span>
+                <span className="font-semibold text-purple-600">{company.active_users}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span>Límite usuarios:</span>

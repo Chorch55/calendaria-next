@@ -166,7 +166,7 @@ export default function PayrollPage() {
                     <TableCell>
                       {changeInfo ? (
                         <div className={cn("flex items-center gap-1 font-medium", {
-                          "text-green-600": changeInfo.direction === 'up',
+                          "text-purple-600": changeInfo.direction === 'up',
                           "text-red-600": changeInfo.direction === 'down',
                         })}>
                           {changeInfo.direction === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}

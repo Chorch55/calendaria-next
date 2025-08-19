@@ -21,10 +21,10 @@ interface NotificationItem {
 }
 
 const initialMockNotifications: NotificationItem[] = [
-  { id: '1', title: 'New Email: Project Alpha', description: 'From: Alice W. - Update & Next Steps', href: '/dashboard/inbox?messageId=email1', read: false, timestamp: '2m ago', icon: <Mail className="h-4 w-4 text-blue-500" /> },
+  { id: '1', title: 'New Email: Project Alpha', description: 'From: Alice W. - Update & Next Steps', href: '/dashboard/inbox?messageId=email1', read: false, timestamp: '2m ago', icon: <Mail className="h-4 w-4 text-purple-700" /> },
   { id: '2', title: 'Task Due: Q3 Report', description: 'Draft Q3 Report for Project Alpha is due tomorrow.', href: '/dashboard/tasks', read: false, timestamp: '1h ago', icon: <ListChecks className="h-4 w-4 text-orange-500" /> },
   { id: '3', title: 'AI Responded: Invoice #12345', description: 'AI auto-replied to Bob The Builder.', href: '/dashboard/inbox?messageId=email2', read: true, timestamp: '3h ago', icon: <Bot className="h-4 w-4 text-purple-500" /> },
-  { id: '4', title: 'Calendar: Team Sync', description: 'Reminder: Team Sync starts in 15 minutes.', href: '/dashboard/calendar', read: false, timestamp: '10m ago', icon: <CalendarDays className="h-4 w-4 text-green-500" /> },
+  { id: '4', title: 'Calendar: Team Sync', description: 'Reminder: Team Sync starts in 15 minutes.', href: '/dashboard/calendar', read: false, timestamp: '10m ago', icon: <CalendarDays className="h-4 w-4 text-purple-700" /> },
 ];
 
 export function FloatingNotificationBell() {

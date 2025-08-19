@@ -278,7 +278,7 @@ export default function LeaveManagementPage() {
                         <Badge
                         className={cn({
                             'bg-yellow-500 text-white hover:bg-yellow-600': req.status === 'Pending',
-                            'bg-green-600 text-white hover:bg-green-700': req.status === 'Approved',
+                            'bg-purple-600 text-white hover:bg-purple-700': req.status === 'Approved',
                             'bg-red-600 text-white hover:bg-red-700': req.status === 'Denied',
                         })}
                         >
@@ -289,7 +289,7 @@ export default function LeaveManagementPage() {
                         {req.status === 'Pending' ? (
                         <div className="flex items-center justify-end gap-2">
                             <AlertDialog>
-                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:bg-green-100 hover:text-green-700"><Check className="h-4 w-4" /></Button></AlertDialogTrigger>
+                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 text-purple-600 hover:bg-purple-100 hover:text-purple-700"><Check className="h-4 w-4" /></Button></AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader><AlertDialogTitle>¿Aprobar solicitud?</AlertDialogTitle><AlertDialogDescription>Esto aprobará la solicitud de ausencia para {req.employee.name}. Esta acción se puede cambiar más tarde.</AlertDialogDescription></AlertDialogHeader>
                                     <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleRequestStatusChange(req.id, 'Approved')}>Aprobar</AlertDialogAction></AlertDialogFooter>
@@ -320,7 +320,7 @@ export default function LeaveManagementPage() {
                     <p className="font-medium text-sm pt-2">Estados de la Solicitud</p>
                     <div className="flex flex-wrap items-center gap-2">
                         <Badge className="bg-yellow-500 text-white">Pendiente</Badge>
-                        <Badge className="bg-green-600 text-white">Aprobado</Badge>
+                        <Badge className="bg-purple-600 text-white">Aprobado</Badge>
                         <Badge className="bg-red-600 text-white">Denegado</Badge>
                     </div>
                 </div>

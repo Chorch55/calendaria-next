@@ -157,7 +157,7 @@ export default function SettingsPage() {
             {icon}
             <CardTitle className="text-xl ml-3">{title}</CardTitle>
           </div>
-          <Badge variant={serviceState.connected ? "default" : "outline"} className={serviceState.connected ? "bg-green-500 hover:bg-green-600 text-white" : ""}>
+          <Badge variant={serviceState.connected ? "default" : "outline"} className={serviceState.connected ? "bg-purple-500 hover:bg-purple-600 text-white" : ""}>
             {serviceState.connected ? <Wifi className="h-4 w-4 mr-1" /> : <WifiOff className="h-4 w-4 mr-1" />}
             {serviceState.connected ? 'Connected' : 'Disconnected'}
           </Badge>
@@ -384,9 +384,9 @@ export default function SettingsPage() {
       </div>
       <div className="space-y-6">
         <ConnectionCard title="Phone / Telephony" serviceKey="phone" icon={<Phone className="h-8 w-8 text-gray-500" />} />
-        <ConnectionCard title="WhatsApp" serviceKey="whatsapp" icon={<MessageSquare className="h-8 w-8 text-green-500" />} />
+        <ConnectionCard title="WhatsApp" serviceKey="whatsapp" icon={<MessageSquare className="h-8 w-8 text-purple-700" />} />
         <ConnectionCard title="Gmail / Google Workspace" serviceKey="gmail" icon={<Mail className="h-8 w-8 text-red-500" />} />
-        <ConnectionCard title="Outlook / Microsoft 365" serviceKey="outlook" icon={<Mail className="h-8 w-8 text-blue-500" />} />
+        <ConnectionCard title="Outlook / Microsoft 365" serviceKey="outlook" icon={<Mail className="h-8 w-8 text-purple-700" />} />
       </div>
     </div>
   );
@@ -514,7 +514,7 @@ const NavCustomizationList = ({ title, listKey, items, allNavItems, t, appSettin
                     variant="outline"
                     size="sm"
                     onClick={() => onOpenGroupDialog(null)}
-                    className="bg-teal-600 text-white hover:bg-teal-700"
+                    className="bg-purple-600 text-white hover:bg-purple-700"
                 >
                     <PlusCircle className="mr-2 h-4 w-4" />{t('create_group')}
                 </Button>
@@ -659,13 +659,13 @@ const GroupNavItem = ({ group, allNavItems, appSettings, updateAppSettings, t, o
                         </div>
                         {(() => {
                           const Icon = iconMap[group.icon as GroupIconName] || FolderInput;
-                          return <Icon className="h-5 w-5 text-teal-600 flex-shrink-0" />;
+                          return <Icon className="h-5 w-5 text-purple-600 flex-shrink-0" />;
                         })()}
                         <span className="font-semibold text-sm truncate">{group.name}</span>
                     </div>
                      <div className="flex items-center gap-1 sm:gap-2 cursor-default flex-shrink-0 ml-4" onPointerDown={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-teal-600/20 group text-teal-600" onClick={(e) => { e.stopPropagation(); openEditDialog();}}>
-                          <Edit className="h-4 w-4 text-teal-600 transition-colors group-hover:text-white" />
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-purple-600/20 group text-purple-600" onClick={(e) => { e.stopPropagation(); openEditDialog();}}>
+                          <Edit className="h-4 w-4 text-purple-600 transition-colors group-hover:text-white" />
                         </Button>
                         <AlertDialog>
                            <AlertDialogTrigger asChild>
@@ -700,7 +700,7 @@ const GroupNavItem = ({ group, allNavItems, appSettings, updateAppSettings, t, o
                                             </div>
                                             {(() => {
                                                 const Icon = childItem.icon as React.ComponentType<React.SVGProps<SVGSVGElement>>;
-                                                return <Icon className="h-4 w-4 text-teal-600" />;
+                                                return <Icon className="h-4 w-4 text-purple-600" />;
                                             })()}
                                             <span className="text-sm">{t(childItem.title)}</span>
                                         </div>
@@ -770,7 +770,7 @@ const GroupEditorDialog = ({ isOpen, setIsOpen, group, updateAppSettings, appSet
                             value={name} 
                             onChange={(e) => setName(e.target.value)} 
                             maxLength={20}
-                            className="focus-visible:ring-teal-500"
+                            className="focus-visible:ring-purple-500"
                         />
                     </div>
                     <div className="space-y-2"><Label>{t('group_icon')}</Label>
@@ -787,8 +787,8 @@ const GroupEditorDialog = ({ isOpen, setIsOpen, group, updateAppSettings, appSet
                                   className={cn(
                                     "h-10 w-10 transition-colors group",
                                     icon === iconName 
-                                      ? "bg-teal-600 border-teal-700 hover:bg-teal-700" 
-                                      : "hover:bg-teal-600/20 hover:border-teal-600"
+                                      ? "bg-purple-600 border-purple-700 hover:bg-purple-700" 
+                                      : "hover:bg-purple-600/20 hover:border-purple-600"
                                   )}
                                 >
 
@@ -804,7 +804,7 @@ const GroupEditorDialog = ({ isOpen, setIsOpen, group, updateAppSettings, appSet
                         </div>
                     </div>
                 </div>
-                <DialogFooter><DialogClose asChild><Button variant="outline">{t('cancelButton')}</Button></DialogClose><Button onClick={handleSave} className="bg-teal-600 text-white hover:bg-teal-700">{t('saveChangesButton')}</Button></DialogFooter>
+                <DialogFooter><DialogClose asChild><Button variant="outline">{t('cancelButton')}</Button></DialogClose><Button onClick={handleSave} className="bg-purple-600 text-white hover:bg-purple-700">{t('saveChangesButton')}</Button></DialogFooter>
             </DialogContent>
         </Dialog>
     );

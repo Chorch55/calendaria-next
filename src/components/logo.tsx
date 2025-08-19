@@ -48,18 +48,16 @@ export function Logo({ className, href = '/' }: { className?: string, href?: str
     >
       <div className="relative">
         {/* Minimal geometric logo */}
-        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-          <div className="w-6 h-6 bg-white/20 rounded-sm flex items-center justify-center">
+        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-700 dark:from-purple-400 dark:to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+          <div className="w-6 h-6 bg-white/25 rounded-sm flex items-center justify-center">
             <div className="w-3 h-3 bg-white rounded-full"></div>
           </div>
         </div>
-        {/* Subtle glow effect */}
-        <div className="absolute inset-0 w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg blur-sm opacity-50 -z-10"></div>
       </div>
       
       <span className="group-data-[collapsible=icon]:hidden font-light text-2xl tracking-wide">
         <span className="text-slate-700 dark:text-slate-200">Calendar</span>
-        <span className="text-blue-500 font-medium">IA</span>
+        <span className="text-purple-700 dark:text-purple-300 font-medium">IA</span>
       </span>
     </Link>
   );

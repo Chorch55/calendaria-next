@@ -131,7 +131,7 @@ export default function PhoneCallsPage() {
                         className={cn(
                             "capitalize whitespace-nowrap",
                             {
-                                'bg-green-500 text-white border-transparent hover:bg-green-600': log.sentiment === 'Positive',
+                                'bg-purple-500 text-white border-transparent hover:bg-purple-600': log.sentiment === 'Positive',
                                 'bg-white text-black border border-gray-300': log.sentiment === 'Neutral',
                                 'bg-red-500 text-white border-transparent hover:bg-red-600': log.sentiment === 'Negative',
                             }
@@ -154,7 +154,7 @@ export default function PhoneCallsPage() {
                 </div>
 
                 {log.appointmentScheduled && log.appointmentDetails && (
-                    <div className="text-sm font-medium p-3 rounded-md bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
+                    <div className="text-sm font-medium p-3 rounded-md bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200">
                         Appointment Scheduled: {log.appointmentDetails}
                     </div>
                 )}
