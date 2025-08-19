@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -81,6 +80,16 @@ const PremiumSidebar = React.memo(() => {
   const { user, logout } = useAuth();
   const { t } = useTranslation();
   const [expandedSections, setExpandedSections] = useState<string[]>(['core']);
+  
+  // Notification count - In a real app, this would come from an API/context
+  const notificationCount = 23;
+  
+  // Format notification count for display
+  const formatNotificationCount = (count: number): string => {
+    if (count === 0) return '0';
+    if (count <= 999) return count.toString();
+    return '+999';
+  };
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -141,13 +150,6 @@ const PremiumSidebar = React.memo(() => {
       ]
     },
     {
-      title: 'notifications',
-      icon: Bell,
-      items: [
-        { title: 'notifications', href: '/dashboard/notifications', icon: Bell, badge: '5' },
-      ]
-    },
-    {
       title: 'team_management',
       icon: Users,
       items: [
@@ -185,9 +187,8 @@ const PremiumSidebar = React.memo(() => {
         </div>
 
         {/* Navigation Sections - Scrollable Middle */}
-        <div className="flex-1 overflow-hidden">
-          <ScrollArea className="sidebar-scroll-area h-full px-3 py-4">
-            <div className="space-y-1 pb-20"> {/* Added padding bottom for better scrolling */}
+        <div className="flex-1 overflow-y-auto sidebar-scroll-area">
+          <div className="px-3 py-4 space-y-1 pb-20">{/* Added padding bottom for better scrolling */}
               {/* Main Navigation */}
               {navigationSections.map((section) => {
                 const SectionIcon = section.icon;
@@ -306,18 +307,19 @@ const PremiumSidebar = React.memo(() => {
                 })}
               </div>
             </div>
-          </ScrollArea>
         </div>
 
         {/* User Section - Fixed Bottom with Box Design */}
         <div className="sidebar-user-section border-t border-sidebar-border/30 p-4 flex-shrink-0">
           <div className="bg-gradient-to-br from-sidebar-accent/15 to-purple-500/5 rounded-xl border border-sidebar-border/30 overflow-hidden">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start gap-3 h-14 px-4 rounded-xl hover:bg-sidebar-accent/20 transition-all duration-200 group"
-                >
+            <div className="flex items-center gap-3">
+              {/* User Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start gap-3 h-14 px-4 rounded-xl hover:bg-sidebar-accent/20 transition-all duration-200 group"
+                  >
                   <Avatar className="h-9 w-9 ring-2 ring-purple-400/20">
                     <AvatarImage src={user?.image || undefined} />
                     <AvatarFallback className="bg-gradient-to-br from-purple-500 to-purple-600 text-white text-sm font-medium">
@@ -333,6 +335,17 @@ const PremiumSidebar = React.memo(() => {
                       Enterprise Plan
                     </p>
                   </div>
+                  
+                  {/* Notification Bell Icon inside user button */}
+                  <Link href="/dashboard/notifications" className="relative mr-2 hover:opacity-80 transition-opacity">
+                    <Bell className={cn(
+                      "h-4 w-4 transition-colors",
+                      notificationCount > 0 
+                        ? "text-red-400" 
+                        : "text-sidebar-foreground/70"
+                    )} />
+                  </Link>
+                  
                   <ChevronDown className="h-4 w-4 text-sidebar-foreground/60 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </Button>
               </DropdownMenuTrigger>
@@ -380,6 +393,19 @@ const PremiumSidebar = React.memo(() => {
                       <Link href="/dashboard/profile" className="flex items-center cursor-pointer h-9">
                         <User className="mr-3 h-4 w-4" />
                         <span>{t('profile')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/notifications" className="flex items-center justify-between cursor-pointer h-9 hover:bg-accent/10">
+                        <div className="flex items-center">
+                          <Bell className="mr-3 h-4 w-4 text-foreground/70" />
+                          <span>{t('notifications')}</span>
+                        </div>
+                        {notificationCount > 0 && (
+                          <Badge variant="destructive" className="text-xs h-5 min-w-[24px] flex items-center justify-center font-medium">
+                            {formatNotificationCount(notificationCount)}
+                          </Badge>
+                        )}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -458,16 +484,15 @@ const PremiumSidebar = React.memo(() => {
                     <LogOut className="mr-3 h-4 w-4" />
                     <span>{t('logout')}</span>
                   </DropdownMenuItem>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </nav>
     </div>
   );
-});
-
-PremiumSidebar.displayName = 'PremiumSidebar';
+});PremiumSidebar.displayName = 'PremiumSidebar';
 
 export { PremiumSidebar };

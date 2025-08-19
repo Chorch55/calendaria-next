@@ -571,10 +571,12 @@ export default function InboxPage() {
 
 
   return (
-    <div className="h-[calc(100vh-var(--header-height,4rem))] flex flex-col"> 
+    <div className="h-[calc(100vh-var(--header-height,4rem))] flex flex-col pt-4"> 
       <div className="p-6 border-b">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Inbox</h1>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-3xl font-bold tracking-tight whitespace-nowrap">Inbox</h1>
+          </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={() => {
                 console.log('Simulating message refresh for emails and WhatsApp...');

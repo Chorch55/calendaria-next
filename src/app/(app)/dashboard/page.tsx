@@ -2,7 +2,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, MessageSquare, CalendarCheck2, AlertTriangle, Lightbulb } from "lucide-react";
 import Link from 'next/link';
-import { Logo } from '@/components/logo';
 
 export default function DashboardPage() {
   const stats = [
@@ -13,13 +12,11 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <h1 className="text-3xl font-bold tracking-tight">Welcome to</h1>
-        <Logo />
-        <span className="text-3xl font-bold tracking-tight">!</span>
+    <div className="space-y-6 pt-4">
+      <div className="flex items-center gap-3 mb-2 flex-wrap">
+        <h1 className="text-3xl font-bold tracking-tight whitespace-nowrap">Welcome to CalendarIA</h1>
       </div>
-      <p className="text-muted-foreground">Here's a quick overview of your communication activity.</p>
+      <p className="text-muted-foreground">Here&apos;s a quick overview of your communication activity.</p>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
@@ -52,7 +49,7 @@ export default function DashboardPage() {
               {[...Array(3)].map((_, i) => (
                 <li key={i} className="flex items-center p-3 bg-muted/50 rounded-md">
                   <Mail className="h-5 w-5 mr-3 text-muted-foreground" />
-                  <span className="text-sm">AI summarized email from "Client X" - <span className="text-primary font-medium">View</span></span>
+                  <span className="text-sm">AI summarized email from &quot;Client X&quot; - <span className="text-primary font-medium">View</span></span>
                 </li>
               ))}
             </ul>

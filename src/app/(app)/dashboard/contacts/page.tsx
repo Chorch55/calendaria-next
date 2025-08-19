@@ -251,10 +251,12 @@ export default function ContactsPage() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
+        <div className="space-y-6 pt-4">
+            <div className="flex items-center justify-between mb-2">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Contacts & Companies</h1>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <h1 className="text-3xl font-bold tracking-tight whitespace-nowrap">Contacts & Companies</h1>
+                    </div>
                     <p className="text-muted-foreground mt-1">
                         Your central directory of professional contacts and associated companies.
                     </p>

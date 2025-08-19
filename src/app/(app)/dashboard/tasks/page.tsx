@@ -223,11 +223,13 @@ const TasksPage: NextPage = () => {
   }, [currentTaskData.dueDate]);
 
   return (
-    <div className="space-y-4 h-full flex flex-col">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 h-full flex flex-col pt-4">
+      <div className="flex items-center justify-between mb-2">
         <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight">Task Management</h1>
-            <CardDescription>Organize, assign, and track your team's work using a Kanban-style board.</CardDescription>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-3xl font-bold tracking-tight whitespace-nowrap">Task Management</h1>
+            </div>
+            <CardDescription>Organize, assign, and track your team&apos;s work using a Kanban-style board.</CardDescription>
         </div>
         <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => alert("Filters functionality will be added later.")}>

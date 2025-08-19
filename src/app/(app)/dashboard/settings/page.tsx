@@ -179,11 +179,11 @@ export default function SettingsPage() {
   if (!mounted || !isSettingsLoaded) return null;
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('settingsTitle')}</h1>
-        <p className="text-muted-foreground">{t('settingsDescription')}</p>
+    <div className="space-y-8 max-w-4xl mx-auto pt-4">
+      <div className="flex items-center gap-3 mb-2 flex-wrap">
+        <h1 className="text-3xl font-bold tracking-tight whitespace-nowrap">{t('settingsTitle')}</h1>
       </div>
+      <p className="text-muted-foreground">{t('settingsDescription')}</p>
 
       <Card className="shadow-lg">
         <CardHeader className="flex flex-row justify-between items-start">
