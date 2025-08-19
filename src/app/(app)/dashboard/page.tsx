@@ -6,8 +6,8 @@ import { Logo } from '@/components/logo';
 
 export default function DashboardPage() {
   const stats = [
-    { title: "New Emails", value: "12", icon: <Mail className="h-6 w-6 text-primary" />, color: "text-blue-500", href: "/dashboard/inbox" },
-    { title: "WhatsApp Messages", value: "8", icon: <MessageSquare className="h-6 w-6 text-primary" />, color: "text-green-500", href: "/dashboard/inbox?tab=whatsapp" },
+    { title: "New Emails", value: "12", icon: <Mail className="h-6 w-6 text-primary" />, color: "text-purple-600", href: "/dashboard/inbox" },
+    { title: "WhatsApp Messages", value: "8", icon: <MessageSquare className="h-6 w-6 text-primary" />, color: "text-purple-600", href: "/dashboard/inbox?tab=whatsapp" },
     { title: "Upcoming Appointments", value: "3", icon: <CalendarCheck2 className="h-6 w-6 text-primary" />, color: "text-purple-500", href: "/dashboard/calendar" },
     { title: "Needs Attention", value: "2", icon: <Lightbulb className="h-6 w-6 text-destructive" />, color: "text-red-500", href: "/dashboard/inbox?filter=needs-attention" },
   ];

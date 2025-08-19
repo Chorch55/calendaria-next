@@ -53,37 +53,37 @@
   --card-foreground: oklch(0.25 0.02 245);
   --popover: oklch(0.99 0.005 80);
   --popover-foreground: oklch(0.25 0.02 245);
-  /* Azul suave y elegante como color primario */
-  --primary: oklch(0.55 0.15 230);
+  /* Lila más vibrante y visible para modo claro */
+  --primary: oklch(0.55 0.18 295);
   --primary-foreground: oklch(0.98 0.008 85);
-  /* Secundario con tono aqua suave */
-  --secondary: oklch(0.95 0.02 180);
+  /* Secundario con más presencia */
+  --secondary: oklch(0.92 0.025 300);
   --secondary-foreground: oklch(0.25 0.02 245);
   /* Muted con tono crema más visible */
   --muted: oklch(0.96 0.01 85);
   --muted-foreground: oklch(0.45 0.02 245);
-  /* Accent con verde aqua hermoso */
-  --accent: oklch(0.7 0.12 180);
+  /* Accent con lila atractivo y vibrante */
+  --accent: oklch(0.65 0.15 290);
   --accent-foreground: oklch(0.98 0.008 85);
   --destructive: oklch(0.577 0.245 27.325);
   /* Bordes más suaves con tono crema */
   --border: oklch(0.92 0.015 85);
   --input: oklch(0.94 0.01 85);
-  --ring: oklch(0.55 0.15 230);
+  --ring: oklch(0.55 0.18 295);
   --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-2: oklch(0.55 0.15 295);
+  --chart-3: oklch(0.398 0.07 285);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  /* Sidebar con el mismo tema crema */
+  /* Sidebar con más vibración */
   --sidebar: oklch(0.97 0.01 85);
   --sidebar-foreground: oklch(0.25 0.02 245);
-  --sidebar-primary: oklch(0.55 0.15 230);
+  --sidebar-primary: oklch(0.55 0.18 295);
   --sidebar-primary-foreground: oklch(0.98 0.008 85);
-  --sidebar-accent: oklch(0.95 0.02 180);
+  --sidebar-accent: oklch(0.92 0.025 300);
   --sidebar-accent-foreground: oklch(0.25 0.02 245);
   --sidebar-border: oklch(0.92 0.015 85);
-  --sidebar-ring: oklch(0.55 0.15 230);
+  --sidebar-ring: oklch(0.55 0.18 295);
 }
 
 .dark {
@@ -95,37 +95,37 @@
   --card-foreground: oklch(0.95 0.008 85);
   --popover: oklch(0.22 0.01 245);
   --popover-foreground: oklch(0.95 0.008 85);
-  /* Azul más profundo pero vibrante */
-  --primary: oklch(0.65 0.18 220);
+  /* Lila más profundo pero menos saturado para mejor contraste */
+  --primary: oklch(0.62 0.14 290);
   --primary-foreground: oklch(0.18 0.008 245);
-  /* Secundario con tono aqua oscuro */
-  --secondary: oklch(0.32 0.03 200);
+  /* Secundario con tono lila oscuro equilibrado */
+  --secondary: oklch(0.3 0.025 295);
   --secondary-foreground: oklch(0.95 0.008 85);
   /* Muted más cálido */
   --muted: oklch(0.28 0.01 245);
   --muted-foreground: oklch(0.65 0.02 85);
-  /* Accent aqua vibrante para dark mode */
-  --accent: oklch(0.55 0.15 185);
+  /* Accent lila vibrante pero controlado para dark mode */
+  --accent: oklch(0.55 0.12 285);
   --accent-foreground: oklch(0.18 0.008 245);
   --destructive: oklch(0.704 0.191 22.216);
   /* Bordes más sutiles con tono cálido */
   --border: oklch(0.35 0.02 245);
   --input: oklch(0.4 0.02 245);
-  --ring: oklch(0.65 0.18 220);
+  --ring: oklch(0.62 0.14 290);
   --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-2: oklch(0.68 0.14 295);
   --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-4: oklch(0.6 0.2 285);
   --chart-5: oklch(0.645 0.246 16.439);
-  /* Sidebar con tema oscuro cálido */
+  /* Sidebar con tema oscuro lila equilibrado */
   --sidebar: oklch(0.2 0.01 245);
   --sidebar-foreground: oklch(0.95 0.008 85);
-  --sidebar-primary: oklch(0.65 0.18 220);
+  --sidebar-primary: oklch(0.62 0.14 290);
   --sidebar-primary-foreground: oklch(0.18 0.008 245);
-  --sidebar-accent: oklch(0.32 0.03 200);
+  --sidebar-accent: oklch(0.3 0.025 295);
   --sidebar-accent-foreground: oklch(0.95 0.008 85);
   --sidebar-border: oklch(0.35 0.02 245);
-  --sidebar-ring: oklch(0.65 0.18 220);
+  --sidebar-ring: oklch(0.62 0.14 290);
 }
 
 @layer base {
@@ -186,5 +186,47 @@
   p, span {
     letter-spacing: 0.008em;
     line-height: 1.65;
+  }
+
+  /* Global scroll optimization */
+  * {
+    scroll-behavior: smooth;
+  }
+
+  /* Ensure main content scroll is responsive and smooth */
+  .main-scroll-container {
+    scroll-behavior: smooth;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    transition: scroll-behavior 0.3s ease;
+  }
+
+  /* Custom smooth scroll with reduced speed */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    scroll-behavior: smooth;
+  }
+
+  /* Optimize scrollbar for main content */
+  .main-scroll-container::-webkit-scrollbar {
+    width: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .main-scroll-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .main-scroll-container::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 4px;
+    transition: background 0.3s ease;
+  }
+
+  .main-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--foreground) / 0.3);
   }
 }

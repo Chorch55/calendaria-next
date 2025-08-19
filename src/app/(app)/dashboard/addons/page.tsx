@@ -392,7 +392,7 @@ export default function AddonsPage() {
                   <ul className="space-y-1">
                     {addon.features.map((feature, index) => (
                       <li key={index} className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Check className="h-3 w-3 text-green-500 flex-shrink-0" />
+                        <Check className="h-3 w-3 text-purple-700 flex-shrink-0" />
                         {feature}
                       </li>
                     ))}

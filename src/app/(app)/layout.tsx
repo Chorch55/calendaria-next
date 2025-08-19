@@ -13,17 +13,25 @@ const LayoutInternal = ({ pageContent }: { pageContent: React.ReactNode}) => {
   useEffect(() => {
     setHasMounted(true);
     
-    // Asegurar que el scroll siempre funcione en el contenido principal
+    // Smooth scroll with increased speed
     const handleWheel = (e: WheelEvent) => {
       const mainContent = document.querySelector('.main-scroll-container');
       if (mainContent && !e.defaultPrevented) {
-        // Velocidad de scroll estándar web (sin multiplicador artificial)
-        mainContent.scrollTop += e.deltaY;
+        e.preventDefault();
+        
+        // Increase scroll speed by 20% for faster scrolling
+        const scrollAmount = e.deltaY * 1.2;
+        
+        // Smooth scroll animation
+        mainContent.scrollTo({
+          top: mainContent.scrollTop + scrollAmount,
+          behavior: 'auto' // Use auto for custom control
+        });
       }
     };
 
-    // Agregar listener global para scroll
-    document.addEventListener('wheel', handleWheel, { passive: true });
+    // Add smooth scroll listener
+    document.addEventListener('wheel', handleWheel, { passive: false });
     
     return () => {
       document.removeEventListener('wheel', handleWheel);
@@ -45,11 +53,6 @@ const LayoutInternal = ({ pageContent }: { pageContent: React.ReactNode}) => {
       {/* Main Content Area - Clean without overlapping gradients */}
       <div 
         className="flex-1 ml-72 h-screen overflow-y-auto relative main-scroll-container" 
-        style={{ scrollBehavior: 'smooth', pointerEvents: 'auto' }}
-        onWheel={(e) => {
-          // Asegurar que el scroll siempre funcione
-          e.stopPropagation();
-        }}
       >
         <div className="min-h-screen">
           <div className="p-6 bg-background">

@@ -159,13 +159,13 @@ export default function TeamManagementPage() {
     if (!connections) return <span className="text-xs text-muted-foreground">-</span>;
     const parts: React.ReactNode[] = [];
     if (connections.gmail) {
-      parts.push(<Badge key="gmail" variant={connections.gmail.connected ? "default" : "outline"} className={`text-xs ${connections.gmail.connected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}><Mail className="h-3 w-3 mr-1"/>Gmail{connections.gmail.connected ? "" : ": Off"}</Badge>);
+      parts.push(<Badge key="gmail" variant={connections.gmail.connected ? "default" : "outline"} className={`text-xs ${connections.gmail.connected ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-red-100 text-red-700'}`}><Mail className="h-3 w-3 mr-1"/>Gmail{connections.gmail.connected ? "" : ": Off"}</Badge>);
     }
     if (connections.outlook) {
-      parts.push(<Badge key="outlook" variant={connections.outlook.connected ? "default" : "outline"} className={`text-xs ${connections.outlook.connected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}><Mail className="h-3 w-3 mr-1"/>Outlook{connections.outlook.connected ? "" : ": Off"}</Badge>);
+      parts.push(<Badge key="outlook" variant={connections.outlook.connected ? "default" : "outline"} className={`text-xs ${connections.outlook.connected ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-red-100 text-red-700'}`}><Mail className="h-3 w-3 mr-1"/>Outlook{connections.outlook.connected ? "" : ": Off"}</Badge>);
     }
     if (connections.whatsapp) {
-      parts.push(<Badge key="whatsapp" variant={connections.whatsapp.active ? "default" : "outline"} className={`text-xs ${connections.whatsapp.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}><Smartphone className="h-3 w-3 mr-1"/>WhatsApp{connections.whatsapp.active ? ": On" : ": Off"}</Badge>);
+      parts.push(<Badge key="whatsapp" variant={connections.whatsapp.active ? "default" : "outline"} className={`text-xs ${connections.whatsapp.active ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-red-100 text-red-700'}`}><Smartphone className="h-3 w-3 mr-1"/>WhatsApp{connections.whatsapp.active ? ": On" : ": Off"}</Badge>);
     }
     return parts.length > 0 ? <div className="flex flex-wrap gap-1">{parts}</div> : <span className="text-xs text-muted-foreground">-</span>;
   };
@@ -229,7 +229,7 @@ export default function TeamManagementPage() {
                           member.status === 'Active' ? 'default' :
                           member.status === 'Pending' ? 'outline' : 'destructive'
                         }
-                        className={`capitalize ${member.status === 'Active' && 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200'} ${member.status === 'Pending' && 'border-yellow-400 text-yellow-700 bg-yellow-50 hover:bg-yellow-100'} ${member.status === 'Inactive' && 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200'}`}
+                        className={`capitalize ${member.status === 'Active' && 'bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200'} ${member.status === 'Pending' && 'border-yellow-400 text-yellow-700 bg-yellow-50 hover:bg-yellow-100'} ${member.status === 'Inactive' && 'bg-red-100 text-red-700 border-red-300 hover:bg-red-200'}`}
                       >
                         {member.status}
                       </Badge>

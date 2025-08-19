@@ -22,7 +22,7 @@ export default function SubscriptionsPage() {
   }
 
   const planColors = {
-    BASIC: 'bg-blue-100 text-blue-800',
+    BASIC: 'bg-purple-100 text-purple-800',
     PREMIUM: 'bg-purple-100 text-purple-800',
     ENTERPRISE: 'bg-gold-100 text-gold-800'
   }
@@ -188,7 +188,7 @@ export default function SubscriptionsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {subscription.features.map((feature: string) => (
               <div key={feature} className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-600" />
+                <CheckCircle className="h-4 w-4 text-purple-600" />
                 <span className="text-sm capitalize">
                   {feature.replace(/_/g, ' ')}
                 </span>

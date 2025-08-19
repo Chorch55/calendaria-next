@@ -45,9 +45,9 @@
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(59, 130, 246, 0.12) 0%,
-    rgba(99, 102, 241, 0.08) 35%,
-    rgba(147, 51, 234, 0.04) 70%,
+    rgba(168, 85, 247, 0.12) 0%,
+    rgba(147, 51, 234, 0.08) 35%,
+    rgba(126, 34, 206, 0.04) 70%,
     transparent 100%
   );
   pointer-events: none;
@@ -110,17 +110,17 @@
 }
 
 .sidebar-nav-item.active {
-  background: #6EE7B7 !important;
+  background: rgba(183, 148, 246, 0.03) !important;
   color: white !important;
   font-weight: 700;
   border-radius: 8px;
   transform: translateX(3px);
-  box-shadow: 0 4px 12px rgba(110, 231, 183, 0.3);
+  box-shadow: 0 4px 12px rgba(183, 148, 246, 0.02);
 }
 
 /* Create a speech bubble effect for category text */
 .sidebar-nav-item.active span {
-  background: #065F46 !important;
+  background: #7C3AED !important;
   color: white !important;
   padding: 4px 8px;
   border-radius: 6px;
@@ -132,7 +132,7 @@
   color: white !important;
 }
 
-/* Clean subcategories - only speech bubble effect with saturated green */
+/* Clean subcategories - only speech bubble effect with saturated purple */
 .sidebar-collapsible-content .sidebar-nav-item.active {
   background: transparent !important;
   color: white !important;
@@ -143,9 +143,9 @@
   box-shadow: none;
 }
 
-/* Speech bubble for subcategory text with saturated green */
+/* Speech bubble for subcategory text with saturated purple */
 .sidebar-collapsible-content .sidebar-nav-item.active span {
-  background: #059669 !important;
+  background: #9333EA !important;
   color: white !important;
   padding: 4px 8px;
   border-radius: 6px;
@@ -165,7 +165,7 @@
 
 .sidebar-nav-item:hover svg[data-lucide="chevron-down"] {
   opacity: 1;
-  color: rgba(59, 130, 246, 0.8);
+  color: rgba(168, 85, 247, 0.8);
 }
 
 .sidebar-nav-item.active svg[data-lucide="chevron-down"] {
@@ -187,9 +187,9 @@
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(59, 130, 246, 0.12) 0%,
-    rgba(99, 102, 241, 0.08) 35%,
-    rgba(147, 51, 234, 0.04) 70%,
+    rgba(168, 85, 247, 0.12) 0%,
+    rgba(147, 51, 234, 0.08) 35%,
+    rgba(126, 34, 206, 0.04) 70%,
     transparent 100%
   );
   pointer-events: none;
@@ -265,7 +265,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    hsl(var(--sidebar-primary)/0.2) 50%,
+    rgba(168, 85, 247, 0.2) 50%,
     transparent 100%
   );
 }
@@ -296,7 +296,7 @@
 }
 
 .sidebar-user-section .group:hover .ring-2 {
-  --tw-ring-color: hsl(var(--sidebar-primary) / 0.5);
+  --tw-ring-color: rgba(168, 85, 247, 0.5);
   transform: scale(1.05);
 }
 
@@ -410,6 +410,7 @@
 .sidebar-scroll-area {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--sidebar-accent)/0.4) transparent;
+  scroll-behavior: smooth; /* Smooth scrolling for sidebar */
 }
 
 .sidebar-scroll-area::-webkit-scrollbar {

@@ -311,16 +311,16 @@ const PremiumSidebar = React.memo(() => {
 
         {/* User Section - Fixed Bottom with Box Design */}
         <div className="sidebar-user-section border-t border-sidebar-border/30 p-4 flex-shrink-0">
-          <div className="bg-gradient-to-br from-sidebar-accent/20 to-sidebar-primary/10 rounded-xl border border-sidebar-border/30 overflow-hidden">
+          <div className="bg-gradient-to-br from-sidebar-accent/15 to-purple-500/5 rounded-xl border border-sidebar-border/30 overflow-hidden">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="w-full justify-start gap-3 h-14 px-4 rounded-xl hover:bg-sidebar-accent/30 transition-all duration-200 group"
+                  className="w-full justify-start gap-3 h-14 px-4 rounded-xl hover:bg-sidebar-accent/20 transition-all duration-200 group"
                 >
-                  <Avatar className="h-9 w-9 ring-2 ring-sidebar-primary/30">
+                  <Avatar className="h-9 w-9 ring-2 ring-purple-400/20">
                     <AvatarImage src={user?.image || undefined} />
-                    <AvatarFallback className="bg-gradient-to-br from-sidebar-primary to-accent text-white text-sm font-medium">
+                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-purple-600 text-white text-sm font-medium">
                       {user?.name?.[0] || user?.email?.[0] || 'U'}
                     </AvatarFallback>
                   </Avatar>
@@ -339,19 +339,25 @@ const PremiumSidebar = React.memo(() => {
               <DropdownMenuContent 
                 align="end" 
                 className="w-72 p-0 z-[60] bg-background/95 backdrop-blur-md border border-border/50 shadow-2xl"
-                onWheel={(e) => e.stopPropagation()}
                 style={{ pointerEvents: 'auto' }}
+                onInteractOutside={(e) => {
+                  // Evitar que se cierre cuando se hace clic en dropdowns anidados
+                  const target = e.target as Element;
+                  if (target?.closest('[data-radix-dropdown-content]')) {
+                    e.preventDefault();
+                  }
+                }}
               >
-                <div className="p-6 bg-gradient-to-br from-sidebar-accent/20 to-sidebar-primary/10 backdrop-blur-sm border-b border-border/30">
+                <div className="p-6 bg-gradient-to-br from-sidebar-accent/10 to-purple-500/3 backdrop-blur-sm border-b border-border/30">
                   <div className="flex flex-col items-center gap-4">
                     <div className="relative">
-                      <Avatar className="h-16 w-16 ring-4 ring-primary/30 shadow-xl backdrop-blur-sm">
+                      <Avatar className="h-16 w-16 ring-4 ring-purple-400/20 shadow-xl backdrop-blur-sm">
                         <AvatarImage src={user?.image || undefined} />
-                        <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white text-xl font-semibold">
+                        <AvatarFallback className="bg-gradient-to-br from-purple-500 to-purple-600 text-white text-xl font-semibold">
                           {user?.name?.[0] || user?.email?.[0] || 'U'}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="absolute -bottom-1 -right-1 bg-green-500 border-2 border-background rounded-full w-5 h-5 flex items-center justify-center">
+                      <div className="absolute -bottom-1 -right-1 bg-purple-600 border-2 border-background rounded-full w-5 h-5 flex items-center justify-center">
                         <div className="w-2 h-2 bg-white rounded-full"></div>
                       </div>
                     </div>
@@ -403,10 +409,16 @@ const PremiumSidebar = React.memo(() => {
                         <Badge variant="secondary" className="text-xs">Pro</Badge>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
+                    <div>
                       <AddonsDropdown 
                         trigger={
-                          <button className="flex items-center justify-between cursor-pointer h-9 w-full px-2 py-1.5 text-left hover:bg-accent/10 rounded-sm transition-colors">
+                          <button 
+                            className="flex items-center justify-between cursor-pointer h-9 w-full px-2 py-1.5 text-left hover:bg-accent/10 rounded-sm transition-colors"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }}
+                          >
                             <div className="flex items-center">
                               <Sparkles className="mr-3 h-4 w-4 text-amber-500" />
                               <span className="text-sm">Add-ons</span>
@@ -416,7 +428,7 @@ const PremiumSidebar = React.memo(() => {
                         }
                         align="start"
                       />
-                    </DropdownMenuItem>
+                    </div>
                   </div>
 
                   <DropdownMenuSeparator className="bg-border/30" />
@@ -435,7 +447,7 @@ const PremiumSidebar = React.memo(() => {
                       <Switch
                         checked={theme === 'dark'}
                         onCheckedChange={toggleTheme}
-                        className="data-[state=checked]:bg-primary"
+                        className="data-[state=checked]:bg-purple-500"
                       />
                     </div>
                   </div>

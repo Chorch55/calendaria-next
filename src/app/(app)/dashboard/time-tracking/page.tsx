@@ -717,7 +717,7 @@ export default function TimeTrackingPage() {
                                                     <Paperclip className="h-4 w-4" />
                                                 </Button>
                                                 {req.hasAttachment ? (
-                                                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                                    <CheckCircle2 className="h-5 w-5 text-purple-700" />
                                                 ) : (
                                                     <XCircle className="h-5 w-5 text-red-500" />
                                                 )}
@@ -727,7 +727,7 @@ export default function TimeTrackingPage() {
                                             <Badge
                                                 className={cn({
                                                     'bg-yellow-500 text-white hover:bg-yellow-600': req.status === 'Pending',
-                                                    'bg-green-600 text-white hover:bg-green-700': req.status === 'Approved',
+                                                    'bg-purple-600 text-white hover:bg-purple-700': req.status === 'Approved',
                                                     'bg-red-600 text-white hover:bg-red-700': req.status === 'Denied',
                                                 })}
                                             >
