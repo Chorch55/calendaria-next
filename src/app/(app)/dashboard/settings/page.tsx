@@ -251,6 +251,44 @@ export default function SettingsPage() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
+            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              {t('languageTitle')}
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">{t('languageDescription')}</p>
+            <RadioGroup
+              value={currentLanguage.code}
+              onValueChange={(value) => updateAppSettings({ language: value })}
+              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            >
+              <div>
+                <RadioGroupItem value="en" id="english" className="sr-only" />
+                <Label htmlFor="english" className={cn("p-4 border rounded-lg flex items-center gap-3 cursor-pointer hover:bg-accent hover:text-accent-foreground", currentLanguage.code === 'en' && "border-primary ring-2 ring-primary")}>
+                  <div className="w-8 h-6 rounded bg-gradient-to-r from-blue-500 via-white to-red-500 flex items-center justify-center text-xs font-bold text-blue-900">
+                    🇺🇸
+                  </div>
+                  <div>
+                    <span className="font-semibold">English</span>
+                    <p className="text-xs text-muted-foreground">United States</p>
+                  </div>
+                </Label>
+              </div>
+              <div>
+                <RadioGroupItem value="es" id="spanish" className="sr-only" />
+                <Label htmlFor="spanish" className={cn("p-4 border rounded-lg flex items-center gap-3 cursor-pointer hover:bg-accent hover:text-accent-foreground", currentLanguage.code === 'es' && "border-primary ring-2 ring-primary")}>
+                  <div className="w-8 h-6 rounded bg-gradient-to-r from-red-500 via-yellow-400 to-red-500 flex items-center justify-center text-xs font-bold">
+                    🇪🇸
+                  </div>
+                  <div>
+                    <span className="font-semibold">Español</span>
+                    <p className="text-xs text-muted-foreground">España</p>
+                  </div>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+          <Separator />
+          <div>
             <h3 className="text-lg font-semibold mb-2">{t('themeTitle')}</h3>
             <p className="text-sm text-muted-foreground mb-4">{t('themeDescription')}</p>
             <RadioGroup

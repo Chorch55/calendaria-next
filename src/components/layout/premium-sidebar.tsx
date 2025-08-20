@@ -145,8 +145,8 @@ const PremiumSidebar = React.memo(() => {
       icon: CheckSquare,
       items: [
         { title: 'tasks', href: '/dashboard/tasks', icon: CheckSquare },
-        { title: 'time_tracking', href: '/dashboard/time-tracking', icon: Clock },
         { title: 'projects', href: '/dashboard/projects', icon: FileText },
+        { title: 'balance_accounts', href: '/dashboard/balance-accounts', icon: CreditCard },
       ]
     },
     {
@@ -154,8 +154,9 @@ const PremiumSidebar = React.memo(() => {
       icon: Users,
       items: [
         { title: 'team', href: '/dashboard/team', icon: Users },
+        { title: 'time_tracking', href: '/dashboard/time-tracking', icon: Clock },
         { title: 'hr_module', href: '/dashboard/hr', icon: Shield },
-        { title: 'analytics', href: '/dashboard/analytics', icon: BarChart3 },
+        { title: 'analytics_personnel', href: '/dashboard/analytics', icon: BarChart3 },
       ]
     },
     {
