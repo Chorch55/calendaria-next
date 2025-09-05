@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Mail, Bot, Globe, DraftingCompass, Send, MapPin, Phone, ShieldCheck, Clock } from 'lucide-react';
+import { CheckCircle, Mail, Bot, Globe, DraftingCompass, Send, MapPin, Phone, ShieldCheck, Clock, Star, Users, TrendingUp, Zap, Play, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
@@ -18,6 +18,8 @@ import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { PricingComparison } from '@/components/ui/pricing-comparison';
+import { FloatingChatWidget } from '@/components/ui/floating-chat-widget';
+import { BackToTop } from '@/components/ui/back-to-top';
 
 
 
@@ -41,12 +43,48 @@ export default function LandingPage() {
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState('');
   const [message, setMessage] = useState('');
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const { theme } = useTheme();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Structured data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "CalendarIA",
+    "description": "AI-powered business calendar and communication assistant that automates scheduling, manages customer interactions, and streamlines business operations.",
+    "url": "https://calendaria.com",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": "EUR",
+      "lowPrice": "19",
+      "highPrice": "299",
+      "offerCount": "3"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "150",
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "features": [
+      "AI-powered scheduling assistant",
+      "Unified communication inbox",
+      "Multi-language support",
+      "WhatsApp and email integration",
+      "Call management and analytics",
+      "Team collaboration tools"
+    ]
+  };
 
 
   const features = [
@@ -160,6 +198,83 @@ export default function LandingPage() {
     },
   ];
 
+  // Estadísticas del producto
+  const stats = [
+    { icon: <Users className="h-8 w-8 text-primary" />, value: "10,000+", label: t('stats_active_users') },
+    { icon: <Clock className="h-8 w-8 text-primary" />, value: "50,000+", label: t('stats_hours_saved') },
+    { icon: <TrendingUp className="h-8 w-8 text-primary" />, value: "98%", label: t('stats_satisfaction') },
+    { icon: <Zap className="h-8 w-8 text-primary" />, value: "24/7", label: t('stats_uptime') }
+  ];
+
+  // Testimonios de clientes
+  const testimonials = [
+    {
+      name: "Sarah Johnson",
+      role: "CEO, TechStart Inc.",
+      image: "https://placehold.co/80x80.png",
+      content: t('testimonial_1_content'),
+      rating: 5
+    },
+    {
+      name: "Miguel Rodriguez",
+      role: "Operations Manager, Global Corp",
+      image: "https://placehold.co/80x80.png",
+      content: t('testimonial_2_content'),
+      rating: 5
+    },
+    {
+      name: "Emma Chen",
+      role: "Project Director, Innovation Labs",
+      image: "https://placehold.co/80x80.png",
+      content: t('testimonial_3_content'),
+      rating: 5
+    }
+  ];
+
+  // FAQ data
+  const faqs = [
+    {
+      question: t('faq_1_question'),
+      answer: t('faq_1_answer')
+    },
+    {
+      question: t('faq_2_question'),
+      answer: t('faq_2_answer')
+    },
+    {
+      question: t('faq_3_question'),
+      answer: t('faq_3_answer')
+    },
+    {
+      question: t('faq_4_question'),
+      answer: t('faq_4_answer')
+    },
+    {
+      question: t('faq_5_question'),
+      answer: t('faq_5_answer')
+    }
+  ];
+
+  // Integraciones populares
+  const integrations = [
+    { name: "Google Calendar", logo: "https://placehold.co/120x60.png" },
+    { name: "Microsoft Outlook", logo: "https://placehold.co/120x60.png" },
+    { name: "Slack", logo: "https://placehold.co/120x60.png" },
+    { name: "Zoom", logo: "https://placehold.co/120x60.png" },
+    { name: "WhatsApp Business", logo: "https://placehold.co/120x60.png" },
+    { name: "Zapier", logo: "https://placehold.co/120x60.png" }
+  ];
+
+  // Empresas que confían en nosotros
+  const trustedCompanies = [
+    { name: "TechCorp", logo: "https://placehold.co/160x80.png" },
+    { name: "InnovateInc", logo: "https://placehold.co/160x80.png" },
+    { name: "GlobalSolutions", logo: "https://placehold.co/160x80.png" },
+    { name: "FutureWorks", logo: "https://placehold.co/160x80.png" },
+    { name: "SmartBusiness", logo: "https://placehold.co/160x80.png" },
+    { name: "NextGenCorp", logo: "https://placehold.co/160x80.png" }
+  ];
+
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const href = e.currentTarget.href;
@@ -209,23 +324,52 @@ export default function LandingPage() {
     setCompany('');
     setMessage('');
   };
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Implement newsletter subscription logic
+    console.log({ newsletterEmail });
+    toast.success("Subscribed!", {
+      description: "You've been subscribed to our newsletter."
+    });
+    setNewsletterEmail('');
+  };
+
+  const toggleFaq = (index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
   
   const pageBackgroundStyle = isMounted ? {
     backgroundImage: `
-      radial-gradient(ellipse farthest-corner at 20% 80%, hsla(var(--primary) / ${theme === 'dark' ? 0.25 : 0.18}), transparent 65%), 
-      radial-gradient(ellipse farthest-corner at 80% 30%, hsla(var(--accent) / ${theme === 'dark' ? 0.25 : 0.18}), transparent 65%),
-      radial-gradient(ellipse farthest-corner at 40% 40%, hsla(var(--primary) / ${theme === 'dark' ? 0.12 : 0.1}), transparent 75%),
-      radial-gradient(ellipse farthest-corner at 60% 10%, hsla(var(--accent) / ${theme === 'dark' ? 0.15 : 0.12}), transparent 80%)
+      radial-gradient(ellipse farthest-corner at 20% 80%, hsla(var(--primary) / ${theme === 'dark' ? 0.35 : 0.25}), transparent 60%), 
+      radial-gradient(ellipse farthest-corner at 80% 30%, hsla(var(--accent) / ${theme === 'dark' ? 0.35 : 0.25}), transparent 60%),
+      radial-gradient(ellipse farthest-corner at 40% 40%, hsla(var(--primary) / ${theme === 'dark' ? 0.18 : 0.15}), transparent 70%),
+      radial-gradient(ellipse farthest-corner at 60% 10%, hsla(var(--accent) / ${theme === 'dark' ? 0.22 : 0.18}), transparent 75%),
+      radial-gradient(ellipse farthest-corner at 10% 40%, hsla(263, 70%, 50% / ${theme === 'dark' ? 0.15 : 0.12}), transparent 80%),
+      radial-gradient(ellipse farthest-corner at 90% 70%, hsla(271, 91%, 65% / ${theme === 'dark' ? 0.12 : 0.1}), transparent 85%)
     `,
   } : {};
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+      />
+      
       <PublicHeader />
       <main className="flex-1">
-        <div className="flex flex-col items-center" style={pageBackgroundStyle}>
+        <div className="flex flex-col items-center relative" style={pageBackgroundStyle}>
+          {/* Overlay de efectos adicionales */}
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-purple-600/8 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(168,85,247,0.1),transparent_50%)] pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(147,51,234,0.08),transparent_50%)] pointer-events-none" />
+          
           {/* Hero Section */}
-          <section className="w-full py-20 md:py-24" id="hero-section">
+          <section className="w-full py-20 md:py-24 relative z-10" id="hero-section">
             <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center">
               <motion.div 
                 className="text-center md:text-left"
@@ -267,7 +411,7 @@ export default function LandingPage() {
           {/* How it Works Section - NOW FEATURES */}
           <motion.section 
             id="features"
-            className="w-full py-16 md:py-24 scroll-mt-28"
+            className="w-full py-16 md:py-24 scroll-mt-28 relative z-10"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
@@ -352,7 +496,7 @@ export default function LandingPage() {
 
           {/* Features Section - NOW 6 CARDS */}
           <motion.section 
-            className="w-full py-16 md:py-24"
+            className="w-full py-16 md:py-24 relative z-10"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
@@ -394,7 +538,7 @@ export default function LandingPage() {
           {/* Pricing Section */}
           <motion.section 
             id="pricing" 
-            className="w-full py-16 md:py-24 scroll-mt-28"
+            className="w-full py-16 md:py-24 scroll-mt-28 relative z-10"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
@@ -473,7 +617,7 @@ export default function LandingPage() {
 
            {/* Who it's for section */}
             <motion.section 
-                className="w-full py-16 md:py-24"
+                className="w-full py-16 md:py-24 relative z-10"
                 variants={sectionVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -508,10 +652,292 @@ export default function LandingPage() {
                 </div>
             </motion.section>
 
+          {/* Statistics Section */}
+          <motion.section 
+            className="w-full py-16 md:py-24 relative z-10 bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="container mx-auto px-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4">{t('stats_title')}</h2>
+              <p className="text-center text-muted-foreground mb-12 md:mb-16 max-w-2xl mx-auto">
+                {t('stats_description')}
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {stats.map((stat, i) => (
+                  <motion.div 
+                    key={stat.label}
+                    className="text-center"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <div className="flex justify-center mb-4">
+                      {stat.icon}
+                    </div>
+                    <div className="text-3xl md:text-4xl font-bold text-primary mb-2">{stat.value}</div>
+                    <div className="text-muted-foreground">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.section>
+
+          {/* Social Proof Section */}
+          <motion.section 
+            className="w-full py-12 md:py-16 relative z-10"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="container mx-auto px-4">
+              <h3 className="text-xl md:text-2xl font-semibold text-center text-muted-foreground mb-8">
+                {t('social_proof_title')}
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center opacity-60 hover:opacity-80 transition-opacity duration-300">
+                {trustedCompanies.map((company, i) => (
+                  <motion.div 
+                    key={company.name}
+                    className="flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-300"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Image
+                      src={company.logo}
+                      alt={company.name}
+                      width={160}
+                      height={80}
+                      className="max-w-full h-auto"
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.section>
+
+          {/* Demo Video Section */}
+          <motion.section 
+            className="w-full py-16 md:py-24 relative z-10"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12 md:mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{t('demo_title')}</h2>
+                <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                  {t('demo_description')}
+                </p>
+              </div>
+              <div className="relative max-w-4xl mx-auto">
+                <div className="relative aspect-video rounded-xl overflow-hidden shadow-2xl bg-gradient-to-br from-primary/20 to-accent/20">
+                  {!isVideoPlaying ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 cursor-pointer" onClick={() => setIsVideoPlaying(true)}>
+                      <div className="bg-white rounded-full p-6 shadow-lg hover:scale-110 transition-transform duration-300">
+                        <Play className="h-12 w-12 text-primary ml-1" />
+                      </div>
+                    </div>
+                  ) : (
+                    <iframe
+                      src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  )}
+                  <Image
+                    src="https://placehold.co/1200x675.png"
+                    alt="Product Demo"
+                    layout="fill"
+                    objectFit="cover"
+                    data-ai-hint="product demo"
+                    className={`${isVideoPlaying ? 'hidden' : 'block'}`}
+                  />
+                </div>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* Testimonials Section */}
+          <motion.section 
+            className="w-full py-16 md:py-24 relative z-10 bg-gradient-to-br from-accent/5 via-primary/5 to-accent/5"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="container mx-auto px-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4">{t('testimonials_title')}</h2>
+              <p className="text-center text-muted-foreground mb-12 md:mb-16 max-w-2xl mx-auto">
+                {t('testimonials_description')}
+              </p>
+              <div className="grid md:grid-cols-3 gap-8">
+                {testimonials.map((testimonial, i) => (
+                  <motion.div 
+                    key={testimonial.name}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: i * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Card className="h-full p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                      <CardContent className="p-0">
+                        <div className="flex items-center space-x-1 mb-4">
+                          {[...Array(testimonial.rating)].map((_, i) => (
+                            <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                          ))}
+                        </div>
+                        <p className="text-muted-foreground mb-6 italic">"{testimonial.content}"</p>
+                        <div className="flex items-center">
+                          <Image
+                            src={testimonial.image}
+                            alt={testimonial.name}
+                            width={50}
+                            height={50}
+                            className="rounded-full mr-4"
+                          />
+                          <div>
+                            <div className="font-semibold text-foreground">{testimonial.name}</div>
+                            <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.section>
+
+          {/* Integrations Section */}
+          <motion.section 
+            className="w-full py-16 md:py-24 relative z-10"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="container mx-auto px-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4">{t('integrations_title')}</h2>
+              <p className="text-center text-muted-foreground mb-12 md:mb-16 max-w-2xl mx-auto">
+                {t('integrations_description')}
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 items-center">
+                {integrations.map((integration, i) => (
+                  <motion.div 
+                    key={integration.name}
+                    className="flex items-center justify-center p-4 bg-card border border-border rounded-lg hover:shadow-md transition-shadow duration-300"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.3, delay: i * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Image
+                      src={integration.logo}
+                      alt={integration.name}
+                      width={120}
+                      height={60}
+                      className="max-w-full h-auto opacity-70 hover:opacity-100 transition-opacity duration-300"
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.section>
+
+          {/* FAQ Section */}
+          <motion.section 
+            className="w-full py-16 md:py-24 relative z-10 bg-gradient-to-br from-primary/5 via-accent/5 to-primary/5"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="container mx-auto px-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-4">{t('faq_title')}</h2>
+              <p className="text-center text-muted-foreground mb-12 md:mb-16 max-w-2xl mx-auto">
+                {t('faq_description')}
+              </p>
+              <div className="max-w-3xl mx-auto space-y-4">
+                {faqs.map((faq, i) => (
+                  <motion.div 
+                    key={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: i * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Card className="shadow-lg">
+                      <CardHeader 
+                        className="cursor-pointer hover:bg-muted/50 transition-colors duration-200"
+                        onClick={() => toggleFaq(i)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold text-foreground">{faq.question}</h3>
+                          {openFaq === i ? (
+                            <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </div>
+                      </CardHeader>
+                      {openFaq === i && (
+                        <CardContent>
+                          <p className="text-muted-foreground">{faq.answer}</p>
+                        </CardContent>
+                      )}
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.section>
+
+          {/* Newsletter Section */}
+          <motion.section 
+            className="w-full py-16 md:py-24 relative z-10"
+            variants={sectionVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="container mx-auto px-4">
+              <div className="max-w-2xl mx-auto text-center">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{t('newsletter_title')}</h2>
+                <p className="text-muted-foreground mb-8">
+                  {t('newsletter_description')}
+                </p>
+                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                  <Input
+                    type="email"
+                    placeholder={t('newsletter_email_placeholder')}
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    required
+                    className="flex-1"
+                  />
+                  <Button type="submit" className="bg-primary hover:bg-primary/90">
+                    {t('newsletter_subscribe_button')}
+                  </Button>
+                </form>
+                <p className="text-xs text-muted-foreground mt-4">
+                  {t('newsletter_privacy_note')}
+                </p>
+              </div>
+            </div>
+          </motion.section>
+
           {/* Contact Section */}
            <motion.section 
             id="contact" 
-            className="w-full py-16 md:py-24 scroll-mt-0"
+            className="w-full py-16 md:py-24 scroll-mt-0 relative z-10"
             variants={sectionVariants}
             initial="hidden"
             whileInView="visible"
@@ -595,10 +1021,10 @@ export default function LandingPage() {
            </motion.section>
 
           {/* CTA Section */}
-          <section className="relative w-full py-16 md:py-24 overflow-hidden">
+          <section className="relative w-full py-16 md:py-24 overflow-hidden z-10">
             {/* Decorative background for CTA */}
             <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 opacity-50"></div>
-            <div className="relative container mx-auto px-4 text-center">
+            <div className="relative container mx-auto px-4 text-center z-20">
               <h2 className="text-3xl md:text-4xl font-bold mb-6">
                 <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
                   {t('home_final_cta_title')}
@@ -615,6 +1041,8 @@ export default function LandingPage() {
         </div>
       </main>
       <PublicFooter />
+      <FloatingChatWidget />
+      <BackToTop />
     </div>
   );
 }

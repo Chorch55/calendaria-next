@@ -411,6 +411,59 @@ export const translations: Translations = {
     auth_demo_admin: "Admin",
     auth_demo_user: "User",
     auth_demo_password: "Password",
+
+    // Statistics
+    stats_title: "Trusted by Thousands Worldwide",
+    stats_description: "Join thousands of professionals who trust CalendarIA to streamline their business operations.",
+    stats_active_users: "Active Users",
+    stats_hours_saved: "Hours Saved Monthly",
+    stats_satisfaction: "Customer Satisfaction",
+    stats_uptime: "System Uptime",
+
+    // Social Proof
+    social_proof_title: "Trusted by leading companies worldwide",
+
+    // Demo
+    demo_title: "See CalendarIA in Action",
+    demo_description: "Watch how CalendarIA transforms your business communication and scheduling workflows.",
+
+    // Testimonials
+    testimonials_title: "What Our Customers Say",
+    testimonials_description: "Discover how CalendarIA has transformed businesses around the world.",
+    testimonial_1_content: "CalendarIA has revolutionized how we handle customer appointments. The AI assistant manages everything seamlessly, saving us 15+ hours weekly.",
+    testimonial_2_content: "The unified inbox is a game-changer. Managing emails, WhatsApp, and calls from one place has improved our response time by 300%.",
+    testimonial_3_content: "Since implementing CalendarIA, we've reduced no-shows by 80% and our team productivity has skyrocketed. Highly recommended!",
+
+    // Integrations
+    integrations_title: "Seamless Integrations",
+    integrations_description: "Connect with your favorite tools and platforms. CalendarIA works with over 100+ popular business applications.",
+
+    // FAQ
+    faq_title: "Frequently Asked Questions",
+    faq_description: "Get answers to the most common questions about CalendarIA.",
+    faq_1_question: "How does the AI assistant handle different languages?",
+    faq_1_answer: "Our AI assistant supports multiple languages and can automatically detect and respond in the customer's preferred language. It maintains context and cultural nuances for natural conversations.",
+    faq_2_question: "Can I customize the AI responses and behavior?",
+    faq_2_answer: "Absolutely! You can customize AI responses, set business rules, define availability hours, and even train the AI with your specific business terminology and processes.",
+    faq_3_question: "How secure is my business data?",
+    faq_3_answer: "We use enterprise-grade security with end-to-end encryption, SOC 2 compliance, and GDPR adherence. Your data is stored securely and never shared with third parties.",
+    faq_4_question: "What happens if I need to cancel my subscription?",
+    faq_4_answer: "You can cancel anytime with no long-term commitments. You'll retain access until your billing period ends, and you can export all your data before cancellation.",
+    faq_5_question: "Do you offer integration support for custom systems?",
+    faq_5_answer: "Yes! Our Enterprise plan includes custom integrations and dedicated support for connecting with your existing business systems and workflows.",
+
+    // Newsletter
+    newsletter_title: "Stay Updated",
+    newsletter_description: "Get the latest updates, tips, and insights about AI-powered business automation delivered to your inbox.",
+    newsletter_email_placeholder: "Enter your email address",
+    newsletter_subscribe_button: "Subscribe",
+    newsletter_privacy_note: "We respect your privacy and won't spam you. Unsubscribe at any time.",
+
+    // Chat Widget
+    chat_widget_title: "How can we help?",
+    chat_widget_welcome_message: "Hi! 👋 I'm here to help you with any questions about CalendarIA. How can I assist you today?",
+    chat_widget_input_placeholder: "Type your message...",
+    chat_widget_auto_response: "Thanks for your message! Our team will get back to you soon. In the meantime, you can explore our features or check out our FAQ section.",
   },
   es: {
     // Public Nav
@@ -803,6 +856,59 @@ export const translations: Translations = {
     auth_demo_admin: "Admin",
     auth_demo_user: "Usuario",
     auth_demo_password: "Contraseña",
+
+    // Statistics
+    stats_title: "Confiado por Miles en Todo el Mundo",
+    stats_description: "Únete a miles de profesionales que confían en CalendarIA para optimizar sus operaciones comerciales.",
+    stats_active_users: "Usuarios Activos",
+    stats_hours_saved: "Horas Ahorradas Mensualmente",
+    stats_satisfaction: "Satisfacción del Cliente",
+    stats_uptime: "Tiempo de Actividad del Sistema",
+
+    // Social Proof
+    social_proof_title: "Confiado por empresas líderes a nivel mundial",
+
+    // Demo
+    demo_title: "Ve CalendarIA en Acción",
+    demo_description: "Mira cómo CalendarIA transforma tus flujos de trabajo de comunicación empresarial y programación.",
+
+    // Testimonials
+    testimonials_title: "Lo Que Dicen Nuestros Clientes",
+    testimonials_description: "Descubre cómo CalendarIA ha transformado empresas en todo el mundo.",
+    testimonial_1_content: "CalendarIA ha revolucionado cómo manejamos las citas de clientes. El asistente IA gestiona todo sin problemas, ahorrándonos más de 15 horas semanales.",
+    testimonial_2_content: "La bandeja de entrada unificada es un cambio radical. Gestionar emails, WhatsApp y llamadas desde un solo lugar ha mejorado nuestro tiempo de respuesta en un 300%.",
+    testimonial_3_content: "Desde que implementamos CalendarIA, hemos reducido las ausencias en un 80% y la productividad de nuestro equipo se ha disparado. ¡Altamente recomendado!",
+
+    // Integrations
+    integrations_title: "Integraciones Perfectas",
+    integrations_description: "Conecta con tus herramientas y plataformas favoritas. CalendarIA funciona con más de 100 aplicaciones empresariales populares.",
+
+    // FAQ
+    faq_title: "Preguntas Frecuentes",
+    faq_description: "Obtén respuestas a las preguntas más comunes sobre CalendarIA.",
+    faq_1_question: "¿Cómo maneja el asistente IA diferentes idiomas?",
+    faq_1_answer: "Nuestro asistente IA soporta múltiples idiomas y puede detectar automáticamente y responder en el idioma preferido del cliente. Mantiene el contexto y los matices culturales para conversaciones naturales.",
+    faq_2_question: "¿Puedo personalizar las respuestas y comportamiento de la IA?",
+    faq_2_answer: "¡Absolutamente! Puedes personalizar las respuestas de la IA, establecer reglas de negocio, definir horarios de disponibilidad e incluso entrenar la IA con tu terminología y procesos específicos de negocio.",
+    faq_3_question: "¿Qué tan seguros están mis datos empresariales?",
+    faq_3_answer: "Utilizamos seguridad de nivel empresarial con encriptación de extremo a extremo, cumplimiento SOC 2 y adherencia GDPR. Tus datos se almacenan de forma segura y nunca se comparten con terceros.",
+    faq_4_question: "¿Qué pasa si necesito cancelar mi suscripción?",
+    faq_4_answer: "Puedes cancelar en cualquier momento sin compromisos a largo plazo. Mantendrás el acceso hasta que termine tu período de facturación, y puedes exportar todos tus datos antes de la cancelación.",
+    faq_5_question: "¿Ofrecen soporte de integración para sistemas personalizados?",
+    faq_5_answer: "¡Sí! Nuestro plan Enterprise incluye integraciones personalizadas y soporte dedicado para conectar con tus sistemas y flujos de trabajo empresariales existentes.",
+
+    // Newsletter
+    newsletter_title: "Mantente Actualizado",
+    newsletter_description: "Recibe las últimas actualizaciones, consejos e insights sobre automatización empresarial con IA directamente en tu bandeja de entrada.",
+    newsletter_email_placeholder: "Ingresa tu dirección de email",
+    newsletter_subscribe_button: "Suscribirse",
+    newsletter_privacy_note: "Respetamos tu privacidad y no te enviaremos spam. Cancela la suscripción en cualquier momento.",
+
+    // Chat Widget
+    chat_widget_title: "¿Cómo podemos ayudarte?",
+    chat_widget_welcome_message: "¡Hola! 👋 Estoy aquí para ayudarte con cualquier pregunta sobre CalendarIA. ¿Cómo puedo asistirte hoy?",
+    chat_widget_input_placeholder: "Escribe tu mensaje...",
+    chat_widget_auto_response: "¡Gracias por tu mensaje! Nuestro equipo se pondrá en contacto contigo pronto. Mientras tanto, puedes explorar nuestras funciones o revisar nuestra sección de preguntas frecuentes.",
   },
   de: {
     // Public Nav
