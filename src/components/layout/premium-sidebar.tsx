@@ -33,6 +33,7 @@ import {
   BarChart3, 
   Settings, 
   CreditCard,
+  HelpCircle,
   Moon, 
   Sun, 
   User, 
@@ -173,6 +174,7 @@ const PremiumSidebar = React.memo(() => {
   const settingsSections: NavSection[] = [
     { title: 'settings', href: '/dashboard/settings', icon: Settings },
     { title: 'billing', href: '/dashboard/billing', icon: CreditCard },
+    { title: 'help', href: '/dashboard/help', icon: HelpCircle },
   ];
 
   return (

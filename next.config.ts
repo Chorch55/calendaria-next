@@ -8,6 +8,25 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  webpack: (config, { isServer }) => {
+    // Handle external dependencies that cause warnings
+    if (!isServer) {
+      config.externals = config.externals || [];
+      config.externals.push({
+        '@opentelemetry/exporter-jaeger': 'commonjs @opentelemetry/exporter-jaeger',
+        '@genkit-ai/firebase': 'commonjs @genkit-ai/firebase',
+      });
+      
+      // Handle handlebars require.extensions warning
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        os: false,
+      };
+    }
+    return config;
+  },
   images: {
     remotePatterns: [
       {

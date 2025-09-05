@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -79,6 +79,14 @@ const PLANS = [
 ]
 
 export default function SignupMultiTenantPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <SignupMultiTenantContent />
+    </Suspense>
+  )
+}
+
+function SignupMultiTenantContent() {
   const [step, setStep] = useState(1) // 1: Plan, 2: Add-ons, 3: Company, 4: Admin
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -722,7 +730,7 @@ export default function SignupMultiTenantPage() {
                               ? "border-primary bg-primary/10 shadow-md" 
                               : "border-border hover:border-primary/50 hover:shadow-sm"
                           )}
-                          onClick={() => setSubscriptionPlan(plan.id)}
+                          onClick={() => setSubscriptionPlan(plan.id as 'basic' | 'premium' | 'enterprise')}
                         >
                           <div className="text-center">
                             <plan.icon className={cn(

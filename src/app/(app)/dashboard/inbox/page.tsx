@@ -53,6 +53,7 @@ interface Message {
 }
 
 type FilterType = 'all' | 'unread' | 'starred';
+type MessageTypeFilter = 'all' | 'email' | 'whatsapp' | 'web-appointment' | 'phone-appointment' | 'ai' | 'attention';
 type SortType = 'newest' | 'oldest' | 'alphabetical';
 
 // Mock contacts data
@@ -325,12 +326,22 @@ const MessageItem = React.memo(({ message, onSelect, isSelected, isExpanded, onT
               <h3 className="text-sm font-medium truncate">
                 {message.contact.name}
               </h3>
-              <time className="text-xs text-muted-foreground ml-2 flex-shrink-0">
-                {new Date(message.timestamp).toLocaleTimeString([], { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                })}
-              </time>
+              <div className="text-xs text-muted-foreground ml-2 flex-shrink-0 text-right">
+                <div className="font-medium">
+                  {new Date(message.timestamp).toLocaleDateString([], { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: new Date(message.timestamp).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                  })}
+                </div>
+                <div>
+                  {new Date(message.timestamp).toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: true 
+                  })}
+                </div>
+              </div>
             </div>
             
             <p className="text-sm font-medium mb-1 truncate">{message.subject}</p>
@@ -389,6 +400,7 @@ export default function InboxPage() {
   const [expandedMessage, setExpandedMessage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
+  const [messageTypeFilter, setMessageTypeFilter] = useState<MessageTypeFilter>('all');
   const [sortType, setSortType] = useState<SortType>('newest');
   
   // New functionality states
@@ -595,7 +607,9 @@ export default function InboxPage() {
                          (filterType === 'unread' && !message.read) ||
                          (filterType === 'starred' && message.starred);
     
-    return matchesSearch && matchesFilter;
+    const matchesMessageType = messageTypeFilter === 'all' || message.type === messageTypeFilter;
+    
+    return matchesSearch && matchesFilter && matchesMessageType;
   });
 
   const sortedMessages = [...filteredMessages].sort((a, b) => {
@@ -649,30 +663,83 @@ export default function InboxPage() {
           <div className="px-6 pb-4 border-b border-border">
             <div className="text-sm font-semibold text-foreground mb-3">Message Types</div>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent">
+              <button 
+                onClick={() => setMessageTypeFilter('all')}
+                className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                  messageTypeFilter === 'all' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'hover:bg-accent'
+                }`}
+              >
+                <Inbox className="h-4 w-4" />
+                <span className="font-medium">All ({messages.length})</span>
+              </button>
+              <button 
+                onClick={() => setMessageTypeFilter('email')}
+                className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                  messageTypeFilter === 'email' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'hover:bg-accent'
+                }`}
+              >
                 <Mail className="h-4 w-4 text-red-500" />
-                <span className="font-medium">Email</span>
-              </div>
-              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent">
+                <span className="font-medium">Email ({messages.filter(m => m.type === 'email').length})</span>
+              </button>
+              <button 
+                onClick={() => setMessageTypeFilter('whatsapp')}
+                className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                  messageTypeFilter === 'whatsapp' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'hover:bg-accent'
+                }`}
+              >
                 <MessageSquare className="h-4 w-4 text-green-500" />
-                <span className="font-medium">WhatsApp</span>
-              </div>
-              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent">
+                <span className="font-medium">WhatsApp ({messages.filter(m => m.type === 'whatsapp').length})</span>
+              </button>
+              <button 
+                onClick={() => setMessageTypeFilter('web-appointment')}
+                className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                  messageTypeFilter === 'web-appointment' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'hover:bg-accent'
+                }`}
+              >
                 <Globe className="h-4 w-4 text-gray-500" />
-                <span className="font-medium">Web Apps</span>
-              </div>
-              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent">
+                <span className="font-medium">Web Apps ({messages.filter(m => m.type === 'web-appointment').length})</span>
+              </button>
+              <button 
+                onClick={() => setMessageTypeFilter('phone-appointment')}
+                className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                  messageTypeFilter === 'phone-appointment' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'hover:bg-accent'
+                }`}
+              >
                 <Phone className="h-4 w-4 text-blue-500" />
-                <span className="font-medium">Phone</span>
-              </div>
-              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent">
+                <span className="font-medium">Phone ({messages.filter(m => m.type === 'phone-appointment').length})</span>
+              </button>
+              <button 
+                onClick={() => setMessageTypeFilter('ai')}
+                className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                  messageTypeFilter === 'ai' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'hover:bg-accent'
+                }`}
+              >
                 <Bot className="h-4 w-4 text-yellow-500" />
-                <span className="font-medium">AI</span>
-              </div>
-              <div className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent">
+                <span className="font-medium">AI ({messages.filter(m => m.type === 'ai').length})</span>
+              </button>
+              <button 
+                onClick={() => setMessageTypeFilter('attention')}
+                className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                  messageTypeFilter === 'attention' 
+                    ? 'bg-primary text-primary-foreground' 
+                    : 'hover:bg-accent'
+                }`}
+              >
                 <Zap className="h-4 w-4 text-orange-500" />
-                <span className="font-medium">Attention</span>
-              </div>
+                <span className="font-medium">Attention ({messages.filter(m => m.type === 'attention').length})</span>
+              </button>
             </div>
           </div>
 
@@ -716,10 +783,23 @@ export default function InboxPage() {
 
             {/* Message Count and Bulk Actions */}
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                {sortedMessages.length} message{sortedMessages.length !== 1 ? 's' : ''}
-                {selectedMessages.size > 0 && ` • ${selectedMessages.size} selected`}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">
+                  {sortedMessages.length} message{sortedMessages.length !== 1 ? 's' : ''}
+                  {selectedMessages.size > 0 && ` • ${selectedMessages.size} selected`}
+                </span>
+                {messageTypeFilter !== 'all' && (
+                  <Badge variant="secondary" className="text-xs">
+                    {messageTypeFilter} filter active
+                    <button 
+                      onClick={() => setMessageTypeFilter('all')}
+                      className="ml-2 hover:bg-destructive hover:text-destructive-foreground rounded-full p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+              </div>
               
               {selectedMessages.size > 0 && (
                 <div className="flex items-center gap-2">

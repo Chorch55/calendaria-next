@@ -9,7 +9,8 @@ import {
   Contact,
   Bot,
   CheckSquare,
-  Clock
+  Clock,
+  HelpCircle
 } from 'lucide-react';
 
 export type NavItem = {
@@ -76,6 +77,11 @@ export const sidebarConfig: SidebarConfig = {
       title: 'billing',
       href: '/dashboard/billing',
       icon: CreditCard,
+    },
+    {
+      title: 'help',
+      href: '/dashboard/help',
+      icon: HelpCircle,
     }
   ]
 };
