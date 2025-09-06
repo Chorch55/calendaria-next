@@ -415,7 +415,7 @@ export default function InboxPage() {
   const [messages, setMessages] = useState<Message[]>(getAllMessages());
   
   // Resizable sidebar states
-  const [sidebarWidth, setSidebarWidth] = useState(384); // Default width in pixels
+  const [sidebarWidth, setSidebarWidth] = useState(800); // Default width in pixels
   const [isResizing, setIsResizing] = useState(false);
   const [startX, setStartX] = useState(0);
   const [startWidth, setStartWidth] = useState(0);
@@ -433,7 +433,7 @@ export default function InboxPage() {
   };
 
   const handleDoubleClick = () => {
-    setSidebarWidth(384); // Reset to default width
+    setSidebarWidth(800); // Reset to default width
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -648,11 +648,11 @@ export default function InboxPage() {
       <div className="flex h-full min-h-screen">
         {/* Sidebar */}
         <div 
-          className="bg-card border-r border-border flex flex-col relative h-full min-h-screen"
+          className="bg-card border-r border-border flex flex-col relative h-full min-h-screen rounded-tl-lg"
           style={{ width: `${sidebarWidth}px` }}
         >
           {/* Header */}
-          <CardHeader className="pb-3">
+          <CardHeader className="pt-4 pb-4 px-6 rounded-tl-lg">
             <CardTitle className="flex items-center gap-2">
               <Inbox className="h-5 w-5" />
               Unified Inbox
@@ -744,7 +744,7 @@ export default function InboxPage() {
           </div>
 
           {/* Search and Filters */}
-          <div className="px-6 pb-4 space-y-3">
+          <div className="px-6 pt-6 pb-4 space-y-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input

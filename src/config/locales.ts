@@ -16,6 +16,7 @@ export const translations: Translations = {
     navigation_settings: "Settings",
     calendar: "Calendar",
     inbox: "Inbox",
+    appointment_management: "Appointment Management",
     contacts: "Contacts",
     phone_calls: "Phone Calls",
     tasks: "Tasks",
@@ -35,7 +36,7 @@ export const translations: Translations = {
     core: "Core",
     dashboard: "Dashboard",
     communication: "Communication",
-    companies: "Companies",
+    companies: "Clients",
     automation: "Automation",
     workflows: "Workflows",
     integrations: "Integrations",
@@ -619,6 +620,7 @@ export const translations: Translations = {
 
     // Sidebar & Nav
     inbox: "Bandeja de entrada",
+    appointment_management: "Gestión de Citas",
     calendar: "Calendario",
     "phone-calls": "Llamadas",
     contacts: "Contactos",
@@ -646,7 +648,7 @@ export const translations: Translations = {
     core: "Principal",
     dashboard: "Panel de Control",
     communication: "Comunicación",
-    companies: "Empresas",
+    companies: "Clientes",
     automation: "Automatización",
     workflows: "Flujos de Trabajo",
     integrations: "Integraciones",

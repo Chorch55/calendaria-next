@@ -121,6 +121,7 @@ const PremiumSidebar = React.memo(() => {
         { title: 'dashboard', href: '/dashboard', icon: BarChart3 },
         { title: 'calendar', href: '/dashboard/calendar', icon: Calendar },
         { title: 'inbox', href: '/dashboard/inbox', icon: Inbox, badge: '3' },
+        { title: 'appointment_management', href: '/dashboard/appointment-management', icon: Calendar },
       ]
     },
     {

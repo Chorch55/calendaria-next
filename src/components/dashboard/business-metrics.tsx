@@ -53,7 +53,7 @@ export function BusinessMetrics() {
       bgColor: "bg-green-50 dark:bg-green-950/20"
     },
     { 
-      title: "Active Clients", 
+      title: "Clients", 
       value: "84", 
       change: "+6 this week", 
       trend: "up",
@@ -115,29 +115,59 @@ export function BusinessMetrics() {
       {/* KPIs principales del negocio */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {kpiMetrics.map((metric) => (
-          <Card key={metric.title} className="relative overflow-hidden hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {metric.title}
-              </CardTitle>
-              <div className={`p-2 rounded-lg ${metric.bgColor}`}>
-                {metric.icon}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div className={`text-2xl font-bold ${metric.color}`}>
-                  {metric.value}
-                </div>
-                <div className="flex items-center text-sm">
-                  {getTrendIcon(metric.trend)}
-                  <span className={`ml-1 ${getTrendColor(metric.trend)}`}>
-                    {metric.change}
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div key={metric.title}>
+            {metric.title === "Clients" ? (
+              <Link href="/dashboard/companies">
+                <Card className="relative overflow-hidden hover:shadow-md transition-shadow cursor-pointer hover:border-primary/50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      {metric.title}
+                    </CardTitle>
+                    <div className={`p-2 rounded-lg ${metric.bgColor}`}>
+                      {metric.icon}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className={`text-2xl font-bold ${metric.color}`}>
+                        {metric.value}
+                      </div>
+                      <div className="flex items-center text-sm">
+                        {getTrendIcon(metric.trend)}
+                        <span className={`ml-1 ${getTrendColor(metric.trend)}`}>
+                          {metric.change}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ) : (
+              <Card className="relative overflow-hidden hover:shadow-md transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {metric.title}
+                  </CardTitle>
+                  <div className={`p-2 rounded-lg ${metric.bgColor}`}>
+                    {metric.icon}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div className={`text-2xl font-bold ${metric.color}`}>
+                      {metric.value}
+                    </div>
+                    <div className="flex items-center text-sm">
+                      {getTrendIcon(metric.trend)}
+                      <span className={`ml-1 ${getTrendColor(metric.trend)}`}>
+                        {metric.change}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         ))}
       </div>
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, CalendarIcon as CalendarIconLucide, ListTodo, CalendarDays, Settings, Trash2, Plus, Copy, Palette, Clock, Users, Tag, Filter, CheckCircle, TrendingUp, Edit2 } from 'lucide-react';
+import { PlusCircle, CalendarIcon as CalendarIconLucide, ListTodo, CalendarDays, Settings, Trash2, Plus, Copy, Palette, Clock, Users, Tag, Filter, CheckCircle, TrendingUp, Edit2, ChevronDown, Calendar } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +13,12 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -110,7 +116,11 @@ export default function CalendarPage() {
   const [currentEventData, setCurrentEventData] = useState<Omit<CalendarEvent, 'id'> & { id?: string }>(defaultEventFormData);
   const [formattedEventDate, setFormattedEventDate] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'appointments' | 'tasks'>('appointments');
+  const [newEventType, setNewEventType] = useState<'appointment' | 'task'>('appointment');
   const [isColorSettingsOpen, setIsColorSettingsOpen] = useState(false);
+  const [isDateNavigatorOpen, setIsDateNavigatorOpen] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(currentMonth.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth.getMonth());
 
   // Priority hierarchy order state with drag & drop
   const [priorityOrder, setPriorityOrder] = useState([
@@ -531,11 +541,30 @@ export default function CalendarPage() {
     setCurrentMonth(today);
   };
 
-  const handleOpenAddEventDialog = () => {
+  const handleOpenAddEventDialog = (eventCategory?: 'appointment' | 'task') => {
     setEventFormMode('add');
-    const defaultCategory = activeTab === 'tasks' ? 'task' : 'appointment';
-    setCurrentEventData({ ...defaultEventFormData, date: selectedDate || new Date(), category: defaultCategory });
+    const category = eventCategory || (activeTab === 'tasks' ? 'task' : 'appointment');
+    setNewEventType(category);
+    setCurrentEventData({ ...defaultEventFormData, date: selectedDate || new Date(), category });
     setIsEventFormDialogOpen(true);
+  };
+  
+  const handleDateNavigation = (year: number, month: number) => {
+    setCurrentMonth(new Date(year, month, 1));
+    setIsDateNavigatorOpen(false);
+  };
+
+  const handleYearChange = (year: number) => {
+    setSelectedYear(year);
+  };
+
+  const handleMonthChange = (month: number) => {
+    setSelectedMonth(month);
+  };
+
+  const applyDateNavigation = () => {
+    setCurrentMonth(new Date(selectedYear, selectedMonth, 1));
+    setIsDateNavigatorOpen(false);
   };
   
   const handleOpenEditEventDialog = (eventToEdit: CalendarEvent) => {
@@ -1017,9 +1046,79 @@ export default function CalendarPage() {
               <Button variant="outline" size="sm" onClick={handleTodayClick}>
                 <CalendarIconLucide className="mr-2 h-4 w-4" /> Today
               </Button>
-              <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90" onClick={handleOpenAddEventDialog}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Event
-              </Button>
+              <DropdownMenu open={isDateNavigatorOpen} onOpenChange={setIsDateNavigatorOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Calendar className="mr-2 h-5 w-5" />
+                    Mes/Año
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80 p-4">
+                  <div className="space-y-4">
+                    <div className="text-sm font-medium">Navegar a fecha</div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-xs mb-2 block">Año</Label>
+                        <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
+                          <SelectTrigger className="h-8">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 20 }, (_, i) => {
+                              const year = new Date().getFullYear() - 10 + i;
+                              return (
+                                <SelectItem key={year} value={year.toString()}>
+                                  {year}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label className="text-xs mb-2 block">Mes</Label>
+                        <Select value={selectedMonth.toString()} onValueChange={(value) => setSelectedMonth(parseInt(value))}>
+                          <SelectTrigger className="h-8">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Array.from({ length: 12 }, (_, i) => (
+                              <SelectItem key={i} value={i.toString()}>
+                                {new Date(2024, i, 1).toLocaleString('default', { month: 'long' })}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 pt-2">
+                      <Button size="sm" variant="outline" onClick={() => setIsDateNavigatorOpen(false)}>
+                        Cancelar
+                      </Button>
+                      <Button size="sm" onClick={applyDateNavigation}>
+                        Ir a fecha
+                      </Button>
+                    </div>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add <ChevronDown className="ml-1 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => handleOpenAddEventDialog('appointment')}>
+                    <CalendarDays className="mr-2 h-4 w-4" />
+                    Appointment
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleOpenAddEventDialog('task')}>
+                    <ListTodo className="mr-2 h-4 w-4" />
+                    Task
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button variant="outline" size="sm" onClick={() => setIsColorSettingsOpen(true)}>
                 <div className="w-4 h-4 mr-2 rounded-full bg-gradient-to-r from-blue-500 to-green-500"></div>
                 Colors
@@ -1164,23 +1263,24 @@ export default function CalendarPage() {
                   <div className="text-sm text-gray-600">
                     No events scheduled for this day
                   </div>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => {
-                      setEventFormMode('add');
-                      const defaultCategory = activeTab === 'tasks' ? 'task' : 'appointment';
-                      setCurrentEventData({ 
-                        ...defaultEventFormData, 
-                        date: selectedDate || new Date(), 
-                        category: defaultCategory 
-                      });
-                      setIsEventFormDialogOpen(true);
-                    }}
-                  >
-                    <PlusCircle className="h-4 w-4 mr-2" />
-                    Add {activeTab === 'tasks' ? 'Task' : 'Appointment'}
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="outline">
+                        <PlusCircle className="h-4 w-4 mr-2" />
+                        Add <ChevronDown className="ml-1 h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => handleOpenAddEventDialog('appointment')}>
+                        <CalendarDays className="mr-2 h-4 w-4" />
+                        Appointment
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleOpenAddEventDialog('task')}>
+                        <ListTodo className="mr-2 h-4 w-4" />
+                        Task
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 {/* Events List for Selected Date */}
@@ -2389,6 +2489,3 @@ export default function CalendarPage() {
     </div>
   );
 }
-/ /   F o r c e   r e c o m p i l e 
- 
- 
