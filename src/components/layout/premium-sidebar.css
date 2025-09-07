@@ -16,9 +16,10 @@
   position: relative;
   z-index: 50;
   
-  /* Ensure scroll events are handled properly */
+  /* Balanced scroll performance */
   overscroll-behavior: contain;
   pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Extended overlay that goes beyond the sidebar - simplified */
@@ -410,17 +411,17 @@
   left: 100%;
 }
 
-/* Enhanced scroll area styling */
+/* Enhanced scroll area styling - balanced performance */
 .sidebar-scroll-area {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--sidebar-accent)/0.4) transparent;
-  /* Remove smooth scrolling as we handle it manually now */
-  overflow-y: auto; /* Ensure vertical scrolling is enabled */
-  max-height: 100%; /* Ensure it can take full height */
-  /* Force scroll to work independently */
+  /* Balanced scroll performance - smooth but not laggy */
+  overflow-y: auto;
+  max-height: 100%;
   overscroll-behavior: contain;
-  /* Ensure scroll events are handled locally */
   pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Removed will-change and transform to prevent trompicones */
 }
 
 .sidebar-scroll-area::-webkit-scrollbar {

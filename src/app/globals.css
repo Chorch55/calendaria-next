@@ -230,3 +230,40 @@
     background: hsl(var(--foreground) / 0.3);
   }
 }
+
+/* Ultra-fluid scroll optimizations */
+* {
+  /* Natural scroll behavior for most elements */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Main scroll container with maximum smoothness */
+.main-scroll-container {
+  overscroll-behavior: contain;
+  /* Hardware acceleration for ultra-smooth scrolling */
+  will-change: scroll-position;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Sidebar maintains natural behavior */
+.sidebar-scroll-area {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Prevent scroll lag globally */
+body, html {
+  overscroll-behavior: contain;
+  scroll-behavior: auto;
+}
+
+/* Optimize all overflow containers */
+*[style*="overflow-y: auto"], 
+*[class*="overflow-y-auto"] {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}

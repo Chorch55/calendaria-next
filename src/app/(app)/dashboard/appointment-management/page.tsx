@@ -80,34 +80,15 @@ interface ChannelConfig {
   reminderTiming: number;
   reminderUnit: 'hours' | 'days' | 'weeks';
   // Gestión de tiempos de citas
-  appointmentDurationMode: 'fixed' | 'automatic';
+  appointmentDurationMode: 'fixed' | 'by_service_category';
   defaultAppointmentDuration: number; // en minutos
-  automaticDurationRules: Array<{
+  serviceCategoryDurations: Array<{
     id: string;
-    keywords: string;
+    categoryName: string;
     duration: number; // en minutos
     active: boolean;
   }>;
-  // Horarios y descansos avanzados
-  advancedSchedule: {
-    enabled: boolean;
-    weeklySchedule: Array<{
-      day: string;
-      enabled: boolean;
-      workPeriods: Array<{
-        id: string;
-        startTime: string;
-        endTime: string;
-      }>;
-      breaks: Array<{
-        id: string;
-        name: string;
-        startTime: string;
-        endTime: string;
-      }>;
-    }>;
-  };
-  // Horarios de atención (aplicable a Web y WhatsApp)
+  // Horarios de atención simplificados (copiado de WhatsApp)
   businessHours: {
     enabled: boolean;
     schedule: Array<{
@@ -193,29 +174,13 @@ export default function AppointmentManagementPage() {
     // Gestión de tiempos de citas
     appointmentDurationMode: 'fixed' as const,
     defaultAppointmentDuration: 60, // 60 minutos por defecto
-    automaticDurationRules: [] as Array<{
+    serviceCategoryDurations: [] as Array<{
       id: string;
-      keywords: string;
+      categoryName: string;
       duration: number;
       active: boolean;
     }>,
-    // Horarios y descansos avanzados
-    advancedSchedule: {
-      enabled: false,
-      weeklySchedule: [
-        'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'
-      ].map(day => ({
-        day,
-        enabled: day !== 'Sábado' && day !== 'Domingo',
-        workPeriods: [{
-          id: '1',
-          startTime: '09:00',
-          endTime: '18:00'
-        }],
-        breaks: []
-      }))
-    },
-    // Horarios de atención (aplicable a Web y WhatsApp)
+    // Horarios de atención simplificados (copiado de WhatsApp)
     businessHours: {
       enabled: false,
       schedule: [
@@ -310,99 +275,40 @@ export default function AppointmentManagementPage() {
       { name: 'Sucursal Norte', address: 'Barcelona, España' }
     ],
     // Configuraciones avanzadas de tiempo y horarios para web
-    appointmentDurationMode: 'automatic',
+    appointmentDurationMode: 'by_service_category',
     defaultAppointmentDuration: 45,
-    automaticDurationRules: [
+    serviceCategoryDurations: [
       {
         id: '1',
-        keywords: 'consulta|revision|control',
+        categoryName: 'Consulta general',
         duration: 30,
         active: true
       },
       {
         id: '2',
-        keywords: 'tratamiento|cirugia|operacion',
+        categoryName: 'Tratamiento especializado',
         duration: 90,
         active: true
       },
       {
         id: '3',
-        keywords: 'primera visita|inicial|evaluacion',
+        categoryName: 'Primera visita',
         duration: 60,
         active: true
       }
     ],
-    advancedSchedule: {
-      enabled: true,
-      weeklySchedule: [
-        {
-          day: 'Lunes',
-          enabled: true,
-          workPeriods: [
-            { id: '1', startTime: '09:00', endTime: '13:00' },
-            { id: '2', startTime: '15:00', endTime: '19:00' }
-          ],
-          breaks: [
-            { id: '1', name: 'Descanso mañana', startTime: '11:00', endTime: '11:15' },
-            { id: '2', name: 'Descanso tarde', startTime: '17:00', endTime: '17:15' }
-          ]
-        },
-        {
-          day: 'Martes',
-          enabled: true,
-          workPeriods: [
-            { id: '1', startTime: '09:00', endTime: '13:00' },
-            { id: '2', startTime: '15:00', endTime: '19:00' }
-          ],
-          breaks: [
-            { id: '1', name: 'Descanso mañana', startTime: '11:00', endTime: '11:15' }
-          ]
-        },
-        {
-          day: 'Miércoles',
-          enabled: true,
-          workPeriods: [
-            { id: '1', startTime: '09:00', endTime: '18:00' }
-          ],
-          breaks: [
-            { id: '1', name: 'Almuerzo', startTime: '13:00', endTime: '14:00' }
-          ]
-        },
-        {
-          day: 'Jueves',
-          enabled: true,
-          workPeriods: [
-            { id: '1', startTime: '09:00', endTime: '13:00' },
-            { id: '2', startTime: '15:00', endTime: '19:00' }
-          ],
-          breaks: []
-        },
-        {
-          day: 'Viernes',
-          enabled: true,
-          workPeriods: [
-            { id: '1', startTime: '09:00', endTime: '15:00' }
-          ],
-          breaks: [
-            { id: '1', name: 'Pausa café', startTime: '11:30', endTime: '11:45' }
-          ]
-        },
-        {
-          day: 'Sábado',
-          enabled: false,
-          workPeriods: [],
-          breaks: []
-        },
-        {
-          day: 'Domingo',
-          enabled: false,
-          workPeriods: [],
-          breaks: []
-        }
-      ]
+    businessHours: {
+      enabled: false,
+      schedule: [
+        'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'
+      ].map(day => ({
+        day,
+        startTime: '09:00',
+        endTime: '18:00',
+        enabled: day !== 'Sábado' && day !== 'Domingo'
+      }))
     },
-    reminderUnit: 'days',
-    reminderTiming: 1
+    outOfHoursMessage: 'Gracias por contactarnos por email. Nuestro horario de atención es de lunes a viernes de 9:00 a 18:00.',
   });
 
   const [whatsappConfig, setWhatsappConfig] = useState<ChannelConfig>({
@@ -422,24 +328,24 @@ export default function AppointmentManagementPage() {
     reminderTiming: 2,
     reminderUnit: 'hours',
     // Configuraciones avanzadas de tiempo para WhatsApp
-    appointmentDurationMode: 'automatic',
+    appointmentDurationMode: 'by_service_category',
     defaultAppointmentDuration: 30,
-    automaticDurationRules: [
+    serviceCategoryDurations: [
       {
         id: '1',
-        keywords: 'rapido|urgente|express',
+        categoryName: 'Consulta rápida',
         duration: 15,
         active: true
       },
       {
         id: '2',
-        keywords: 'consulta completa|revision detallada',
+        categoryName: 'Consulta completa',
         duration: 45,
         active: true
       },
       {
         id: '3',
-        keywords: 'primera cita|conocernos|evaluar',
+        categoryName: 'Primera cita',
         duration: 60,
         active: true
       }
@@ -533,24 +439,24 @@ export default function AppointmentManagementPage() {
     reminderUnit: 'hours',
     finalConfirmationMethod: 'email', // Valor por defecto para email
     // Gestión de tiempos de citas (adaptado)
-    appointmentDurationMode: 'automatic',
+    appointmentDurationMode: 'by_service_category',
     defaultAppointmentDuration: 60,
-    automaticDurationRules: [
+    serviceCategoryDurations: [
       {
         id: '1',
-        keywords: 'consulta|revisión|checkup',
+        categoryName: 'Consulta general',
         duration: 30,
         active: true
       },
       {
         id: '2',
-        keywords: 'tratamiento|terapia|sesión',
+        categoryName: 'Tratamiento especializado',
         duration: 90,
         active: true
       },
       {
         id: '3',
-        keywords: 'evaluación|diagnóstico|primera consulta',
+        categoryName: 'Primera consulta',
         duration: 60,
         active: true
       }
@@ -1175,16 +1081,16 @@ export default function AppointmentManagementPage() {
                                 updatedSchedule[index].enabled = checked;
                                 const updatedHours = { ...config.whatsappBusinessHours, schedule: updatedSchedule };
                                 
-                                // Sincronizar con advancedSchedule
-                                const updatedAdvancedSchedule = { ...config.advancedSchedule };
-                                const advancedDayIndex = updatedAdvancedSchedule.weeklySchedule.findIndex(d => d.day === day.day);
-                                if (advancedDayIndex !== -1) {
-                                  updatedAdvancedSchedule.weeklySchedule[advancedDayIndex].enabled = checked;
-                                }
-                                
-                                // Actualizar ambos
-                                updateChannelConfig('whatsapp', 'whatsappBusinessHours', updatedHours);
-                                updateChannelConfig('whatsapp', 'advancedSchedule', updatedAdvancedSchedule);
+                              // NOTA: Esta sección está comentada temporalmente mientras se actualiza la estructura
+                              // const updatedAdvancedSchedule = { ...config.advancedSchedule };
+                              // const advancedDayIndex = updatedAdvancedSchedule.weeklySchedule.findIndex(d => d.day === day.day);
+                              // if (advancedDayIndex !== -1) {
+                              //   updatedAdvancedSchedule.weeklySchedule[advancedDayIndex].enabled = checked;
+                              // }
+                              
+                              // Actualizar ambos
+                              updateChannelConfig('whatsapp', 'whatsappBusinessHours', updatedHours);
+                              // updateChannelConfig('whatsapp', 'advancedSchedule', updatedAdvancedSchedule);
                               }}
                             />
                             <Label className="text-sm">{day.day}</Label>
@@ -1220,117 +1126,23 @@ export default function AppointmentManagementPage() {
                 {/* Columna derecha - Descansos durante la jornada */}
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={config.advancedSchedule.enabled}
-                      onCheckedChange={(checked) => {
-                        const updatedSchedule = { ...config.advancedSchedule, enabled: checked };
-                        updateChannelConfig('whatsapp', 'advancedSchedule', updatedSchedule);
-                      }}
-                    />
                     <div className="flex items-center gap-2">
                       <Coffee className="h-4 w-4" />
                       <Label>Descansos durante la jornada</Label>
                     </div>
                   </div>
+                  
+                  <div className="space-y-3 border rounded-md p-2 bg-gray-50 dark:bg-gray-800">
+                    <p className="text-xs text-muted-foreground">
+                      Esta funcionalidad está siendo actualizada para usar el nuevo sistema de horarios simplificado.
+                    </p>
+                  </div>
+                </div>
 
-                  {config.advancedSchedule.enabled && (
-                    <div className="space-y-3 border rounded-md p-2 bg-gray-50 dark:bg-gray-800">
-                      <p className="text-xs text-muted-foreground">
-                        Define períodos donde no se pueden agendar citas (descansos, comidas, etc.)
-                      </p>
-                      
-                      {config.advancedSchedule.weeklySchedule.map((daySchedule, dayIndex) => {
-                        // Buscar el día correspondiente en whatsappBusinessHours para verificar si está habilitado
-                        const businessDay = config.whatsappBusinessHours.schedule.find(d => d.day === daySchedule.day);
-                        const isDayEnabled = businessDay?.enabled || false;
-                        
-                        return isDayEnabled && (
-                          <div key={daySchedule.day} className="p-3 border rounded-lg space-y-2 bg-gray-800 border-gray-600">
-                            <div className="flex items-center justify-between">
-                              <Label className="text-sm font-medium">{daySchedule.day}</Label>
-                              <span className="text-xs text-muted-foreground">
-                                {daySchedule.breaks.length} descanso(s)
-                              </span>
-                            </div>
-
-                            <div className="space-y-2">
-                              {daySchedule.breaks.map((breakTime, breakIndex) => (
-                                <div key={breakTime.id} className="grid grid-cols-4 gap-1 items-center">
-                                  <Input
-                                    placeholder="Nombre"
-                                    value={breakTime.name}
-                                    className="text-xs"
-                                    onChange={(e) => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].breaks[breakIndex].name = e.target.value;
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig('whatsapp', 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  />
-                                  <Input
-                                    type="time"
-                                    value={breakTime.startTime}
-                                    className="text-xs"
-                                    onChange={(e) => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].breaks[breakIndex].startTime = e.target.value;
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig('whatsapp', 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  />
-                                  <Input
-                                    type="time"
-                                    value={breakTime.endTime}
-                                    className="text-xs"
-                                    onChange={(e) => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].breaks[breakIndex].endTime = e.target.value;
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig('whatsapp', 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-6 w-6 p-0"
-                                    onClick={() => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].breaks = updatedWeeklySchedule[dayIndex].breaks.filter((_, i) => i !== breakIndex);
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig('whatsapp', 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              ))}
-                              
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                  const newBreak = {
-                                    id: Date.now().toString(),
-                                    name: 'Descanso',
-                                    startTime: '12:00',
-                                    endTime: '12:30'
-                                  };
-                                  updatedWeeklySchedule[dayIndex].breaks.push(newBreak);
-                                  const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                  updateChannelConfig('whatsapp', 'advancedSchedule', updatedSchedule);
-                                }}
-                                className="w-full h-6 text-xs"
-                              >
-                                <Plus className="h-3 w-3 mr-1" />
-                                Añadir descanso
-                              </Button>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                <div className="space-y-3 border rounded-md p-2 bg-gray-50 dark:bg-gray-800">
+                  <p className="text-xs text-muted-foreground">
+                    La funcionalidad de descansos avanzados será migrada al nuevo sistema de horarios simplificado.
+                  </p>
                 </div>
               </div>
 
@@ -1481,36 +1293,36 @@ export default function AppointmentManagementPage() {
                   />
                 </div>
 
-                {config.appointmentDurationMode === 'automatic' && (
+                {config.appointmentDurationMode === 'by_service_category' && (
                   <div className="space-y-4 border rounded-md p-2 bg-gray-50 dark:bg-gray-800">
                     <div className="flex items-center gap-2">
                       <Bot className="h-4 w-4" />
-                      <Label>Reglas inteligentes de duración</Label>
+                      <Label>Categorías de servicio</Label>
                     </div>
-                    {config.automaticDurationRules.map((rule, index) => (
-                      <div key={rule.id} className="p-4 border rounded-lg space-y-3 bg-gray-800 border-gray-600">
+                    {config.serviceCategoryDurations.map((category, index) => (
+                      <div key={category.id} className="p-4 border rounded-lg space-y-3 bg-gray-800 border-gray-600">
                         <div className="flex items-center justify-between">
-                          <Label>Regla {index + 1}</Label>
+                          <Label>Categoría {index + 1}</Label>
                           <Switch
-                            checked={rule.active}
+                            checked={category.active}
                             onCheckedChange={(checked) => {
-                              const updatedRules = [...config.automaticDurationRules];
-                              updatedRules[index].active = checked;
-                              updateChannelConfig('whatsapp', 'automaticDurationRules', updatedRules);
+                              const updatedCategories = [...config.serviceCategoryDurations];
+                              updatedCategories[index].active = checked;
+                              updateChannelConfig('whatsapp', 'serviceCategoryDurations', updatedCategories);
                             }}
                           />
                         </div>
                         <div className="grid gap-2 md:grid-cols-2">
                           <div className="space-y-2">
-                            <Label className="text-sm">Palabras clave en mensajes (separadas por |)</Label>
+                            <Label className="text-sm">Nombre de la categoría</Label>
                             <Input
-                              value={rule.keywords}
+                              value={category.categoryName}
                               onChange={(e) => {
-                                const updatedRules = [...config.automaticDurationRules];
-                                updatedRules[index].keywords = e.target.value;
-                                updateChannelConfig('whatsapp', 'automaticDurationRules', updatedRules);
+                                const updatedCategories = [...config.serviceCategoryDurations];
+                                updatedCategories[index].categoryName = e.target.value;
+                                updateChannelConfig('whatsapp', 'serviceCategoryDurations', updatedCategories);
                               }}
-                              placeholder="urgente|rapido|express"
+                              placeholder="Ej: Consulta rápida, Consulta completa..."
                             />
                           </div>
                           <div className="space-y-2">
@@ -1519,11 +1331,11 @@ export default function AppointmentManagementPage() {
                               type="number"
                               min="15"
                               max="300"
-                              value={rule.duration}
+                              value={category.duration}
                               onChange={(e) => {
-                                const updatedRules = [...config.automaticDurationRules];
-                                updatedRules[index].duration = parseInt(e.target.value);
-                                updateChannelConfig('whatsapp', 'automaticDurationRules', updatedRules);
+                                const updatedCategories = [...config.serviceCategoryDurations];
+                                updatedCategories[index].duration = parseInt(e.target.value);
+                                updateChannelConfig('whatsapp', 'serviceCategoryDurations', updatedCategories);
                               }}
                             />
                           </div>
@@ -1534,19 +1346,19 @@ export default function AppointmentManagementPage() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        const newRule = {
+                        const newCategory = {
                           id: Date.now().toString(),
-                          keywords: '',
+                          categoryName: '',
                           duration: 30,
                           active: true
                         };
-                        const updatedRules = [...config.automaticDurationRules, newRule];
-                        updateChannelConfig('whatsapp', 'automaticDurationRules', updatedRules);
+                        const updatedCategories = [...config.serviceCategoryDurations, newCategory];
+                        updateChannelConfig('whatsapp', 'serviceCategoryDurations', updatedCategories);
                       }}
                       className="w-full"
                     >
                       <Plus className="h-4 w-4 mr-2" />
-                      Añadir nueva regla inteligente
+                      Añadir nueva categoría
                     </Button>
                   </div>
                 )}
@@ -1834,16 +1646,16 @@ export default function AppointmentManagementPage() {
                               updatedSchedule[index].enabled = checked;
                               const updatedHours = { ...config.businessHours, schedule: updatedSchedule };
                               
-                              // Sincronizar con advancedSchedule
-                              const updatedAdvancedSchedule = { ...config.advancedSchedule };
-                              const advancedDayIndex = updatedAdvancedSchedule.weeklySchedule.findIndex(d => d.day === day.day);
-                              if (advancedDayIndex !== -1) {
-                                updatedAdvancedSchedule.weeklySchedule[advancedDayIndex].enabled = checked;
-                              }
+                              // NOTA: Sincronización con advancedSchedule temporalmente comentada
+                              // const updatedAdvancedSchedule = { ...config.advancedSchedule };
+                              // const advancedDayIndex = updatedAdvancedSchedule.weeklySchedule.findIndex(d => d.day === day.day);
+                              // if (advancedDayIndex !== -1) {
+                              //   updatedAdvancedSchedule.weeklySchedule[advancedDayIndex].enabled = checked;
+                              // }
                               
-                              // Actualizar ambos
+                              // Actualizar horarios de negocio
                               updateChannelConfig('email', 'businessHours', updatedHours);
-                              updateChannelConfig('email', 'advancedSchedule', updatedAdvancedSchedule);
+                              // updateChannelConfig('email', 'advancedSchedule', updatedAdvancedSchedule);
                             }}
                           />
                           <Label className="text-sm">{day.day}</Label>
@@ -1876,7 +1688,7 @@ export default function AppointmentManagementPage() {
                 )}
               </div>
 
-              {/* Columna derecha - Períodos de no procesamiento */}
+              {/* NOTA: Períodos de no procesamiento temporalmente comentados
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -1991,6 +1803,7 @@ export default function AppointmentManagementPage() {
                   </div>
                 )}
               </div>
+              */}
             </div>
 
             {config.businessHours.enabled && (
@@ -2142,6 +1955,7 @@ export default function AppointmentManagementPage() {
                 </div>
               )}
 
+              {/* NOTA: Sistema automático temporalmente comentado
               {config.appointmentDurationMode === 'automatic' && (
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
@@ -2226,6 +2040,7 @@ export default function AppointmentManagementPage() {
                   </div>
                 </div>
               )}
+              */}
             </div>
           </CardContent>
         </Card>
@@ -2617,219 +2432,6 @@ export default function AppointmentManagementPage() {
               </CardContent>
             </Card>
 
-            {/* Configuración de Horarios de Atención para Agendar Citas (para Web) */}
-            {channel === 'web' && (
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock3 className="h-5 w-5" />
-                    Horarios de Atención para Agendar Citas
-                  </CardTitle>
-                  <CardDescription>
-                    Define los horarios en los que se pueden agendar citas por web
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {/* Columna izquierda - Horarios para agendar citas */}
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          checked={config.businessHours.enabled}
-                          onCheckedChange={(checked) => {
-                            const updatedHours = { ...config.businessHours, enabled: checked };
-                            updateChannelConfig(channel, 'businessHours', updatedHours);
-                          }}
-                        />
-                        <Label>Activar horarios para agendar citas</Label>
-                      </div>
-
-                      {config.businessHours.enabled && (
-                        <div className="space-y-3">
-                          {config.businessHours.schedule.map((day, index) => (
-                            <div key={day.day} className="grid grid-cols-3 gap-2 items-center">
-                              <div className="flex items-center space-x-2">
-                                <Switch
-                                  checked={day.enabled}
-                                  onCheckedChange={(checked) => {
-                                    const updatedSchedule = [...config.businessHours.schedule];
-                                    updatedSchedule[index].enabled = checked;
-                                    const updatedHours = { ...config.businessHours, schedule: updatedSchedule };
-                                    
-                                    // Sincronizar con advancedSchedule
-                                    const updatedAdvancedSchedule = { ...config.advancedSchedule };
-                                    const advancedDayIndex = updatedAdvancedSchedule.weeklySchedule.findIndex(d => d.day === day.day);
-                                    if (advancedDayIndex !== -1) {
-                                      updatedAdvancedSchedule.weeklySchedule[advancedDayIndex].enabled = checked;
-                                    }
-                                    
-                                    // Actualizar ambos
-                                    updateChannelConfig(channel, 'businessHours', updatedHours);
-                                    updateChannelConfig(channel, 'advancedSchedule', updatedAdvancedSchedule);
-                                  }}
-                                />
-                                <Label className="text-sm">{day.day}</Label>
-                              </div>
-                              <Input
-                                type="time"
-                                value={day.startTime}
-                                onChange={(e) => {
-                                  const updatedSchedule = [...config.businessHours.schedule];
-                                  updatedSchedule[index].startTime = e.target.value;
-                                  const updatedHours = { ...config.businessHours, schedule: updatedSchedule };
-                                  updateChannelConfig(channel, 'businessHours', updatedHours);
-                                }}
-                                disabled={!day.enabled}
-                              />
-                              <Input
-                                type="time"
-                                value={day.endTime}
-                                onChange={(e) => {
-                                  const updatedSchedule = [...config.businessHours.schedule];
-                                  updatedSchedule[index].endTime = e.target.value;
-                                  const updatedHours = { ...config.businessHours, schedule: updatedSchedule };
-                                  updateChannelConfig(channel, 'businessHours', updatedHours);
-                                }}
-                                disabled={!day.enabled}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Columna derecha - Descansos durante la jornada */}
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          checked={config.advancedSchedule.enabled}
-                          onCheckedChange={(checked) => {
-                            const updatedSchedule = { ...config.advancedSchedule, enabled: checked };
-                            updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                          }}
-                        />
-                        <div className="flex items-center gap-2">
-                          <Coffee className="h-4 w-4" />
-                          <Label>Descansos durante la jornada</Label>
-                        </div>
-                      </div>
-
-                      {config.advancedSchedule.enabled && (
-                        <div className="space-y-3 border rounded-md p-2 bg-gray-50 dark:bg-gray-800">
-                          <p className="text-xs text-muted-foreground">
-                            Define períodos donde no se pueden agendar citas (descansos, comidas, etc.)
-                          </p>
-                          
-                          {config.advancedSchedule.weeklySchedule.map((daySchedule, dayIndex) => {
-                            // Buscar el día correspondiente en businessHours para verificar si está habilitado
-                            const businessDay = config.businessHours.schedule.find(d => d.day === daySchedule.day);
-                            const isDayEnabled = businessDay?.enabled || false;
-                            
-                            return isDayEnabled && (
-                              <div key={daySchedule.day} className="p-3 border rounded-lg space-y-2 bg-gray-800 border-gray-600">
-                                <div className="flex items-center justify-between">
-                                  <Label className="text-sm font-medium">{daySchedule.day}</Label>
-                                  <span className="text-xs text-muted-foreground">
-                                    {daySchedule.breaks.length} descanso(s)
-                                  </span>
-                                </div>
-
-                                <div className="space-y-2">
-                                  {daySchedule.breaks.map((breakTime, breakIndex) => (
-                                    <div key={breakTime.id} className="grid grid-cols-4 gap-1 items-center">
-                                      <Input
-                                        placeholder="Nombre"
-                                        value={breakTime.name}
-                                        className="text-xs"
-                                        onChange={(e) => {
-                                          const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                          updatedWeeklySchedule[dayIndex].breaks[breakIndex].name = e.target.value;
-                                          const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                          updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                        }}
-                                      />
-                                      <Input
-                                        type="time"
-                                        value={breakTime.startTime}
-                                        className="text-xs"
-                                        onChange={(e) => {
-                                          const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                          updatedWeeklySchedule[dayIndex].breaks[breakIndex].startTime = e.target.value;
-                                          const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                          updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                        }}
-                                      />
-                                      <Input
-                                        type="time"
-                                        value={breakTime.endTime}
-                                        className="text-xs"
-                                        onChange={(e) => {
-                                          const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                          updatedWeeklySchedule[dayIndex].breaks[breakIndex].endTime = e.target.value;
-                                          const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                          updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                        }}
-                                      />
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-6 w-6 p-0"
-                                        onClick={() => {
-                                          const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                          updatedWeeklySchedule[dayIndex].breaks = updatedWeeklySchedule[dayIndex].breaks.filter((_, i) => i !== breakIndex);
-                                          const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                          updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                        }}
-                                      >
-                                        <Trash2 className="h-3 w-3" />
-                                      </Button>
-                                    </div>
-                                  ))}
-                                  
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      const newBreak = {
-                                        id: Date.now().toString(),
-                                        name: 'Descanso',
-                                        startTime: '12:00',
-                                        endTime: '12:30'
-                                      };
-                                      updatedWeeklySchedule[dayIndex].breaks.push(newBreak);
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                    }}
-                                    className="w-full h-6 text-xs"
-                                  >
-                                    <Plus className="h-3 w-3 mr-1" />
-                                    Añadir descanso
-                                  </Button>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {config.businessHours.enabled && (
-                    <div className="space-y-2">
-                      <Label htmlFor="web-out-of-hours">Mensaje fuera de horario</Label>
-                      <Textarea
-                        id="web-out-of-hours"
-                        value={config.outOfHoursMessage}
-                        onChange={(e) => updateChannelConfig(channel, 'outOfHoursMessage', e.target.value)}
-                        rows={3}
-                      />
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
             {/* Configuración de Duración de Citas */}
             <Card>
               <CardHeader>
@@ -2838,7 +2440,7 @@ export default function AppointmentManagementPage() {
                   Duración de Citas
                 </CardTitle>
                 <CardDescription>
-                  Configuración de tiempo para las citas
+                  Configuración de tiempo por categoría de servicio
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -2854,7 +2456,7 @@ export default function AppointmentManagementPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="fixed">Duración fija para todas las citas</SelectItem>
-                        <SelectItem value="automatic">Duración automática según palabras clave</SelectItem>
+                        <SelectItem value="by_service_category">Duración por categoría de servicio</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -2871,33 +2473,48 @@ export default function AppointmentManagementPage() {
                     />
                   </div>
 
-                  {config.appointmentDurationMode === 'automatic' && (
-                    <div className="space-y-4 border rounded-md p-2 bg-gray-50 dark:bg-gray-800">
-                      <Label>Reglas de duración automática</Label>
-                      {config.automaticDurationRules.map((rule, index) => (
-                        <div key={rule.id} className="p-4 border rounded-lg space-y-3 bg-gray-800 border-gray-600">
+                  {config.appointmentDurationMode === 'by_service_category' && (
+                    <div className="space-y-4 border rounded-md p-4 bg-gray-50 dark:bg-gray-800">
+                      <Label>Configuración por categorías de servicio</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Define la duración específica para cada tipo de servicio que ofreces
+                      </p>
+                      {config.serviceCategoryDurations.map((category, index) => (
+                        <div key={category.id} className="p-4 border rounded-lg space-y-3 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-600">
                           <div className="flex items-center justify-between">
-                            <Label>Regla {index + 1}</Label>
-                            <Switch
-                              checked={rule.active}
-                              onCheckedChange={(checked) => {
-                                const updatedRules = [...config.automaticDurationRules];
-                                updatedRules[index].active = checked;
-                                updateChannelConfig(channel, 'automaticDurationRules', updatedRules);
-                              }}
-                            />
+                            <Label>Categoría {index + 1}</Label>
+                            <div className="flex items-center gap-2">
+                              <Switch
+                                checked={category.active}
+                                onCheckedChange={(checked) => {
+                                  const updatedCategories = [...config.serviceCategoryDurations];
+                                  updatedCategories[index].active = checked;
+                                  updateChannelConfig(channel, 'serviceCategoryDurations', updatedCategories);
+                                }}
+                              />
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const updatedCategories = config.serviceCategoryDurations.filter((_, i) => i !== index);
+                                  updateChannelConfig(channel, 'serviceCategoryDurations', updatedCategories);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                           <div className="grid gap-2 md:grid-cols-2">
                             <div className="space-y-2">
-                              <Label className="text-sm">Palabras clave (separadas por |)</Label>
+                              <Label className="text-sm">Nombre de la categoría</Label>
                               <Input
-                                value={rule.keywords}
+                                value={category.categoryName}
                                 onChange={(e) => {
-                                  const updatedRules = [...config.automaticDurationRules];
-                                  updatedRules[index].keywords = e.target.value;
-                                  updateChannelConfig(channel, 'automaticDurationRules', updatedRules);
+                                  const updatedCategories = [...config.serviceCategoryDurations];
+                                  updatedCategories[index].categoryName = e.target.value;
+                                  updateChannelConfig(channel, 'serviceCategoryDurations', updatedCategories);
                                 }}
-                                placeholder="consulta|revision|control"
+                                placeholder="Ej: Corte de cabello, Lavado, Tinte..."
                               />
                             </div>
                             <div className="space-y-2">
@@ -2906,11 +2523,11 @@ export default function AppointmentManagementPage() {
                                 type="number"
                                 min="15"
                                 max="300"
-                                value={rule.duration}
+                                value={category.duration}
                                 onChange={(e) => {
-                                  const updatedRules = [...config.automaticDurationRules];
-                                  updatedRules[index].duration = parseInt(e.target.value);
-                                  updateChannelConfig(channel, 'automaticDurationRules', updatedRules);
+                                  const updatedCategories = [...config.serviceCategoryDurations];
+                                  updatedCategories[index].duration = parseInt(e.target.value);
+                                  updateChannelConfig(channel, 'serviceCategoryDurations', updatedCategories);
                                 }}
                               />
                             </div>
@@ -2921,19 +2538,19 @@ export default function AppointmentManagementPage() {
                       <Button
                         variant="outline"
                         onClick={() => {
-                          const newRule = {
+                          const newCategory = {
                             id: Date.now().toString(),
-                            keywords: '',
+                            categoryName: '',
                             duration: 60,
                             active: true
                           };
-                          const updatedRules = [...config.automaticDurationRules, newRule];
-                          updateChannelConfig(channel, 'automaticDurationRules', updatedRules);
+                          const updatedCategories = [...config.serviceCategoryDurations, newCategory];
+                          updateChannelConfig(channel, 'serviceCategoryDurations', updatedCategories);
                         }}
                         className="w-full"
                       >
                         <Plus className="h-4 w-4 mr-2" />
-                        Añadir nueva regla
+                        Añadir nueva categoría
                       </Button>
                     </div>
                   )}
@@ -2941,183 +2558,83 @@ export default function AppointmentManagementPage() {
               </CardContent>
             </Card>
 
-            {/* Configuración de Horarios Avanzados */}
+            {/* Configuración de Horarios Simplificados */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CalendarClock className="h-5 w-5" />
-                  Horarios Avanzados
+                  <Clock3 className="h-5 w-5" />
+                  Horarios de Atención
                 </CardTitle>
                 <CardDescription>
-                  Configuración de horarios de trabajo y descansos por día
+                  Define los horarios durante los cuales se pueden agendar citas
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Switch
-                    checked={config.advancedSchedule.enabled}
+                    checked={config.businessHours.enabled}
                     onCheckedChange={(checked) => {
-                      const updatedSchedule = { ...config.advancedSchedule, enabled: checked };
-                      updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
+                      const updatedHours = { ...config.businessHours, enabled: checked };
+                      updateChannelConfig(channel, 'businessHours', updatedHours);
                     }}
                   />
-                  <Label>Activar horarios avanzados con descansos</Label>
+                  <Label>Activar horarios de atención</Label>
                 </div>
 
-                {config.advancedSchedule.enabled && (
-                  <div className="space-y-6">
-                    {config.advancedSchedule.weeklySchedule.map((daySchedule, dayIndex) => (
-                      <div key={daySchedule.day} className="p-4 border rounded-lg space-y-4">
-                        <div className="flex items-center justify-between">
-                          <Label className="text-lg font-medium">{daySchedule.day}</Label>
+                {config.businessHours.enabled && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Los clientes solo podrán agendar citas durante estos horarios
+                    </p>
+                    {config.businessHours.schedule.map((day, index) => (
+                      <div key={day.day} className="grid grid-cols-3 gap-2 items-center">
+                        <div className="flex items-center space-x-2">
                           <Switch
-                            checked={daySchedule.enabled}
+                            checked={day.enabled}
                             onCheckedChange={(checked) => {
-                              const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                              updatedWeeklySchedule[dayIndex].enabled = checked;
-                              const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                              updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
+                              const updatedSchedule = [...config.businessHours.schedule];
+                              updatedSchedule[index].enabled = checked;
+                              const updatedHours = { ...config.businessHours, schedule: updatedSchedule };
+                              updateChannelConfig(channel, 'businessHours', updatedHours);
                             }}
                           />
+                          <Label className="text-sm">{day.day}</Label>
                         </div>
-
-                        {daySchedule.enabled && (
-                          <div className="space-y-4 ml-4">
-                            {/* Períodos de trabajo */}
-                            <div className="space-y-3">
-                              <Label className="text-sm font-medium">Períodos de trabajo</Label>
-                              {daySchedule.workPeriods.map((period, periodIndex) => (
-                                <div key={period.id} className="grid grid-cols-3 gap-2 items-center">
-                                  <Input
-                                    type="time"
-                                    value={period.startTime}
-                                    onChange={(e) => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].workPeriods[periodIndex].startTime = e.target.value;
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  />
-                                  <Input
-                                    type="time"
-                                    value={period.endTime}
-                                    onChange={(e) => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].workPeriods[periodIndex].endTime = e.target.value;
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].workPeriods = updatedWeeklySchedule[dayIndex].workPeriods.filter((_, i) => i !== periodIndex);
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              ))}
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                  const newPeriod = {
-                                    id: Date.now().toString(),
-                                    startTime: '09:00',
-                                    endTime: '17:00'
-                                  };
-                                  updatedWeeklySchedule[dayIndex].workPeriods.push(newPeriod);
-                                  const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                  updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                }}
-                              >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Añadir período
-                              </Button>
-                            </div>
-
-                            {/* Descansos */}
-                            <div className="space-y-3">
-                              <Label className="text-sm font-medium flex items-center gap-2">
-                                <Coffee className="h-4 w-4" />
-                                Descansos
-                              </Label>
-                              {daySchedule.breaks.map((breakTime, breakIndex) => (
-                                <div key={breakTime.id} className="grid grid-cols-4 gap-2 items-center">
-                                  <Input
-                                    placeholder="Nombre del descanso"
-                                    value={breakTime.name}
-                                    onChange={(e) => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].breaks[breakIndex].name = e.target.value;
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  />
-                                  <Input
-                                    type="time"
-                                    value={breakTime.startTime}
-                                    onChange={(e) => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].breaks[breakIndex].startTime = e.target.value;
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  />
-                                  <Input
-                                    type="time"
-                                    value={breakTime.endTime}
-                                    onChange={(e) => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].breaks[breakIndex].endTime = e.target.value;
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  />
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                      const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                      updatedWeeklySchedule[dayIndex].breaks = updatedWeeklySchedule[dayIndex].breaks.filter((_, i) => i !== breakIndex);
-                                      const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                      updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                    }}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              ))}
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  const updatedWeeklySchedule = [...config.advancedSchedule.weeklySchedule];
-                                  const newBreak = {
-                                    id: Date.now().toString(),
-                                    name: 'Descanso',
-                                    startTime: '12:00',
-                                    endTime: '12:15'
-                                  };
-                                  updatedWeeklySchedule[dayIndex].breaks.push(newBreak);
-                                  const updatedSchedule = { ...config.advancedSchedule, weeklySchedule: updatedWeeklySchedule };
-                                  updateChannelConfig(channel, 'advancedSchedule', updatedSchedule);
-                                }}
-                              >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Añadir descanso
-                              </Button>
-                            </div>
-                          </div>
-                        )}
+                        <Input
+                          type="time"
+                          value={day.startTime}
+                          onChange={(e) => {
+                            const updatedSchedule = [...config.businessHours.schedule];
+                            updatedSchedule[index].startTime = e.target.value;
+                            const updatedHours = { ...config.businessHours, schedule: updatedSchedule };
+                            updateChannelConfig(channel, 'businessHours', updatedHours);
+                          }}
+                          disabled={!day.enabled}
+                        />
+                        <Input
+                          type="time"
+                          value={day.endTime}
+                          onChange={(e) => {
+                            const updatedSchedule = [...config.businessHours.schedule];
+                            updatedSchedule[index].endTime = e.target.value;
+                            const updatedHours = { ...config.businessHours, schedule: updatedSchedule };
+                            updateChannelConfig(channel, 'businessHours', updatedHours);
+                          }}
+                          disabled={!day.enabled}
+                        />
                       </div>
                     ))}
+
+                    <div className="space-y-2 pt-4 border-t">
+                      <Label htmlFor={`${channel}-out-of-hours-message`}>Mensaje fuera de horario</Label>
+                      <Textarea
+                        id={`${channel}-out-of-hours-message`}
+                        value={config.outOfHoursMessage}
+                        onChange={(e) => updateChannelConfig(channel, 'outOfHoursMessage', e.target.value)}
+                        rows={2}
+                        placeholder="Mensaje que verán los clientes cuando intenten agendar fuera del horario"
+                      />
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -3159,8 +2676,8 @@ export default function AppointmentManagementPage() {
           <TabsTrigger value="email">Email</TabsTrigger>
           <TabsTrigger value="phone">Teléfono</TabsTrigger>
         </TabsList>
-          <TabsContent value="overview" className="max-h-[calc(100vh-250px)] overflow-y-auto overscroll-contain">
-            <div className="space-y-6 pr-2 pb-20">
+          <TabsContent value="overview" className="space-y-6">
+            <div className="space-y-6">
             {/* Resumen general */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <Card>
@@ -3326,26 +2843,26 @@ export default function AppointmentManagementPage() {
             </div>
         </TabsContent>
 
-          <TabsContent value="web" className="max-h-[calc(100vh-250px)] overflow-y-auto overscroll-contain">
-            <div className="pr-2 pb-20">
+          <TabsContent value="web" className="space-y-6">
+            <div className="space-y-6">
               {renderChannelSettings('web', webConfig)}
             </div>
           </TabsContent>
 
-          <TabsContent value="whatsapp" className="max-h-[calc(100vh-250px)] overflow-y-auto overscroll-contain">
-            <div className="pr-2 pb-20">
+          <TabsContent value="whatsapp" className="space-y-6">
+            <div className="space-y-6">
               {renderWhatsAppSettings(whatsappConfig)}
             </div>
           </TabsContent>
 
-          <TabsContent value="email" className="max-h-[calc(100vh-250px)] overflow-y-auto overscroll-contain">
-            <div className="pr-2 pb-20">
+          <TabsContent value="email" className="space-y-6">
+            <div className="space-y-6">
               {renderEmailSettings(emailConfig)}
             </div>
           </TabsContent>
 
-          <TabsContent value="phone" className="max-h-[calc(100vh-250px)] overflow-y-auto overscroll-contain">
-            <div className="pr-2 pb-20">
+          <TabsContent value="phone" className="space-y-6">
+            <div className="space-y-6">
               {renderChannelSettings('phone', phoneConfig)}
             </div>
           </TabsContent>
