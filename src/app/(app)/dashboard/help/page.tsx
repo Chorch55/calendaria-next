@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import InfoCard, { useInfoCards } from '@/components/ui/info-card'
 import { 
   Search, 
   BookOpen, 
@@ -18,17 +19,11 @@ import {
   PhoneCall, 
   CheckSquare, 
   Bot, 
-  Settings, 
-  CreditCard,
   Clock,
   Contact,
   MessageSquare,
-  Globe,
   Zap,
   Mail,
-  Video,
-  FileText,
-  BarChart3,
   HelpCircle,
   Play,
   ChevronDown,
@@ -40,10 +35,10 @@ import {
   User,
   Send,
   Paperclip,
-  AlertCircle,
-  X
+  X,
+  Brain,
+  TrendingUp
 } from 'lucide-react'
-import { useTranslation } from '@/hooks/use-translation'
 import { cn } from '@/lib/utils'
 
 interface HelpSection {
@@ -335,6 +330,68 @@ const helpSections: HelpSection[] = [
         }
       ]
     }
+  },
+  {
+    id: 'automatic-duration',
+    title: 'Duración Automática por Contenido de Email',
+    description: 'Sistema inteligente de análisis de emails para determinar duraciones de cita',
+    icon: Brain,
+    category: 'features',
+    content: {
+      overview: 'El sistema de duración automática combina reglas personalizadas con análisis de IA para determinar automáticamente la duración más apropiada de cada cita basándose en el contenido del email. Este sistema aprende continuamente de tu feedback para mejorar la precisión.',
+      steps: [
+        {
+          title: 'Configurar reglas básicas por palabras clave',
+          description: 'Define reglas basadas en palabras clave para los tipos de cita más comunes en tu negocio.',
+          tips: [
+            'Usa palabras específicas: "consulta rápida" = 30 min, "primera visita" = 60 min',
+            'Crea categorías por especialidad: "seguimiento", "revisión", "tratamiento completo"',
+            'Asigna prioridades: reglas más específicas = prioridad más alta (1 = máxima prioridad)',
+            'Incluye sinónimos y variaciones: "chequeo", "control", "revisión"'
+          ]
+        },
+        {
+          title: 'Activar y configurar el análisis de IA',
+          description: 'Habilita el análisis inteligente para casos complejos que no cubren las reglas básicas.',
+          tips: [
+            'Personaliza el prompt según tu especialidad médica o tipo de servicio',
+            'Ajusta el umbral de confianza (recomendado: 0.7 para equilibrio precisión/cobertura)',
+            'Define una duración de respaldo para casos donde la IA no tiene suficiente confianza',
+            'Revisa y ajusta el prompt basándote en los resultados iniciales'
+          ]
+        },
+        {
+          title: 'Configurar el sistema de feedback inteligente',
+          description: 'Activa el aprendizaje automático para que la IA mejore continuamente con tu experiencia.',
+          tips: [
+            'Habilita el feedback automático en la configuración del canal email',
+            'Personaliza las categorías de feedback según tus necesidades',
+            'Activa el aprendizaje automático para que el sistema mejore solo',
+            'Revisa periódicamente las estadísticas de mejora'
+          ]
+        },
+        {
+          title: 'Probar y optimizar el sistema',
+          description: 'Usa las herramientas integradas para validar y mejorar el funcionamiento.',
+          tips: [
+            'Usa la pestaña "Pruebas" para probar emails típicos de tu negocio',
+            'Revisa las estadísticas en la pestaña "Estadísticas" para identificar patrones',
+            'Ajusta reglas basándote en los análisis que requieren más correcciones',
+            'Proporciona feedback constante para acelerar el aprendizaje'
+          ]
+        },
+        {
+          title: 'Monitorear y mantener la precisión',
+          description: 'Supervisa el rendimiento del sistema y realiza ajustes periódicos.',
+          tips: [
+            'Revisa las métricas semanalmente: precisión promedio, feedbacks dados',
+            'Identifica patrones en los errores más comunes',
+            'Actualiza reglas cuando detectes nuevos tipos de consultas frecuentes',
+            'Celebra las mejoras: el sistema aprende de cada interacción'
+          ]
+        }
+      ]
+    }
   }
 ]
 
@@ -363,6 +420,36 @@ const troubleshootingFAQ = [
     question: '¿Por qué no puedo invitar usuarios?',
     answer: 'Verifica que tengas permisos de administrador y que tu plan incluya suficientes licencias de usuario. Contacta a soporte si el problema persiste.',
     category: 'permissions'
+  },
+  {
+    question: '¿Cómo funciona el sistema de duración automática?',
+    answer: 'El sistema funciona en dos fases: primero aplica tus reglas de palabras clave (ej: "consulta rápida" = 30min), luego la IA analiza el contexto completo del email para casos más complejos. Si ambos coinciden, usa esa duración. Si difieren, combina ambos resultados según el nivel de confianza. Ve a Gestión de Citas > Email > Duración Automática para configurarlo.',
+    category: 'ai'
+  },
+  {
+    question: '¿Por qué la IA sugiere duraciones incorrectas?',
+    answer: 'Puede deberse a varias causas: 1) Necesitas más reglas específicas para casos comunes, 2) El prompt de la IA no está adaptado a tu especialidad, 3) El umbral de confianza es muy bajo/alto, 4) Falta feedback para que aprenda tus preferencias. Usa la pestaña "Pruebas" para identificar qué casos fallan más.',
+    category: 'ai'
+  },
+  {
+    question: '¿Cómo mejoro la precisión del análisis automático?',
+    answer: 'Sigue estos pasos: 1) Crea reglas para los 5-10 tipos de cita más frecuentes, 2) Personaliza el prompt de IA con términos de tu especialidad, 3) Mantén umbral de confianza en 0.7, 4) Da feedback constante - cada evaluación enseña al sistema, 5) Revisa estadísticas semanalmente para detectar patrones de error.',
+    category: 'ai'
+  },
+  {
+    question: '¿Qué pasa si la IA no puede determinar la duración?',
+    answer: 'Cuando la confianza está por debajo del umbral configurado (ej: 0.7), el sistema automáticamente usa la "duración de respaldo" que hayas definido (por defecto 60min). Esto evita errores grandes. Puedes ajustar tanto el umbral como la duración de respaldo en la configuración.',
+    category: 'ai'
+  },
+  {
+    question: '¿El feedback ayuda realmente a mejorar la IA?',
+    answer: 'Absolutamente sí. Cada vez que calificas un análisis (1-5 estrellas) o corriges una duración, el sistema aprende patrones específicos de tu práctica. Con 10-20 feedbacks ya verás mejoras notables. El sistema identifica qué palabras clave son más importantes para ti y ajusta sus algoritmos automáticamente.',
+    category: 'ai'
+  },
+  {
+    question: '¿Puedo usar el sistema para diferentes tipos de servicios?',
+    answer: 'Sí, es muy flexible. Puedes crear reglas específicas por servicio: "masaje relajante" = 60min, "consulta nutricional" = 45min, "terapia inicial" = 90min. La IA también aprende a distinguir entre diferentes contextos y especialidades basándose en tu feedback.',
+    category: 'ai'
   }
 ]
 
@@ -405,7 +492,7 @@ const quickActions: QuickAction[] = [
   {
     id: 'ai-setup',
     label: 'Configurar IA',
-    prompt: '¿Cómo configuro el asistente de IA?',
+    prompt: 'Ve a Gestión de Citas > Email > Duración Automática para configurar el análisis inteligente de emails.',
     icon: Bot
   },
   {
@@ -425,11 +512,29 @@ const quickActions: QuickAction[] = [
     label: 'Gestionar tareas',
     prompt: '¿Cómo creo y organizo tareas?',
     icon: CheckSquare
+  },
+  {
+    id: 'automatic-duration-setup',
+    label: 'Configurar duración automática',
+    prompt: 'Ve a Gestión de Citas, selecciona el canal Email, y activa la Duración Automática. Crea reglas básicas y activa el análisis de IA.',
+    icon: Brain
+  },
+  {
+    id: 'ai-feedback-setup',
+    label: 'Activar feedback de IA',
+    prompt: 'En la configuración de Duración Automática, activa el "Sistema de feedback inteligente" para que la IA aprenda de tus correcciones.',
+    icon: TrendingUp
+  },
+  {
+    id: 'duration-rules',
+    label: 'Crear reglas de duración',
+    prompt: 'En Duración Automática, añade reglas como: "consulta rápida" = 30min, "primera visita" = 60min. Asigna prioridades para resolver conflictos.',
+    icon: Clock
   }
 ]
 
 export default function HelpPage() {
-  const { t } = useTranslation()
+  const { dismissCard } = useInfoCards()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [expandedSection, setExpandedSection] = useState<string | null>(null)
@@ -721,6 +826,39 @@ export default function HelpPage() {
                           <p className="text-muted-foreground">{section.content.overview}</p>
                         </div>
 
+                        {/* Tarjetas informativas específicas para duración automática */}
+                        {section.id === 'automatic-duration' && (
+                          <div className="space-y-3">
+                            <InfoCard
+                              id={`help-${section.id}-welcome`}
+                              title="🎯 Sistema Revolucionario"
+                              description="Este es uno de los sistemas más avanzados de CalendarIA. Combina la precisión de reglas personalizadas con la inteligencia contextual de la IA para automatizar completamente la gestión de duraciones."
+                              type="ai"
+                              onDismiss={dismissCard}
+                            />
+                            <InfoCard
+                              id={`help-${section.id}-learning`}
+                              title="🧠 Aprendizaje Continuo"
+                              description="Cada feedback que proporcionas hace que el sistema sea más inteligente. Con el tiempo, la IA aprenderá tus patrones específicos y se adaptará a tu estilo de trabajo único."
+                              type="feature"
+                              onDismiss={dismissCard}
+                            />
+                          </div>
+                        )}
+
+                        {/* Tarjetas informativas para IA Assistant */}
+                        {section.id === 'ai-assistant' && (
+                          <div className="space-y-3">
+                            <InfoCard
+                              id={`help-${section.id}-power`}
+                              title="⚡ Potencia de la IA"
+                              description="El asistente de IA no solo responde automáticamente, sino que analiza patrones, identifica oportunidades de mejora y optimiza tu flujo de trabajo sin intervención manual."
+                              type="ai"
+                              onDismiss={dismissCard}
+                            />
+                          </div>
+                        )}
+
                         <div>
                           <h4 className="font-semibold mb-4">Pasos a Seguir</h4>
                           <div className="space-y-4">
@@ -749,6 +887,54 @@ export default function HelpPage() {
                             ))}
                           </div>
                         </div>
+
+                        {/* Casos de uso prácticos para duración automática */}
+                        {section.id === 'automatic-duration' && (
+                          <div>
+                            <h4 className="font-semibold mb-4">💼 Casos de Uso Prácticos</h4>
+                            <div className="grid gap-4 md:grid-cols-2">
+                              <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                                <h5 className="font-medium text-blue-900 dark:text-blue-100 mb-2">Consulta Médica</h5>
+                                <div className="text-sm space-y-1">
+                                  <p><strong>Email:</strong> &ldquo;Necesito una revisión de mi diabetes, tengo los análisis listos&rdquo;</p>
+                                  <p><strong>Regla:</strong> &ldquo;revisión diabetes&rdquo; = 45 min</p>
+                                  <p><strong>IA detecta:</strong> Seguimiento con resultados = duración estándar</p>
+                                  <p><strong>Resultado:</strong> 45 minutos (alta confianza)</p>
+                                </div>
+                              </div>
+                              
+                              <div className="p-4 border rounded-lg bg-green-50 dark:bg-green-900/20">
+                                <h5 className="font-medium text-green-900 dark:text-green-100 mb-2">Servicio de Belleza</h5>
+                                <div className="text-sm space-y-1">
+                                  <p><strong>Email:</strong> &ldquo;Quiero un corte y un tratamiento de hidratación completo&rdquo;</p>
+                                  <p><strong>Regla:</strong> &ldquo;corte&rdquo; = 30 min</p>
+                                  <p><strong>IA detecta:</strong> Servicios múltiples = tiempo extendido</p>
+                                  <p><strong>Resultado:</strong> 90 minutos (combinación inteligente)</p>
+                                </div>
+                              </div>
+                              
+                              <div className="p-4 border rounded-lg bg-purple-50 dark:bg-purple-900/20">
+                                <h5 className="font-medium text-purple-900 dark:text-purple-100 mb-2">Consultoría</h5>
+                                <div className="text-sm space-y-1">
+                                  <p><strong>Email:</strong> &ldquo;Primera reunión para discutir estrategia digital integral&rdquo;</p>
+                                  <p><strong>Regla:</strong> &ldquo;primera reunión&rdquo; = 60 min</p>
+                                  <p><strong>IA detecta:</strong> Proyecto complejo = tiempo adicional</p>
+                                  <p><strong>Resultado:</strong> 90 minutos (ajuste inteligente)</p>
+                                </div>
+                              </div>
+                              
+                              <div className="p-4 border rounded-lg bg-orange-50 dark:bg-orange-900/20">
+                                <h5 className="font-medium text-orange-900 dark:text-orange-100 mb-2">Terapia</h5>
+                                <div className="text-sm space-y-1">
+                                  <p><strong>Email:</strong> &ldquo;Necesito hablar, he tenido una semana muy difícil&rdquo;</p>
+                                  <p><strong>Regla:</strong> Sin coincidencia directa</p>
+                                  <p><strong>IA detecta:</strong> Sesión de apoyo emocional = tiempo estándar</p>
+                                  <p><strong>Resultado:</strong> 60 minutos (duración de respaldo)</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
 
                         {section.content.videoUrl && (
                           <div>

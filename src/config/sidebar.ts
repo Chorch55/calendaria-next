@@ -2,7 +2,6 @@
 import { 
   Calendar, 
   Users,
-  PhoneCall, 
   Inbox,
   Settings,
   CreditCard,
@@ -32,19 +31,19 @@ export const sidebarConfig: SidebarConfig = {
       icon: Calendar,
     },
     {
-      title: 'inbox',
-      href: '/dashboard/inbox',
-      icon: Inbox,
-    },
-    {
       title: 'contacts',
       href: '/dashboard/contacts',
       icon: Contact,
     },
     {
-      title: 'phone_calls',
-      href: '/dashboard/phone-calls',
-      icon: PhoneCall,
+      title: 'appointment_management',
+      href: '/dashboard/appointment-management',
+      icon: Calendar,
+    },
+    {
+      title: 'assistant',
+      href: '/dashboard/assistant',
+      icon: Bot,
     },
     {
       title: 'tasks',
@@ -60,14 +59,14 @@ export const sidebarConfig: SidebarConfig = {
       title: 'time_tracking',
       href: '/dashboard/time-tracking',
       icon: Clock,
-    },
-    {
-      title: 'assistant',
-      href: '/dashboard/assistant',
-      icon: Bot,
     }
   ],
   secondaryNav: [
+    {
+      title: 'inbox',
+      href: '/dashboard/inbox',
+      icon: Inbox,
+    },
     {
       title: 'settings',
       href: '/dashboard/settings',

@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,15 +16,18 @@ import {
   CalendarClock,
   TrendingUp,
   Clock,
+  Users,
   Calendar,
   MessageSquare,
   Mail,
   Phone,
   CheckCircle,
+  XCircle,
   Timer,
   BarChart3,
   Star,
   PlusCircle,
+  Settings,
   Globe
 } from "lucide-react";
 

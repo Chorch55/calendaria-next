@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,15 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import InfoCard, { useInfoCards } from "@/components/ui/info-card";
+import EmailDurationTest from "@/components/email-duration-test";
+import AutomaticDurationStats from "@/components/automatic-duration-stats";
+import EnhancedOverview from '@/components/dashboard/enhanced-overview';
+import EnhancedStats from '@/components/dashboard/enhanced-stats';
+import RealtimeStatsPanel from '@/components/dashboard/realtime-stats-panel';
+
+
+
 // import { Separator } from "@/components/ui/separator";
 import { 
   Calendar,
@@ -17,15 +27,11 @@ import {
   MessageSquare,
   Mail,
   Phone,
-  Settings,
-  Users,
   CheckCircle,
   XCircle,
   AlertTriangle,
   Plus,
-  Edit3,
   Save,
-  Zap,
   Settings2,
   Trash2,
   BarChart3,
@@ -36,6 +42,25 @@ import {
   CalendarClock,
   Coffee
 } from 'lucide-react';
+
+interface AutomaticDurationRule {
+  id: string;
+  name: string;
+  keywords: string;
+  duration: number;
+  priority: number;
+  active: boolean;
+  description?: string;
+  category?: string;
+}
+
+interface AIFeedbackConfig {
+  enableFeedback: boolean;
+  feedbackCategories: string[];
+  autoLearnFromFeedback: boolean;
+  feedbackPrompt: string;
+}
+
 
 interface ChannelConfig {
   enabled: boolean;
@@ -80,7 +105,7 @@ interface ChannelConfig {
   reminderTiming: number;
   reminderUnit: 'hours' | 'days' | 'weeks';
   // Gestión de tiempos de citas
-  appointmentDurationMode: 'fixed' | 'by_service_category';
+  appointmentDurationMode: 'fixed' | 'by_service_category' | 'automatic';
   defaultAppointmentDuration: number; // en minutos
   serviceCategoryDurations: Array<{
     id: string;
@@ -88,6 +113,14 @@ interface ChannelConfig {
     duration: number; // en minutos
     active: boolean;
   }>;
+  // Sistema de duración automática por contenido de email
+  automaticDurationRules: AutomaticDurationRule[];
+  enableAIAnalysis: boolean;
+  aiAnalysisPrompt: string;
+  fallbackDuration: number;
+  confidenceThreshold: number;
+  // Sistema de feedback de IA
+  aiFeedbackConfig: AIFeedbackConfig;
   // Horarios de atención simplificados (copiado de WhatsApp)
   businessHours: {
     enabled: boolean;
@@ -137,6 +170,8 @@ interface ServiceType {
 export default function AppointmentManagementPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
+  const { dismissCard } = useInfoCards();
 
   // Valores por defecto para canales básicos (sin funcionalidades avanzadas)
   const getBasicChannelDefaults = () => ({
@@ -180,6 +215,19 @@ export default function AppointmentManagementPage() {
       duration: number;
       active: boolean;
     }>,
+    // Sistema de duración automática por contenido de email
+    automaticDurationRules: [] as AutomaticDurationRule[],
+    enableAIAnalysis: false,
+    aiAnalysisPrompt: 'Analiza el siguiente email y determina la duración apropiada para la cita en base al contenido. Considera la complejidad del asunto mencionado.',
+    fallbackDuration: 60,
+    confidenceThreshold: 0.7,
+    // Sistema de feedback de IA
+    aiFeedbackConfig: {
+      enableFeedback: true,
+      feedbackCategories: ['precisión', 'relevancia', 'utilidad', 'claridad'],
+      autoLearnFromFeedback: true,
+      feedbackPrompt: 'Proporciona feedback sobre la precisión del análisis de duración y sugerencias de mejora.'
+    },
     // Horarios de atención simplificados (copiado de WhatsApp)
     businessHours: {
       enabled: false,
@@ -439,7 +487,7 @@ export default function AppointmentManagementPage() {
     reminderUnit: 'hours',
     finalConfirmationMethod: 'email', // Valor por defecto para email
     // Gestión de tiempos de citas (adaptado)
-    appointmentDurationMode: 'by_service_category',
+    appointmentDurationMode: 'automatic',
     defaultAppointmentDuration: 60,
     serviceCategoryDurations: [
       {
@@ -461,6 +509,63 @@ export default function AppointmentManagementPage() {
         active: true
       }
     ],
+    // Sistema de duración automática por contenido de email
+    automaticDurationRules: [
+      {
+        id: '1',
+        name: 'Consulta rápida',
+        keywords: 'consulta rápida|pregunta|duda simple|información básica|quick|breve',
+        duration: 15,
+        priority: 1,
+        active: true,
+        description: 'Para consultas simples o preguntas básicas',
+        category: 'consulta'
+      },
+      {
+        id: '2',
+        name: 'Consulta estándar',
+        keywords: 'consulta|cita|revisión|checkup|evaluación|consulta general',
+        duration: 30,
+        priority: 2,
+        active: true,
+        description: 'Consulta estándar de rutina',
+        category: 'consulta'
+      },
+      {
+        id: '3',
+        name: 'Primera visita',
+        keywords: 'primera vez|primera consulta|primera cita|nuevo paciente|primera visita|inicial',
+        duration: 60,
+        priority: 3,
+        active: true,
+        description: 'Primera visita o consulta inicial',
+        category: 'inicial'
+      },
+      {
+        id: '4',
+        name: 'Tratamiento especializado',
+        keywords: 'tratamiento|terapia|procedimiento|intervención|especializado|cirugía menor',
+        duration: 90,
+        priority: 4,
+        active: true,
+        description: 'Tratamientos especializados que requieren más tiempo',
+        category: 'tratamiento'
+      },
+      {
+        id: '5',
+        name: 'Urgencia',
+        keywords: 'urgente|emergencia|dolor|inmediato|cuanto antes|prioritario',
+        duration: 45,
+        priority: 5,
+        active: true,
+        description: 'Citas urgentes que requieren atención prioritaria',
+        category: 'urgencia'
+      }
+    ] as AutomaticDurationRule[],
+    enableAIAnalysis: true,
+    aiAnalysisPrompt: 'Analiza el siguiente email para determinar la duración apropiada de la cita médica/profesional. Considera: el tipo de consulta mencionada, la complejidad del problema descrito, si es primera visita, si menciona tratamientos específicos, y el nivel de urgencia. Devuelve la duración en minutos (15, 30, 45, 60, 90) y un nivel de confianza del 0 al 1.',
+    fallbackDuration: 60,
+    confidenceThreshold: 0.6,
     // Horarios específicos para email (más flexibles)
     businessHours: {
       enabled: true,
@@ -486,21 +591,122 @@ export default function AppointmentManagementPage() {
     whatsappOutOfHoursMessage: ''
   });
 
+  // Configuración del canal de Llamadas (Phone)
   const [phoneConfig, setPhoneConfig] = useState<ChannelConfig>({
     enabled: true,
-    maxAdvanceBooking: 60,
+    maxAdvanceBooking: 14,
     minAdvanceBooking: 1,
-    businessHoursOnly: false,
-    customMessage: 'Gracias por llamar. Te ayudo a reservar una cita. ¿Qué día te gustaría venir?',
-    confirmationTemplate: 'Perfecto, he agendado tu cita para el {date} a las {time}. ¿Necesitas que te recuerde?',
+    businessHoursOnly: true,
+    customMessage: 'Gracias por llamar. Le ayudaremos a programar su cita. Por favor, proporciónenos sus datos.',
+    confirmationTemplate: 'Su cita está confirmada para el {date} a las {time}. Le enviaremos un recordatorio 24 horas antes.',
     maxSlotsPerDay: 12,
     allowCancellation: true,
-    cancellationDeadline: 2,
+    cancellationDeadline: 12,
     ...getBasicChannelDefaults(),
-    // Configuraciones específicas para Teléfono
-    autoConfirm: true,
+    // Configuraciones específicas para llamadas telefónicas
+    stepByStepFlow: false, // Las llamadas son más directas
+    requireLocationSelection: true,
+    singleLocation: 'Oficina Central - Calle Mayor 123, Madrid',
+    allowDocumentAttachments: false, // No aplica para llamadas
+    availableLocations: [
+      { name: 'Oficina Principal', address: 'Calle Mayor 123, Madrid - Tel: 912-345-678' },
+      { name: 'Sucursal Norte', address: 'Avenida Europa 45, Barcelona - Tel: 934-567-890' },
+      { name: 'Sucursal Sur', address: 'Calle Poeta Querol 12, Valencia - Tel: 963-789-012' }
+    ],
+    // Configuración de pagos para llamadas
+    enablePaymentOptions: true,
+    paymentMethod: 'card', // Se puede tomar por teléfono
+    paymentTiming: 'advance_payment',
+    depositPercentage: 30,
+    // Confirmación específica para llamadas
+    autoConfirm: true, // Las llamadas pueden confirmarse inmediatamente
     reminderEnabled: true,
-    reminderTiming: 4
+    reminderTiming: 24,
+    reminderUnit: 'hours',
+    finalConfirmationMethod: 'phone_call',
+    // Gestión de tiempos para llamadas
+    appointmentDurationMode: 'fixed',
+    defaultAppointmentDuration: 30,
+    serviceCategoryDurations: [
+      {
+        id: '1',
+        categoryName: 'Consulta telefónica',
+        duration: 15,
+        active: true
+      },
+      {
+        id: '2',
+        categoryName: 'Cita presencial',
+        duration: 30,
+        active: true
+      },
+      {
+        id: '3',
+        categoryName: 'Consulta especializada',
+        duration: 60,
+        active: true
+      }
+    ],
+    // Configuraciones específicas para llamadas
+    automaticDurationRules: [
+      {
+        id: '1',
+        name: 'Consulta rápida telefónica',
+        keywords: 'pregunta rápida|consulta breve|información|dudas',
+        duration: 15,
+        priority: 1,
+        active: true,
+        description: 'Consultas telefónicas breves',
+        category: 'telefonica'
+      },
+      {
+        id: '2',
+        name: 'Cita presencial estándar',
+        keywords: 'cita|visita|consulta presencial|revisión',
+        duration: 30,
+        priority: 2,
+        active: true,
+        description: 'Citas presenciales estándar',
+        category: 'presencial'
+      },
+      {
+        id: '3',
+        name: 'Primera consulta',
+        keywords: 'primera vez|nuevo|inicial|primera cita',
+        duration: 45,
+        priority: 3,
+        active: true,
+        description: 'Primera consulta presencial',
+        category: 'inicial'
+      }
+    ] as AutomaticDurationRule[],
+    enableAIAnalysis: false, // No aplica para llamadas en tiempo real
+    aiAnalysisPrompt: '',
+    fallbackDuration: 30,
+    confidenceThreshold: 0.7,
+    // Horarios telefónicos
+    businessHours: {
+      enabled: true,
+      schedule: [
+        { day: 'Lunes', startTime: '09:00', endTime: '18:00', enabled: true },
+        { day: 'Martes', startTime: '09:00', endTime: '18:00', enabled: true },
+        { day: 'Miércoles', startTime: '09:00', endTime: '18:00', enabled: true },
+        { day: 'Jueves', startTime: '09:00', endTime: '18:00', enabled: true },
+        { day: 'Viernes', startTime: '09:00', endTime: '18:00', enabled: true },
+        { day: 'Sábado', startTime: '10:00', endTime: '14:00', enabled: true },
+        { day: 'Domingo', startTime: '00:00', endTime: '00:00', enabled: false }
+      ]
+    },
+    outOfHoursMessage: 'Gracias por llamar. Nuestro horario de atención telefónica es de lunes a viernes de 9:00 a 18:00, y sábados de 10:00 a 14:00. Por favor, llame en horario de oficina o deje un mensaje.',
+    // Configuraciones no aplicables para llamadas
+    whatsappMessageAnalysis: false,
+    whatsappSentimentAnalysis: false,
+    whatsappTimeStatistics: false,
+    whatsappAutoResponse: false,
+    whatsappAIResponseLevel: 'basic',
+    whatsappResponseTemplates: [],
+    whatsappBusinessHours: { enabled: false, schedule: [] },
+    whatsappOutOfHoursMessage: ''
   });
 
   // Tipos de servicios
@@ -561,6 +767,156 @@ export default function AppointmentManagementPage() {
     }
   };
 
+  const updateDaySchedule = (channel: string, dayIndex: number, key: string, value: unknown) => {
+    setHasUnsavedChanges(true);
+    try {
+      switch (channel) {
+        case 'web':
+          setWebConfig(prev => ({
+            ...prev,
+            businessHours: {
+              ...prev.businessHours,
+              schedule: prev.businessHours.schedule.map((day, index) =>
+                index === dayIndex ? { ...day, [key]: value } : day
+              )
+            }
+          }));
+          break;
+        case 'whatsapp':
+          setWhatsappConfig(prev => ({
+            ...prev,
+            businessHours: {
+              ...prev.businessHours,
+              schedule: prev.businessHours.schedule.map((day, index) =>
+                index === dayIndex ? { ...day, [key]: value } : day
+              )
+            }
+          }));
+          break;
+        case 'email':
+          setEmailConfig(prev => ({
+            ...prev,
+            businessHours: {
+              ...prev.businessHours,
+              schedule: prev.businessHours.schedule.map((day, index) =>
+                index === dayIndex ? { ...day, [key]: value } : day
+              )
+            }
+          }));
+          break;
+        case 'phone':
+          setPhoneConfig(prev => ({
+            ...prev,
+            businessHours: {
+              ...prev.businessHours,
+              schedule: prev.businessHours.schedule.map((day, index) =>
+                index === dayIndex ? { ...day, [key]: value } : day
+              )
+            }
+          }));
+          break;
+        default:
+          console.warn(`Canal desconocido: ${channel}`);
+      }
+    } catch (error) {
+      console.error(`Error actualizando horario para ${channel}:`, error);
+    }
+  };
+
+  const updateServiceCategory = (channel: string, categoryIndex: number, key: string, value: unknown) => {
+    setHasUnsavedChanges(true);
+    try {
+      switch (channel) {
+        case 'web':
+          setWebConfig(prev => ({
+            ...prev,
+            serviceCategoryDurations: prev.serviceCategoryDurations.map((category, index) =>
+              index === categoryIndex ? { ...category, [key]: value } : category
+            )
+          }));
+          break;
+        case 'whatsapp':
+          setWhatsappConfig(prev => ({
+            ...prev,
+            serviceCategoryDurations: prev.serviceCategoryDurations.map((category, index) =>
+              index === categoryIndex ? { ...category, [key]: value } : category
+            )
+          }));
+          break;
+        case 'email':
+          setEmailConfig(prev => ({
+            ...prev,
+            serviceCategoryDurations: prev.serviceCategoryDurations.map((category, index) =>
+              index === categoryIndex ? { ...category, [key]: value } : category
+            )
+          }));
+          break;
+        case 'phone':
+          setPhoneConfig(prev => ({
+            ...prev,
+            serviceCategoryDurations: prev.serviceCategoryDurations.map((category, index) =>
+              index === categoryIndex ? { ...category, [key]: value } : category
+            )
+          }));
+          break;
+        default:
+          console.warn(`Canal desconocido: ${channel}`);
+      }
+    } catch (error) {
+      console.error(`Error actualizando categoría de servicio para ${channel}:`, error);
+    }
+  };
+
+  const handleConfigChange = (channel: string) => {
+    setActiveTab(channel);
+  };
+
+  // Función para validar configuración de duración automática
+  const validateAutomaticDurationConfig = (config: ChannelConfig) => {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+
+    if (config.appointmentDurationMode === 'automatic') {
+      const activeRules = config.automaticDurationRules.filter(rule => rule.active);
+      
+      if (activeRules.length === 0 && !config.enableAIAnalysis) {
+        warnings.push('Modo automático activado pero no hay reglas activas ni análisis de IA habilitado');
+      }
+
+      if (config.confidenceThreshold > 0.9) {
+        warnings.push('Umbral de confianza muy alto puede resultar en uso frecuente de duración de respaldo');
+      }
+
+      if (config.fallbackDuration <= 0) {
+        errors.push('La duración de respaldo debe ser mayor a 0');
+      }
+
+      if (config.confidenceThreshold < 0 || config.confidenceThreshold > 1) {
+        errors.push('El umbral de confianza debe estar entre 0 y 1');
+      }
+
+      // Validar reglas
+      activeRules.forEach((rule) => {
+        if (!rule.keywords.trim()) {
+          warnings.push(`Regla "${rule.name}" no tiene palabras clave definidas`);
+        }
+
+        if (rule.duration <= 0) {
+          errors.push(`Regla "${rule.name}" tiene duración inválida`);
+        }
+      });
+
+      // Verificar solapamiento de prioridades
+      const priorities = activeRules.map(rule => rule.priority);
+      const uniquePriorities = new Set(priorities);
+      if (priorities.length !== uniquePriorities.size) {
+        warnings.push('Algunas reglas tienen la misma prioridad, esto puede causar comportamiento impredecible');
+      }
+    }
+
+    return { errors, warnings };
+  };
+
   const saveAllSettings = () => {
     // Aquí iría la lógica para guardar en el backend
     setHasUnsavedChanges(false);
@@ -576,6 +932,10 @@ export default function AppointmentManagementPage() {
       default: return <Calendar className="h-5 w-5" />;
     }
   };
+
+
+
+
 
   const renderWhatsAppSettings = (config: ChannelConfig) => (
     <div className="space-y-6">
@@ -1938,6 +2298,7 @@ export default function AppointmentManagementPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="fixed">Duración fija</SelectItem>
+                    <SelectItem value="by_service_category">Por categoría de servicio</SelectItem>
                     <SelectItem value="automatic">Duración automática por contenido</SelectItem>
                   </SelectContent>
                 </Select>
@@ -1955,96 +2316,710 @@ export default function AppointmentManagementPage() {
                 </div>
               )}
 
-              {/* NOTA: Sistema automático temporalmente comentado
               {config.appointmentDurationMode === 'automatic' && (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    El sistema analizará las palabras clave en el asunto y contenido del email para determinar la duración apropiada
-                  </p>
-                  
-                  <div className="space-y-3 border rounded-md p-2 bg-gray-50 dark:bg-gray-800">
-                    <Label>Reglas de duración automática</Label>
-                    {config.automaticDurationRules.map((rule, index) => (
-                      <div key={rule.id} className="p-4 border rounded-lg space-y-3 bg-gray-800 border-gray-600">
-                        <div className="flex items-center justify-between">
-                          <Label>Regla {index + 1}</Label>
-                          <Switch
-                            checked={rule.active}
-                            onCheckedChange={(checked) => {
-                              const updatedRules = [...config.automaticDurationRules];
-                              updatedRules[index].active = checked;
-                              updateChannelConfig('email', 'automaticDurationRules', updatedRules);
-                            }}
-                          />
-                        </div>
-                        <div className="grid gap-2 md:grid-cols-3">
-                          <div className="space-y-2">
-                            <Label className="text-sm">Palabras clave (separadas por |)</Label>
-                            <Input
-                              value={rule.keywords}
-                              onChange={(e) => {
-                                const updatedRules = [...config.automaticDurationRules];
-                                updatedRules[index].keywords = e.target.value;
-                                updateChannelConfig('email', 'automaticDurationRules', updatedRules);
-                              }}
-                              placeholder="consulta|revisión|checkup"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-sm">Duración (minutos)</Label>
-                            <Input
-                              type="number"
-                              value={rule.duration}
-                              onChange={(e) => {
-                                const updatedRules = [...config.automaticDurationRules];
-                                updatedRules[index].duration = parseInt(e.target.value);
-                                updateChannelConfig('email', 'automaticDurationRules', updatedRules);
-                              }}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-sm">Acción</Label>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => {
-                                const updatedRules = config.automaticDurationRules.filter((_, i) => i !== index);
-                                updateChannelConfig('email', 'automaticDurationRules', updatedRules);
-                              }}
-                              className="w-full"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Eliminar
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                <div className="space-y-6">
+                  {/* Validación de configuración */}
+                  {(() => {
+                    const validation = validateAutomaticDurationConfig(config);
+                    const hasIssues = validation.errors.length > 0 || validation.warnings.length > 0;
                     
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        const newRule = {
-                          id: Date.now().toString(),
-                          keywords: '',
-                          duration: 60,
-                          active: true
-                        };
-                        const updatedRules = [...config.automaticDurationRules, newRule];
-                        updateChannelConfig('email', 'automaticDurationRules', updatedRules);
-                      }}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Añadir Nueva Regla
-                    </Button>
+                    if (!hasIssues) return null;
+                    
+                    return (
+                      <div className="space-y-3">
+                        {validation.errors.length > 0 && (
+                          <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+                            <div className="flex items-start gap-3">
+                              <XCircle className="h-5 w-5 text-red-600 mt-0.5" />
+                              <div>
+                                <p className="text-sm font-medium text-red-900 dark:text-red-100">
+                                  Errores de configuración
+                                </p>
+                                <ul className="text-sm text-red-700 dark:text-red-300 mt-1 list-disc list-inside">
+                                  {validation.errors.map((error, index) => (
+                                    <li key={index}>{error}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {validation.warnings.length > 0 && (
+                          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                            <div className="flex items-start gap-3">
+                              <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                              <div>
+                                <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
+                                  Advertencias de configuración
+                                </p>
+                                <ul className="text-sm text-yellow-700 dark:text-yellow-300 mt-1 list-disc list-inside">
+                                  {validation.warnings.map((warning, index) => (
+                                    <li key={index}>{warning}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-start gap-3">
+                      <Bot className="h-5 w-5 text-blue-600 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                          Sistema de Análisis Inteligente Activado
+                        </p>
+                        <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                          La IA analizará el contenido de cada email para determinar automáticamente la duración más apropiada para la cita.
+                        </p>
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Configuración de IA */}
+                  <Card className="border border-slate-200 dark:border-slate-700">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Settings2 className="h-4 w-4" />
+                        Configuración de IA
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={config.enableAIAnalysis}
+                          onCheckedChange={(checked) => updateChannelConfig('email', 'enableAIAnalysis', checked)}
+                        />
+                        <Label>Activar análisis inteligente con IA</Label>
+                      </div>
+
+                      {config.enableAIAnalysis && (
+                        <div className="space-y-4 pl-6 border-l-2 border-blue-200 dark:border-blue-800">
+                          <div className="space-y-2">
+                            <Label htmlFor="ai-analysis-prompt">Prompt para la IA</Label>
+                            <Textarea
+                              id="ai-analysis-prompt"
+                              value={config.aiAnalysisPrompt}
+                              onChange={(e) => updateChannelConfig('email', 'aiAnalysisPrompt', e.target.value)}
+                              rows={3}
+                              placeholder="Instrucciones para la IA sobre cómo analizar los emails..."
+                            />
+                          </div>
+
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                              <Label htmlFor="confidence-threshold">Umbral de confianza</Label>
+                              <Input
+                                id="confidence-threshold"
+                                type="number"
+                                min="0"
+                                max="1"
+                                step="0.1"
+                                value={config.confidenceThreshold}
+                                onChange={(e) => updateChannelConfig('email', 'confidenceThreshold', parseFloat(e.target.value))}
+                              />
+                              <p className="text-xs text-muted-foreground">
+                                Nivel mínimo de confianza para aplicar la duración sugerida (0-1)
+                              </p>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="fallback-duration">Duración de respaldo (min)</Label>
+                              <Input
+                                id="fallback-duration"
+                                type="number"
+                                value={config.fallbackDuration}
+                                onChange={(e) => updateChannelConfig('email', 'fallbackDuration', parseInt(e.target.value))}
+                              />
+                              <p className="text-xs text-muted-foreground">
+                                Duración usada cuando la IA no puede determinar una con suficiente confianza
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Configuración de Feedback de IA */}
+                          <div className="space-y-4 p-4 bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 rounded-lg border border-emerald-200 dark:border-emerald-700">
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center space-x-2">
+                                <Switch
+                                  checked={config.aiFeedbackConfig.enableFeedback}
+                                  onCheckedChange={(checked) => 
+                                    updateChannelConfig('email', 'aiFeedbackConfig', {
+                                      ...config.aiFeedbackConfig,
+                                      enableFeedback: checked
+                                    })
+                                  }
+                                />
+                                <Label>Activar sistema de feedback inteligente</Label>
+                              </div>
+                            </div>
+
+                            {config.aiFeedbackConfig.enableFeedback && (
+                              <div className="space-y-4 pl-6">
+                                <InfoCard
+                                  id="feedback-how-it-works"
+                                  title="¿Cómo funciona el feedback?"
+                                  description="El sistema aprende de tus correcciones para mejorar futuras predicciones. Puedes calificar cada análisis y la IA ajustará sus algoritmos automáticamente."
+                                  type="feature"
+                                  onDismiss={dismissCard}
+                                />
+
+                                <div className="space-y-2">
+                                  <Label htmlFor="feedback-prompt">Prompt para feedback</Label>
+                                  <Textarea
+                                    id="feedback-prompt"
+                                    value={config.aiFeedbackConfig.feedbackPrompt}
+                                    onChange={(e) => 
+                                      updateChannelConfig('email', 'aiFeedbackConfig', {
+                                        ...config.aiFeedbackConfig,
+                                        feedbackPrompt: e.target.value
+                                      })
+                                    }
+                                    rows={2}
+                                    placeholder="Instrucciones para generar feedback sobre el análisis..."
+                                  />
+                                </div>
+
+                                <div className="space-y-2">
+                                  <Label>Categorías de feedback</Label>
+                                  <div className="flex flex-wrap gap-2">
+                                    {config.aiFeedbackConfig.feedbackCategories.map((category, idx) => (
+                                      <Badge key={idx} variant="outline" className="text-xs">
+                                        {category}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    checked={config.aiFeedbackConfig.autoLearnFromFeedback}
+                                    onCheckedChange={(checked) => 
+                                      updateChannelConfig('email', 'aiFeedbackConfig', {
+                                        ...config.aiFeedbackConfig,
+                                        autoLearnFromFeedback: checked
+                                      })
+                                    }
+                                  />
+                                  <Label>Aprendizaje automático desde feedback</Label>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Reglas de duración automática */}
+                  <Card className="border border-slate-200 dark:border-slate-700">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Timer className="h-4 w-4" />
+                        Reglas de Duración por Palabras Clave
+                      </CardTitle>
+                      <CardDescription>
+                        Define reglas basadas en palabras clave para clasificar automáticamente la duración de las citas
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-3">
+                        {config.automaticDurationRules
+                          .sort((a, b) => a.priority - b.priority)
+                          .map((rule, index) => (
+                          <div key={rule.id} className="p-4 border rounded-lg space-y-3 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <Badge variant="outline" className="text-xs">
+                                  Prioridad {rule.priority}
+                                </Badge>
+                                <Label className="font-medium">{rule.name}</Label>
+                                <Switch
+                                  checked={rule.active}
+                                  onCheckedChange={(checked) => {
+                                    const updatedRules = [...config.automaticDurationRules];
+                                    updatedRules[index] = { ...rule, active: checked };
+                                    updateChannelConfig('email', 'automaticDurationRules', updatedRules);
+                                  }}
+                                />
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const updatedRules = config.automaticDurationRules.filter((_, i) => i !== index);
+                                  updateChannelConfig('email', 'automaticDurationRules', updatedRules);
+                                }}
+                                className="h-8 w-8 p-0"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+
+                            <div className="grid gap-3 md:grid-cols-3">
+                              <div className="space-y-2">
+                                <Label className="text-sm">Nombre de la regla</Label>
+                                <Input
+                                  value={rule.name}
+                                  onChange={(e) => {
+                                    const updatedRules = [...config.automaticDurationRules];
+                                    updatedRules[index] = { ...rule, name: e.target.value };
+                                    updateChannelConfig('email', 'automaticDurationRules', updatedRules);
+                                  }}
+                                  placeholder="Ej: Consulta rápida"
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label className="text-sm">Duración (minutos)</Label>
+                                <Input
+                                  type="number"
+                                  value={rule.duration}
+                                  onChange={(e) => {
+                                    const updatedRules = [...config.automaticDurationRules];
+                                    updatedRules[index] = { ...rule, duration: parseInt(e.target.value) };
+                                    updateChannelConfig('email', 'automaticDurationRules', updatedRules);
+                                  }}
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label className="text-sm">Prioridad</Label>
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  value={rule.priority}
+                                  onChange={(e) => {
+                                    const updatedRules = [...config.automaticDurationRules];
+                                    updatedRules[index] = { ...rule, priority: parseInt(e.target.value) };
+                                    updateChannelConfig('email', 'automaticDurationRules', updatedRules);
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-sm">Palabras clave (separadas por |)</Label>
+                              <Input
+                                value={rule.keywords}
+                                onChange={(e) => {
+                                  const updatedRules = [...config.automaticDurationRules];
+                                  updatedRules[index] = { ...rule, keywords: e.target.value };
+                                  updateChannelConfig('email', 'automaticDurationRules', updatedRules);
+                                }}
+                                placeholder="consulta|revisión|checkup"
+                              />
+                            </div>
+
+                            {rule.description && (
+                              <div className="space-y-2">
+                                <Label className="text-sm">Descripción</Label>
+                                <Textarea
+                                  value={rule.description}
+                                  onChange={(e) => {
+                                    const updatedRules = [...config.automaticDurationRules];
+                                    updatedRules[index] = { ...rule, description: e.target.value };
+                                    updateChannelConfig('email', 'automaticDurationRules', updatedRules);
+                                  }}
+                                  rows={2}
+                                  placeholder="Descripción de cuándo se aplica esta regla..."
+                                />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            const newRule: AutomaticDurationRule = {
+                              id: Date.now().toString(),
+                              name: 'Nueva regla',
+                              keywords: '',
+                              duration: 60,
+                              priority: config.automaticDurationRules.length + 1,
+                              active: true,
+                              description: '',
+                              category: 'general'
+                            };
+                            const updatedRules = [...config.automaticDurationRules, newRule];
+                            updateChannelConfig('email', 'automaticDurationRules', updatedRules);
+                          }}
+                          className="w-full"
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Añadir Nueva Regla
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Vista previa del funcionamiento */}
+                  <Card className="border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2 text-green-900 dark:text-green-100">
+                        <BarChart3 className="h-4 w-4" />
+                        Cómo Funciona el Sistema
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm text-green-800 dark:text-green-200">
+                      <ol className="list-decimal list-inside space-y-2">
+                        <li>Cuando llega un email, el sistema analiza el asunto y contenido</li>
+                        <li>Busca coincidencias con las palabras clave de las reglas activas</li>
+                        <li>Si hay múltiples coincidencias, aplica la regla con mayor prioridad</li>
+                        <li>Si está activada la IA, también analiza el contexto general</li>
+                        <li>Si la confianza es alta, usa la duración sugerida; si no, usa la de respaldo</li>
+                      </ol>
+                    </CardContent>
+                  </Card>
+
+                  {/* Componente de prueba */}
+                  <EmailDurationTest
+                    rules={config.automaticDurationRules.filter(rule => rule.active)}
+                    customPrompt={config.aiAnalysisPrompt}
+                    confidenceThreshold={config.confidenceThreshold}
+                    fallbackDuration={config.fallbackDuration}
+                  />
                 </div>
               )}
-              */}
             </div>
           </CardContent>
         </Card>
       )}
+    </div>
+  );
+
+  const renderPhoneSettings = (config: ChannelConfig) => (
+    <div className="space-y-6">
+      {/* Estado del canal */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Phone className="h-5 w-5 text-green-500" />
+              <div>
+                <CardTitle>Llamadas Telefónicas</CardTitle>
+                <CardDescription>
+                  Configuración para reservas por teléfono
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={config.enabled}
+                onCheckedChange={(checked) => updateChannelConfig('phone', 'enabled', checked)}
+              />
+              <Badge variant={config.enabled ? "default" : "secondary"}>
+                {config.enabled ? 'Activo' : 'Inactivo'}
+              </Badge>
+            </div>
+          </div>
+        </CardHeader>
+
+        {config.enabled && (
+          <CardContent className="space-y-6">
+            {/* Configuración de timing */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="phone-max-advance">Máximo días de anticipación</Label>
+                <Input
+                  id="phone-max-advance"
+                  type="number"
+                  value={config.maxAdvanceBooking}
+                  onChange={(e) => updateChannelConfig('phone', 'maxAdvanceBooking', parseInt(e.target.value))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone-min-advance">Mínimo horas de anticipación</Label>
+                <Input
+                  id="phone-min-advance"
+                  type="number"
+                  value={config.minAdvanceBooking}
+                  onChange={(e) => updateChannelConfig('phone', 'minAdvanceBooking', parseInt(e.target.value))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone-max-slots">Máximo citas por día</Label>
+                <Input
+                  id="phone-max-slots"
+                  type="number"
+                  value={config.maxSlotsPerDay}
+                  onChange={(e) => updateChannelConfig('phone', 'maxSlotsPerDay', parseInt(e.target.value))}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone-cancellation-deadline">Plazo cancelación (horas)</Label>
+                <Input
+                  id="phone-cancellation-deadline"
+                  type="number"
+                  value={config.cancellationDeadline}
+                  onChange={(e) => updateChannelConfig('phone', 'cancellationDeadline', parseInt(e.target.value))}
+                />
+              </div>
+            </div>
+
+            {/* Configuración de permisos */}
+            <div className="grid gap-4 md:grid-cols-1">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={config.allowCancellation}
+                  onCheckedChange={(checked) => updateChannelConfig('phone', 'allowCancellation', checked)}
+                />
+                <Label>Permitir cancelación de citas</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={config.autoConfirm}
+                  onCheckedChange={(checked) => updateChannelConfig('phone', 'autoConfirm', checked)}
+                />
+                <Label>Confirmación automática (durante la llamada)</Label>
+              </div>
+            </div>
+
+            {/* Mensajes personalizados */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="phone-custom-message">Script de bienvenida telefónica</Label>
+                <Textarea
+                  id="phone-custom-message"
+                  value={config.customMessage}
+                  onChange={(e) => updateChannelConfig('phone', 'customMessage', e.target.value)}
+                  rows={3}
+                  placeholder="Script para el saludo inicial en llamadas..."
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone-confirmation-template">Plantilla de confirmación verbal</Label>
+                <Textarea
+                  id="phone-confirmation-template"
+                  value={config.confirmationTemplate}
+                  onChange={(e) => updateChannelConfig('phone', 'confirmationTemplate', e.target.value)}
+                  rows={4}
+                  placeholder="Script para confirmar la cita durante la llamada..."
+                />
+                <p className="text-sm text-muted-foreground">
+                  Variables disponibles: {'{date}'}, {'{time}'}, {'{service}'}, {'{booking_id}'}
+                </p>
+              </div>
+            </div>
+
+            {/* Configuración de Horarios Telefónicos */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock3 className="h-5 w-5 text-blue-500" />
+                  Horarios de Atención Telefónica
+                </CardTitle>
+                <CardDescription>
+                  Configuración de disponibilidad para recibir llamadas
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={config.businessHoursOnly}
+                    onCheckedChange={(checked) => updateChannelConfig('phone', 'businessHoursOnly', checked)}
+                  />
+                  <Label>Solo en horario de oficina</Label>
+                </div>
+
+                {config.businessHoursOnly && config.businessHours && (
+                  <div className="space-y-3">
+                    <Label>Horarios de atención telefónica</Label>
+                    {config.businessHours.schedule.map((day, index) => (
+                      <div key={day.day} className="flex items-center gap-4">
+                        <div className="w-20 text-sm">{day.day}</div>
+                        <Switch
+                          checked={day.enabled}
+                          onCheckedChange={(checked) => updateDaySchedule('phone', index, 'enabled', checked)}
+                        />
+                        {day.enabled && (
+                          <>
+                            <Input
+                              type="time"
+                              value={day.startTime}
+                              onChange={(e) => updateDaySchedule('phone', index, 'startTime', e.target.value)}
+                              className="w-32"
+                            />
+                            <span className="text-muted-foreground">-</span>
+                            <Input
+                              type="time"
+                              value={day.endTime}
+                              onChange={(e) => updateDaySchedule('phone', index, 'endTime', e.target.value)}
+                              className="w-32"
+                            />
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone-out-of-hours">Mensaje fuera de horario</Label>
+                  <Textarea
+                    id="phone-out-of-hours"
+                    value={config.outOfHoursMessage}
+                    onChange={(e) => updateChannelConfig('phone', 'outOfHoursMessage', e.target.value)}
+                    rows={3}
+                    placeholder="Mensaje para el contestador automático..."
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Configuración de Recordatorios */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Phone className="h-5 w-5 text-purple-500" />
+                  Recordatorios y Confirmaciones
+                </CardTitle>
+                <CardDescription>
+                  Sistema de recordatorios para citas telefónicas
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={config.reminderEnabled}
+                    onCheckedChange={(checked) => updateChannelConfig('phone', 'reminderEnabled', checked)}
+                  />
+                  <Label>Activar recordatorios</Label>
+                </div>
+
+                {config.reminderEnabled && (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone-reminder-timing">Tiempo antes de la cita</Label>
+                      <Input
+                        id="phone-reminder-timing"
+                        type="number"
+                        value={config.reminderTiming}
+                        onChange={(e) => updateChannelConfig('phone', 'reminderTiming', parseInt(e.target.value))}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="phone-reminder-unit">Unidad de tiempo</Label>
+                      <Select
+                        value={config.reminderUnit}
+                        onValueChange={(value) => updateChannelConfig('phone', 'reminderUnit', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hours">Horas</SelectItem>
+                          <SelectItem value="days">Días</SelectItem>
+                          <SelectItem value="weeks">Semanas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone-confirmation-method">Método de confirmación final</Label>
+                  <Select
+                    value={config.finalConfirmationMethod}
+                    onValueChange={(value) => updateChannelConfig('phone', 'finalConfirmationMethod', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="phone_call">Llamada telefónica</SelectItem>
+                      <SelectItem value="sms">SMS</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                      <SelectItem value="multiple">Múltiples canales</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Configuración de Duración de Citas */}
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Timer className="h-5 w-5 text-orange-500" />
+                  Duración de Citas Telefónicas
+                </CardTitle>
+                <CardDescription>
+                  Gestión de tiempos para citas programadas por teléfono
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone-duration-mode">Modo de duración</Label>
+                  <Select
+                    value={config.appointmentDurationMode}
+                    onValueChange={(value) => updateChannelConfig('phone', 'appointmentDurationMode', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fixed">Duración fija</SelectItem>
+                      <SelectItem value="by_service_category">Por categoría de servicio</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone-default-duration">Duración por defecto (minutos)</Label>
+                  <Input
+                    id="phone-default-duration"
+                    type="number"
+                    value={config.defaultAppointmentDuration}
+                    onChange={(e) => updateChannelConfig('phone', 'defaultAppointmentDuration', parseInt(e.target.value))}
+                  />
+                </div>
+
+                {config.appointmentDurationMode === 'by_service_category' && (
+                  <div className="space-y-4">
+                    <Label>Duraciones por categoría</Label>
+                    {config.serviceCategoryDurations.map((category, index) => (
+                      <div key={category.id} className="flex items-center gap-4 p-4 border rounded-lg">
+                        <Switch
+                          checked={category.active}
+                          onCheckedChange={(checked) => updateServiceCategory('phone', index, 'active', checked)}
+                        />
+                        <div className="flex-1">
+                          <Input
+                            value={category.categoryName}
+                            onChange={(e) => updateServiceCategory('phone', index, 'categoryName', e.target.value)}
+                            placeholder="Nombre de la categoría"
+                          />
+                        </div>
+                        <div className="w-32">
+                          <Input
+                            type="number"
+                            value={category.duration}
+                            onChange={(e) => updateServiceCategory('phone', index, 'duration', parseInt(e.target.value))}
+                            placeholder="Minutos"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </CardContent>
+        )}
+      </Card>
     </div>
   );
 
@@ -2668,179 +3643,67 @@ export default function AppointmentManagementPage() {
         </div>
       </div>
 
+      {/* Tarjetas informativas */}
+      <div className="space-y-3">
+        <InfoCard
+          id="welcome-info"
+          title="¡Bienvenido al sistema de gestión de citas!"
+          description="Aquí puedes configurar todos los canales de comunicación para automatizar tus reservas de citas. Cada canal tiene opciones específicas adaptadas a su funcionamiento."
+          type="success"
+          onDismiss={dismissCard}
+        />
+
+        <InfoCard
+          id="ai-system-active"
+          title="Sistema de análisis inteligente activado"
+          description="La IA analizará automáticamente el contenido de los emails para determinar la duración más apropiada de cada cita, mejorando la precisión de tus horarios."
+          type="ai"
+          onDismiss={dismissCard}
+        />
+
+        <InfoCard
+          id="how-system-works"
+          title="¿Cómo funciona el sistema?"
+          description="El sistema combina reglas personalizadas con análisis de IA. Primero aplica tus reglas específicas, luego la IA analiza el contexto para refinar la duración final."
+          type="info"
+          onDismiss={dismissCard}
+        />
+
+        <InfoCard
+          id="feedback-system"
+          title="Sistema de feedback inteligente"
+          description="La IA ahora puede recibir y aprender de feedback sobre sus análisis, mejorando continuamente la precisión de las predicciones de duración."
+          type="feature"
+          onDismiss={dismissCard}
+        />
+
+        <InfoCard
+          id="optimization-tip"
+          title="💡 Consejo de optimización"
+          description="Para mejores resultados, crea reglas específicas para los tipos de cita más comunes. La IA se encargará de los casos especiales y complejos."
+          type="tip"
+          onDismiss={dismissCard}
+        />
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Resumen</TabsTrigger>
           <TabsTrigger value="web">Web</TabsTrigger>
           <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
           <TabsTrigger value="email">Email</TabsTrigger>
-          <TabsTrigger value="phone">Teléfono</TabsTrigger>
+          <TabsTrigger value="phone">Llamadas</TabsTrigger>
+          <TabsTrigger value="stats">Estadísticas</TabsTrigger>
         </TabsList>
           <TabsContent value="overview" className="space-y-6">
-            <div className="space-y-6">
-            {/* Resumen general */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Canales Activos</CardTitle>
-                <Settings className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {[webConfig, whatsappConfig, emailConfig, phoneConfig].filter(c => c.enabled).length}/4
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Canales de reserva habilitados
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Citas por Día</CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {Math.max(webConfig.maxSlotsPerDay, whatsappConfig.maxSlotsPerDay, emailConfig.maxSlotsPerDay, phoneConfig.maxSlotsPerDay)}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Máximo permitido
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Confirmación Auto</CardTitle>
-                <Zap className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {[webConfig, whatsappConfig, emailConfig, phoneConfig].filter(c => c.autoConfirm && c.enabled).length}/4
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Canales con auto-confirmación
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Servicios Activos</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {services.filter(s => s.enabled).length}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Tipos de servicios disponibles
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Estado de cada canal */}
-          <div className="grid gap-4 md:grid-cols-2">
-            {[
-              { key: 'web', name: 'Página Web', config: webConfig, icon: <Globe className="h-5 w-5" /> },
-              { key: 'whatsapp', name: 'WhatsApp', config: whatsappConfig, icon: <MessageSquare className="h-5 w-5" /> },
-              { key: 'email', name: 'Email', config: emailConfig, icon: <Mail className="h-5 w-5" /> },
-              { key: 'phone', name: 'Teléfono', config: phoneConfig, icon: <Phone className="h-5 w-5" /> }
-            ].map((channel) => (
-              <Card key={channel.key} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {channel.icon}
-                      <div>
-                        <CardTitle className="text-lg">{channel.name}</CardTitle>
-                        <CardDescription>
-                          {channel.config.enabled ? 'Activo' : 'Inactivo'} • 
-                          {channel.config.autoConfirm ? ' Auto-confirmación' : ' Confirmación manual'}
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <Badge variant={channel.config.enabled ? "default" : "secondary"}>
-                      {channel.config.enabled ? <CheckCircle className="h-3 w-3 mr-1" /> : <XCircle className="h-3 w-3 mr-1" />}
-                      {channel.config.enabled ? 'Activo' : 'Inactivo'}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Max. citas/día:</span>
-                      <span className="font-medium">{channel.config.maxSlotsPerDay}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Anticipación máx:</span>
-                      <span className="font-medium">{channel.config.maxAdvanceBooking} días</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Recordatorios:</span>
-                      <span className="font-medium">
-                        {channel.config.reminderEnabled ? `${channel.config.reminderTiming}h antes` : 'Desactivado'}
-                      </span>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full mt-4"
-                    onClick={() => setActiveTab(channel.key)}
-                  >
-                    <Edit3 className="h-4 w-4 mr-2" />
-                    Configurar
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Servicios disponibles */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Servicios Disponibles
-              </CardTitle>
-              <CardDescription>
-                Gestiona los tipos de servicios que los clientes pueden reservar
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {services.map((service) => (
-                  <div key={service.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${service.enabled ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                      <div>
-                        <h4 className="font-medium">{service.name}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {service.duration} min • €{service.price} • Máx. {service.maxBookingsPerDay}/día
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {service.requiresPrePayment && (
-                        <Badge variant="outline">Prepago</Badge>
-                      )}
-                      <Button variant="ghost" size="sm">
-                        <Edit3 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                <Button variant="outline" className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Añadir Nuevo Servicio
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-            </div>
+            <EnhancedOverview
+              webConfig={webConfig}
+              whatsappConfig={whatsappConfig}
+              emailConfig={emailConfig}
+              phoneConfig={phoneConfig}
+              services={services}
+              onConfigChange={handleConfigChange}
+            />
         </TabsContent>
 
           <TabsContent value="web" className="space-y-6">
@@ -2863,8 +3726,34 @@ export default function AppointmentManagementPage() {
 
           <TabsContent value="phone" className="space-y-6">
             <div className="space-y-6">
-              {renderChannelSettings('phone', phoneConfig)}
+              {renderPhoneSettings(phoneConfig)}
             </div>
+          </TabsContent>
+
+          <TabsContent value="stats" className="space-y-6">
+            <EnhancedStats 
+              timeRange={timeRange}
+              onTimeRangeChange={setTimeRange}
+            />
+            
+            {/* Panel de métricas en tiempo real */}
+            <RealtimeStatsPanel />
+            
+            {/* Mantener las estadísticas del sistema de duración automática */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Estadísticas del Sistema de Duración Automática
+                </CardTitle>
+                <CardDescription>
+                  Análisis de rendimiento y métricas del sistema de duración automática por contenido de email
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AutomaticDurationStats config={emailConfig} />
+              </CardContent>
+            </Card>
           </TabsContent>
       </Tabs>
     </div>
