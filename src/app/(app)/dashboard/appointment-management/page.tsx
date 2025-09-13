@@ -1403,16 +1403,28 @@ export default function AppointmentManagementPage() {
             </CardContent>
           </Card>
 
-          {/* Horarios de Atención para Agendar Citas */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock3 className="h-5 w-5" />
-                Horarios de Atención para Agendar Citas
-              </CardTitle>
-              <CardDescription>
-                Define los horarios en los que se pueden agendar citas por WhatsApp
-              </CardDescription>
+          {/* Horarios de Atención para Agendar Citas - Mejorado */}
+          <Card className="shadow-xl border-2 border-green-100 dark:border-green-800 hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500"></div>
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-b">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                    <Clock3 className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-bold bg-gradient-to-r from-green-700 to-emerald-700 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">
+                      ⏰ Horarios de Atención WhatsApp
+                    </CardTitle>
+                    <CardDescription className="text-base mt-1">
+                      Configure cuando los clientes pueden agendar citas por WhatsApp
+                    </CardDescription>
+                  </div>
+                </div>
+                <div className="px-4 py-2 bg-green-100 dark:bg-green-900 rounded-full">
+                  <span className="text-sm font-semibold text-green-700 dark:text-green-300">💬 WhatsApp</span>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
@@ -1967,17 +1979,29 @@ export default function AppointmentManagementPage() {
         )}
       </Card>
 
-      {/* Configuración de Horarios de Atención para Agendar Citas (para Email) */}
+      {/* Configuración de Horarios de Atención para Agendar Citas (para Email) - Mejorado */}
       {config.enabled && (
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock3 className="h-5 w-5" />
-              Horarios de Procesamiento de Emails
-            </CardTitle>
-            <CardDescription>
-              Define los horarios en los que se procesan y responden emails de citas
-            </CardDescription>
+        <Card className="mt-6 shadow-xl border-2 border-purple-100 dark:border-purple-800 hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600"></div>
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-b">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
+                  <Clock3 className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold bg-gradient-to-r from-purple-700 to-pink-700 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+                    📧 Horarios de Procesamiento Email
+                  </CardTitle>
+                  <CardDescription className="text-base mt-1">
+                    Configure cuando se procesan y responden emails automáticamente
+                  </CardDescription>
+                </div>
+              </div>
+              <div className="px-4 py-2 bg-purple-100 dark:bg-purple-900 rounded-full">
+                <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">✉️ Email IA</span>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
@@ -2812,16 +2836,28 @@ export default function AppointmentManagementPage() {
               </div>
             </div>
 
-            {/* Configuración de Horarios Telefónicos */}
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock3 className="h-5 w-5 text-blue-500" />
-                  Horarios de Atención Telefónica
-                </CardTitle>
-                <CardDescription>
-                  Configuración de disponibilidad para recibir llamadas
-                </CardDescription>
+            {/* Configuración de Horarios Telefónicos - Mejorado */}
+            <Card className="mt-6 shadow-xl border-2 border-orange-100 dark:border-orange-800 hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-400 via-red-500 to-pink-500"></div>
+              <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-b">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 flex items-center justify-center shadow-lg">
+                      <Clock3 className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl font-bold bg-gradient-to-r from-orange-700 to-red-700 dark:from-orange-400 dark:to-red-400 bg-clip-text text-transparent">
+                        📞 Horarios de Atención Telefónica
+                      </CardTitle>
+                      <CardDescription className="text-base mt-1">
+                        Configure la disponibilidad para recibir y gestionar llamadas
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <div className="px-4 py-2 bg-orange-100 dark:bg-orange-900 rounded-full">
+                    <span className="text-sm font-semibold text-orange-700 dark:text-orange-300">📞 Llamadas</span>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
@@ -3622,24 +3658,36 @@ export default function AppointmentManagementPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Gestión de Citas</h1>
-          <p className="text-muted-foreground">
-            Configura cómo funcionan las reservas de citas por diferentes canales
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {hasUnsavedChanges && (
-            <Badge variant="outline" className="text-orange-600">
-              <AlertTriangle className="h-3 w-3 mr-1" />
-              Cambios sin guardar
-            </Badge>
-          )}
-          <Button onClick={saveAllSettings} disabled={!hasUnsavedChanges}>
-            <Save className="h-4 w-4 mr-2" />
-            Guardar Cambios
-          </Button>
+      {/* Header Principal Mini */}
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4 shadow-lg">
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+        <div className="relative flex items-center justify-between text-white">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-full bg-white/20 backdrop-blur border border-white/30 flex items-center justify-center">
+              <Clock3 className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold text-white">
+                🚀 Gestión de Citas
+              </h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {hasUnsavedChanges && (
+              <Badge className="bg-amber-500 text-white border-0 shadow-lg hover:bg-amber-600 transition-all animate-pulse">
+                <AlertTriangle className="h-4 w-4 mr-1" />
+                Pendientes
+              </Badge>
+            )}
+            <Button 
+              onClick={saveAllSettings} 
+              disabled={!hasUnsavedChanges}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white border-2 border-emerald-400 shadow-xl hover:shadow-2xl transition-all duration-300 px-6 py-2.5 font-bold text-sm hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              <Save className="h-5 w-5 mr-2" />
+              💾 Guardar Cambios
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -3687,13 +3735,25 @@ export default function AppointmentManagementPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="overview">Resumen</TabsTrigger>
-          <TabsTrigger value="web">Web</TabsTrigger>
-          <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
-          <TabsTrigger value="email">Email</TabsTrigger>
-          <TabsTrigger value="phone">Llamadas</TabsTrigger>
-          <TabsTrigger value="stats">Estadísticas</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 p-1 rounded-xl shadow-lg border-2 border-blue-100 dark:border-blue-800">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white font-semibold rounded-lg transition-all duration-300 hover:bg-blue-100 dark:hover:bg-blue-900">
+            📊 Resumen
+          </TabsTrigger>
+          <TabsTrigger value="web" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white font-semibold rounded-lg transition-all duration-300 hover:bg-blue-100 dark:hover:bg-blue-900">
+            🌐 Web
+          </TabsTrigger>
+          <TabsTrigger value="whatsapp" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white font-semibold rounded-lg transition-all duration-300 hover:bg-green-100 dark:hover:bg-green-900">
+            💬 WhatsApp
+          </TabsTrigger>
+          <TabsTrigger value="email" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white font-semibold rounded-lg transition-all duration-300 hover:bg-purple-100 dark:hover:bg-purple-900">
+            📧 Email
+          </TabsTrigger>
+          <TabsTrigger value="phone" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white font-semibold rounded-lg transition-all duration-300 hover:bg-orange-100 dark:hover:bg-orange-900">
+            📞 Llamadas
+          </TabsTrigger>
+          <TabsTrigger value="stats" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white font-semibold rounded-lg transition-all duration-300 hover:bg-indigo-100 dark:hover:bg-indigo-900">
+            📈 Estadísticas
+          </TabsTrigger>
         </TabsList>
           <TabsContent value="overview" className="space-y-6">
             <EnhancedOverview
